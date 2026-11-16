@@ -1,0 +1,20 @@
+[
+  {
+    "attestation_mark": null,
+    "subject": {
+      "id": 501,
+      "name": "Алгебра"
+    },
+    "training_camp_mark": null,
+    "year_mark": "9"
+  },
+  {
+    "attestation_mark": null,
+    "subject": {
+      "id": 502,
+      "name": "Индивидуальный проект"
+    },
+    "training_camp_mark": null,
+    "year_mark": "Зч"
+  }
+]

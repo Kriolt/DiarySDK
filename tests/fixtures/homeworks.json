@@ -1,0 +1,43 @@
+{
+  "payload": [
+    {
+      "type": "OO",
+      "description": "№ 1-5 стр. 10",
+      "comments": [],
+      "materials": [
+        {"uuid": "11111111-1111-4111-8111-111111111111", "type": "attachments", "type_name": "Вложения", "action_name": "Посмотреть", "description": null, "content_type": null, "title": "Задание.pdf", "urls": [{"url": "https://dnevnik.test/files/zadanie.pdf", "url_type": "file"}]}
+      ],
+      "homework": "№ 1-5 стр. 10",
+      "homework_entry_student_id": 40001,
+      "attachments": [{"name": "Решение.docx", "link": "https://dnevnik.test/files/reshenie.docx"}],
+      "subject_id": 101,
+      "group_id": 6001,
+      "date": "2026-10-22",
+      "date_assigned_on": "2026-10-20",
+      "subject_name": "Алгебра",
+      "lesson_date_time": "2026-10-22 08:30",
+      "additional_materials": [],
+      "is_done": false,
+      "has_teacher_answer": false,
+      "homework_id": 30000,
+      "homework_entry_id": 30001,
+      "homework_created_at": "2026-10-20T12:00:00",
+      "homework_updated_at": null,
+      "written_answer": null,
+      "date_prepared_for": "2026-10-22"
+    },
+    {
+      "type": "OO",
+      "description": null,
+      "homework": "Выучить стихотворение",
+      "homework_entry_student_id": 40002,
+      "materials": null,
+      "attachments": null,
+      "subject_id": 104,
+      "date": "2026-10-23",
+      "date_assigned_on": "2026-10-21",
+      "subject_name": "Литература",
+      "is_done": true
+    }
+  ]
+}

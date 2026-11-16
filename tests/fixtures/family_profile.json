@@ -1,0 +1,34 @@
+{
+  "profile": {
+    "last_name": "Тестов",
+    "first_name": "Тест",
+    "middle_name": "Тестович",
+    "birth_date": "2010-03-15",
+    "sex": "male",
+    "user_id": 5001,
+    "id": 7001,
+    "contract_id": null,
+    "phone": null,
+    "email": null,
+    "snils": null,
+    "type": "student"
+  },
+  "children": [
+    {
+      "last_name": "Тестов",
+      "first_name": "Тест",
+      "middle_name": "Тестович",
+      "birth_date": "2010-03-15",
+      "sex": "male",
+      "user_id": 5001,
+      "id": 9001,
+      "contract_id": 6601,
+      "type": "student",
+      "class_name": "10-Ф",
+      "class_level_id": 10,
+      "class_unit_id": 4001,
+      "contingent_guid": "00000000-0000-4000-8000-000000000001"
+    }
+  ],
+  "hash": "hash-1"
+}

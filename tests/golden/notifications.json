@@ -1,0 +1,48 @@
+[
+  {
+    "at": "2026-10-22T16:00:00+03:00",
+    "author_profile_id": 7102,
+    "event_type": "create_homework",
+    "homework": {
+      "assigned_on": "2026-10-22",
+      "description": "Прочитать главу 5",
+      "due": "2026-10-26"
+    },
+    "lesson_date": "2026-10-22",
+    "mark": null,
+    "subject_name": "Литература",
+    "teacher_name": "Образцова Мария Петровна"
+  },
+  {
+    "at": "2026-10-20T10:20:00+03:00",
+    "author_profile_id": 7101,
+    "event_type": "create_mark",
+    "homework": null,
+    "lesson_date": "2026-10-20",
+    "mark": {
+      "control_form": "Контрольная работа",
+      "is_exam": false,
+      "new": "9",
+      "old": null,
+      "weight": 2
+    },
+    "subject_name": "Алгебра",
+    "teacher_name": "Тестова Анна Ивановна"
+  },
+  {
+    "at": null,
+    "author_profile_id": null,
+    "event_type": "update_mark",
+    "homework": null,
+    "lesson_date": null,
+    "mark": {
+      "control_form": null,
+      "is_exam": null,
+      "new": "10",
+      "old": "8",
+      "weight": null
+    },
+    "subject_name": "Черчение",
+    "teacher_name": null
+  }
+]

@@ -1,0 +1,50 @@
+[
+  {
+    "comment": "Хорошо",
+    "control_form": "Контрольная работа",
+    "created_at": "2026-10-20T10:15:00+03:00",
+    "criteria": [],
+    "date": "2026-10-20",
+    "five": 4.5,
+    "has_files": false,
+    "hundred": 90.0,
+    "id": 10001,
+    "is_exam": false,
+    "is_point": false,
+    "nmax": 10.0,
+    "point_date": null,
+    "scale": "ten",
+    "subject": {
+      "id": 101,
+      "name": "Алгебра"
+    },
+    "ten": 9.0,
+    "updated_at": "2026-10-20T10:15:00+03:00",
+    "value": "9",
+    "weight": 2
+  },
+  {
+    "comment": null,
+    "control_form": "Зачёт",
+    "created_at": "2026-10-21T12:00:00+03:00",
+    "criteria": null,
+    "date": "2026-10-21",
+    "five": null,
+    "has_files": null,
+    "hundred": null,
+    "id": 10002,
+    "is_exam": false,
+    "is_point": true,
+    "nmax": null,
+    "point_date": "2026-10-30",
+    "scale": "pass_fail",
+    "subject": {
+      "id": 110,
+      "name": "Физкультура"
+    },
+    "ten": null,
+    "updated_at": null,
+    "value": "зч",
+    "weight": 1
+  }
+]

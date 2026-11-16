@@ -1,0 +1,104 @@
+{
+  "set_homework_done": [
+    {
+      "headers": {
+        "accept": "application/json",
+        "auth-token": "eyJ.diary.token",
+        "client-type": "diary-mobile",
+        "profile-id": "7001",
+        "x-mes-subsystem": "familymp"
+      },
+      "json": null,
+      "method": "POST",
+      "params": {},
+      "url": "https://school-api.test/family/mobile/v1/homeworks/555/done"
+    }
+  ],
+  "update_contact": [
+    {
+      "auth": true,
+      "headers": {
+        "accept": "application/json, text/plain, */*",
+        "accept-encoding": "gzip, deflate, br",
+        "accept-language": "ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3",
+        "auth-token": "eyJ.diary.token",
+        "connection": "keep-alive",
+        "content-type": "application/json",
+        "x-mes-subsystem": "headerweb"
+      },
+      "json": null,
+      "method": "GET",
+      "params": {},
+      "url": "https://dnevnik.test/api/persondata/v1/persons/00000000-0000-4000-8000-000000000001"
+    },
+    {
+      "auth": true,
+      "headers": {
+        "accept": "application/json",
+        "client-type": "diary-mobile",
+        "profile-id": "7001",
+        "x-mes-subsystem": "familymp"
+      },
+      "json": {
+        "data": "new.address@example.test",
+        "default": false,
+        "id": 2,
+        "person_id": "00000000-0000-4000-8000-000000000001",
+        "type_id": 7
+      },
+      "method": "PUT",
+      "params": {},
+      "url": "https://dnevnik.test/api/persondata/v1/persons/00000000-0000-4000-8000-000000000001/contacts/2"
+    }
+  ],
+  "update_settings": [
+    {
+      "headers": {
+        "accept": "application/json",
+        "auth-token": "eyJ.diary.token",
+        "client-type": "diary-mobile",
+        "profile-id": "7001",
+        "x-mes-subsystem": "familymp"
+      },
+      "json": null,
+      "method": "GET",
+      "params": {
+        "name": "settings_group_v1",
+        "subsystem_id": "1"
+      },
+      "url": "https://dnevnik.test/api/usersettings/v1"
+    },
+    {
+      "headers": {
+        "accept": "application/json",
+        "auth-token": "eyJ.diary.token",
+        "client-type": "diary-mobile",
+        "profile-id": "7001",
+        "x-mes-subsystem": "familymp"
+      },
+      "json": {
+        "estimation_type": "five",
+        "extra_key": {
+          "nested": [
+            1,
+            2
+          ]
+        },
+        "goal": true,
+        "schedule_type": "full",
+        "theme": {
+          "color_pattern": "pink",
+          "future_field": "x",
+          "is_automatic": false,
+          "type": "dark"
+        }
+      },
+      "method": "PUT",
+      "params": {
+        "name": "settings_group_v1",
+        "subsystem_id": "1"
+      },
+      "url": "https://dnevnik.test/api/usersettings/v1"
+    }
+  ]
+}

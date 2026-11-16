@@ -1,0 +1,62 @@
+[
+  {
+    "assigned_on": "2026-10-20",
+    "attachments": [
+      {
+        "name": "Решение.docx",
+        "url": "https://dnevnik.test/files/reshenie.docx"
+      }
+    ],
+    "comments": [],
+    "created_at": "2026-10-20T12:00:00+03:00",
+    "due": "2026-10-22",
+    "entry_id": 30001,
+    "group_id": 6001,
+    "has_teacher_answer": false,
+    "homework_id": 30000,
+    "id": 40001,
+    "is_done": false,
+    "lesson_at": "2026-10-22T08:30:00+03:00",
+    "materials": [
+      {
+        "action_name": "Посмотреть",
+        "content_type": null,
+        "description": null,
+        "title": "Задание.pdf",
+        "type_name": "Вложения",
+        "url": "https://dnevnik.test/files/zadanie.pdf"
+      }
+    ],
+    "subject": {
+      "id": 101,
+      "name": "Алгебра"
+    },
+    "text": "№ 1-5 стр. 10",
+    "type": "OO",
+    "updated_at": null,
+    "written_answer": null
+  },
+  {
+    "assigned_on": "2026-10-21",
+    "attachments": [],
+    "comments": null,
+    "created_at": null,
+    "due": "2026-10-23",
+    "entry_id": null,
+    "group_id": null,
+    "has_teacher_answer": null,
+    "homework_id": null,
+    "id": 40002,
+    "is_done": true,
+    "lesson_at": null,
+    "materials": [],
+    "subject": {
+      "id": 104,
+      "name": "Литература"
+    },
+    "text": "Выучить стихотворение",
+    "type": "OO",
+    "updated_at": null,
+    "written_answer": null
+  }
+]

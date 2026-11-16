@@ -1,0 +1,43 @@
+{
+  "payload": [
+    {
+      "id": 10001,
+      "value": "9",
+      "values": [{"name": "9", "grade_system_id": 2, "grade_system_type": "ten", "nmax": 10.0, "grade": {"origin": "9", "five": 4.5, "hundred": 90.0, "ten": 9}}],
+      "has_files": false,
+      "comment": "Хорошо",
+      "weight": 2,
+      "point_date": null,
+      "control_form_name": "Контрольная работа",
+      "comment_exists": true,
+      "created_at": "2026-10-20T10:15:00+03:00",
+      "updated_at": "2026-10-20T10:15:00+03:00",
+      "criteria": [],
+      "date": "2026-10-20",
+      "subject_name": "Алгебра",
+      "subject_id": 101,
+      "is_exam": false,
+      "is_point": false,
+      "original_grade_system_type": "ten"
+    },
+    {
+      "id": 10002,
+      "value": "зч",
+      "values": [{"name": "зч", "grade_system_id": 3, "grade_system_type": "pass_fail", "nmax": null, "grade": {"origin": "зч", "five": null, "hundred": null}}],
+      "comment": null,
+      "weight": 1,
+      "point_date": "2026-10-30",
+      "control_form_name": "Зачёт",
+      "comment_exists": false,
+      "created_at": "2026-10-21T12:00:00",
+      "updated_at": null,
+      "criteria": null,
+      "date": "2026-10-21",
+      "subject_name": "Физкультура",
+      "subject_id": 110,
+      "is_exam": false,
+      "is_point": true,
+      "original_grade_system_type": "pass_fail"
+    }
+  ]
+}

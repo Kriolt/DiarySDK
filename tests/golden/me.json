@@ -1,0 +1,32 @@
+{
+  "class": {
+    "id": 4001,
+    "level": 10,
+    "name": "10-Ф"
+  },
+  "enrolled_on": "2016-09-01",
+  "person": {
+    "age": 16,
+    "first_name": "Тест",
+    "guid": "00000000-0000-4000-8000-000000000001",
+    "last_name": "Тестов",
+    "middle_name": "Тестович",
+    "sex": "male"
+  },
+  "school": {
+    "id": 3001,
+    "municipality": "г.о. Тестовый",
+    "name": "МБОУ «Гимназия № 0»",
+    "short_name": "Гимназия № 0"
+  },
+  "sections": [
+    {
+      "id": 8001,
+      "name": "Робототехника"
+    }
+  ],
+  "study_profile": "ф.-м.",
+  "token": {
+    "expires_at": "2026-11-01T12:00:00Z"
+  }
+}

@@ -1,0 +1,138 @@
+"""Интерфейсы публичного API: их выполняют и ядро (Diary), и удалённый клиент.
+
+Код потребителя, написанный против этих протоколов, работает с обоими.
+"""
+
+from __future__ import annotations
+
+from datetime import date, datetime
+from typing import TYPE_CHECKING, Literal, Protocol, Self
+
+if TYPE_CHECKING:
+    from diarysdk.models.auth import Captcha, LoginMfa
+    from diarysdk.models.avatar import Avatar
+    from diarysdk.models.curriculum import Curriculum
+    from diarysdk.models.exams import Exam
+    from diarysdk.models.homework import Homework
+    from diarysdk.models.identity import Identity
+    from diarysdk.models.lessons import Lesson
+    from diarysdk.models.marks import FinalMark, Mark, MarkDetail
+    from diarysdk.models.me import Me
+    from diarysdk.models.notifications import Notification
+    from diarysdk.models.periods import PeriodDay
+    from diarysdk.models.rating import Rating, RatingPoint, SubjectRating
+    from diarysdk.models.schedule import ScheduleItem
+    from diarysdk.models.school import School
+    from diarysdk.models.settings import Settings, SettingsUpdate
+    from diarysdk.models.subjects import SubjectDetail, SubjectSummary
+    from diarysdk.token import Token
+
+
+class StudentLike(Protocol):
+    """Запросы от имени одного ученика."""
+
+    @property
+    def token(self) -> Token: ...
+
+    async def me(self) -> Me: ...
+
+    async def avatar(self) -> Avatar: ...
+
+    async def school(self) -> School: ...
+
+    async def marks(self, start: date | None = None, end: date | None = None) -> list[Mark]: ...
+
+    async def mark(self, mark_id: int) -> MarkDetail: ...
+
+    async def final_marks(self, year: int | None = None) -> list[FinalMark]: ...
+
+    async def subjects(self) -> list[SubjectSummary]: ...
+
+    async def rating(self, on: date | None = None, subject: int | None = None) -> Rating: ...
+
+    async def rating_subjects(self, on: date | None = None) -> list[SubjectRating]: ...
+
+    async def rating_history(
+        self, start: date | None = None, end: date | None = None
+    ) -> list[RatingPoint]: ...
+
+    async def schedule(
+        self, start: date | None = None, end: date | None = None
+    ) -> list[ScheduleItem]: ...
+
+    async def lesson(self, lesson_id: int) -> Lesson: ...
+
+    async def homework(
+        self, start: date | None = None, end: date | None = None
+    ) -> list[Homework]: ...
+
+    async def homework_done(self, homework_id: int) -> None: ...
+
+    async def homework_undone(self, homework_id: int) -> None: ...
+
+    async def exams(self) -> list[Exam]: ...
+
+    async def settings(self) -> Settings: ...
+
+    async def update_settings(self, update: SettingsUpdate) -> None: ...
+
+    async def update_contact(self, contact_id: int, value: str) -> None: ...
+
+    async def identity(self) -> Identity: ...
+
+    async def notifications(self) -> list[Notification]: ...
+
+    async def periods(
+        self, start: date | None = None, end: date | None = None
+    ) -> list[PeriodDay]: ...
+
+    async def subject(self, subject_id: int) -> SubjectDetail: ...
+
+    async def curriculum(self) -> Curriculum: ...
+
+
+class LoginFlowLike(Protocol):
+    """Вход через ЕСИА не закончен: ждёт код или ответ на капчу."""
+
+    @property
+    def kind(self) -> Literal["mfa", "captcha"]: ...
+
+    @property
+    def mfa(self) -> LoginMfa | None: ...
+
+    @property
+    def captcha(self) -> Captcha | None: ...
+
+    @property
+    def expires_at(self) -> datetime: ...
+
+    async def submit_code(self, code: str) -> Token | LoginFlowLike: ...
+
+    async def answer_captcha(self, answer: str) -> Token | LoginFlowLike: ...
+
+    async def renew_captcha(self) -> LoginFlowLike: ...
+
+    async def close(self) -> None: ...
+
+
+class LoginLike(Protocol):
+    """Вход: логин и пароль портала или Госуслуг."""
+
+    async def password(self, login: str, password: str) -> Token: ...
+
+    async def esia(self, login: str, password: str) -> Token | LoginFlowLike: ...
+
+
+class DiaryLike(Protocol):
+    """Точка входа: вход и ученики."""
+
+    @property
+    def login(self) -> LoginLike: ...
+
+    def student(self, token: str | Token) -> StudentLike: ...
+
+    async def aclose(self) -> None: ...
+
+    async def __aenter__(self) -> Self: ...
+
+    async def __aexit__(self, *exc: object) -> None: ...

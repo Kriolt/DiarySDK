@@ -1,0 +1,96 @@
+{
+  "total_count": 3,
+  "response": [
+    {
+      "id": 20001,
+      "start_at": "2026-10-20T08:30:00+03:00",
+      "finish_at": "2026-10-20T09:15:00+03:00",
+      "is_all_day": false,
+      "source": "PLAN",
+      "source_id": "20001",
+      "subject_id": 101,
+      "subject_name": "Алгебра",
+      "room_name": "Кабинет математики",
+      "room_number": "204",
+      "replaced": false,
+      "lesson_type": "NORMAL",
+      "lesson_education_type": "OO",
+      "lesson_theme": "Квадратные уравнения",
+      "cancelled": false,
+      "is_missed_lesson": false,
+      "absence_reason_id": 13,
+      "nonattendance_reason_id": 1,
+      "health_status": "освобождён",
+      "replaced_teacher_id": null,
+      "link_to_join": null,
+      "lesson_form": null,
+      "course_lesson_type": null,
+      "homework": {
+        "presence_status_id": 1,
+        "total_count": 1,
+        "execute_count": 0,
+        "descriptions": ["№ 1-5 стр. 10"],
+        "link_types": null,
+        "materials": {"count_execute": 0, "count_learn": 1},
+        "entries": [
+          {
+            "homework_entry_id": 30001,
+            "date_assigned_on": "2026-10-20",
+            "date_prepared_for": "2026-10-22",
+            "description": "№ 1-5 стр. 10",
+            "duration": 30,
+            "materials": "",
+            "attachment_ids": [1],
+            "attachments": [{"id": 1, "title": "Задание.pdf", "link": "https://dnevnik.test/files/zadanie.pdf"}],
+            "student_ids": null
+          }
+        ]
+      },
+      "materials": [],
+      "marks": [
+        {
+          "id": 10001,
+          "comment": null,
+          "comment_exists": false,
+          "control_form_name": "Контрольная работа",
+          "is_exam": false,
+          "is_point": false,
+          "point_date": null,
+          "original_grade_system_type": "ten",
+          "criteria": [],
+          "value": "9",
+          "values": [{"name": "9", "grade_system_id": 2, "grade_system_type": "ten", "nmax": 10.0, "grade": {"five": 4.5, "hundred": 90.0, "origin": "9"}}],
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "id": 20002,
+      "start_at": "2026-10-20T09:25:00",
+      "finish_at": "2026-10-20T10:10:00",
+      "source": "PLAN",
+      "subject_id": 102,
+      "subject_name": "Физика",
+      "room_name": "Лаборатория",
+      "room_number": null,
+      "lesson_type": "NORMAL",
+      "cancelled": true,
+      "health_status": null,
+      "homework": {"descriptions": ["Повторить § 3"], "entries": null},
+      "marks": []
+    },
+    {
+      "id": 20003,
+      "title": "Экскурсия в музей",
+      "start_at": "2026-10-21T14:00:00+03:00",
+      "finish_at": "2026-10-21T16:00:00+03:00",
+      "source": "EC",
+      "subject_id": null,
+      "subject_name": null,
+      "cancelled": false,
+      "homework": null,
+      "marks": null
+    }
+  ],
+  "errors": null
+}

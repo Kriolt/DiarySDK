@@ -1,0 +1,150 @@
+{
+  "class": {
+    "id": 4001,
+    "level": 10,
+    "name": "10-Ф"
+  },
+  "person": {
+    "addresses": [
+      {
+        "address": "ул. Тестовая, д. 1",
+        "flat": "1",
+        "type": "Регистрации",
+        "type_id": 1
+      }
+    ],
+    "agents": [
+      {
+        "agent_person_id": "00000000-0000-4000-8000-0000000000a1",
+        "agent_type_id": 1
+      }
+    ],
+    "birth_date": "2010-03-15",
+    "birthplace": "г. Тестовый",
+    "categories": null,
+    "children": null,
+    "citizenship": null,
+    "citizenship_id": 1,
+    "contacts": [
+      {
+        "id": 1,
+        "is_default": true,
+        "type": "Телефон",
+        "type_id": 1,
+        "value": "+7 000 000-00-02"
+      },
+      {
+        "id": 2,
+        "is_default": false,
+        "type": "Электронная почта",
+        "type_id": 7,
+        "value": "old@example.test"
+      }
+    ],
+    "documents": [
+      {
+        "act": {
+          "date": "2010-03-20",
+          "number": "100"
+        },
+        "attachments": [],
+        "comment": null,
+        "expiration": null,
+        "issued": "2010-03-20",
+        "issuer": "Отдел ЗАГС",
+        "number": "000001",
+        "series": "I-ТС",
+        "subdivision_code": null,
+        "type": "Свидетельство о рождении",
+        "type_id": 1
+      }
+    ],
+    "education": [
+      {
+        "began": "2016-09-01",
+        "class": {
+          "academic_year_id": 13,
+          "id": 4001,
+          "letter": "Ф",
+          "name": "10-Ф",
+          "parallel": "10",
+          "uid": "class-uid-1"
+        },
+        "deduction_reason": null,
+        "ended": "2027-08-31",
+        "financing": "Бюджет",
+        "form": "Очная",
+        "notes": null,
+        "organization_id": 3001,
+        "service_type": "Основное"
+      }
+    ],
+    "education_level_id": 3,
+    "email": "student@example.invalid",
+    "first_name": "Тест",
+    "grade_book": {
+      "date": "2016-09-01",
+      "number": "ЛД-0042"
+    },
+    "groups": [
+      {
+        "id": 6001,
+        "is_fake": false,
+        "name": "Алгебра 10-Ф ф.-м.",
+        "subject_id": 101
+      },
+      {
+        "id": 6002,
+        "is_fake": false,
+        "name": "Физика 10-Ф ф.-м.",
+        "subject_id": 102
+      },
+      {
+        "id": 6003,
+        "is_fake": false,
+        "name": "Английский язык 10-Ф гр. 1",
+        "subject_id": 103
+      }
+    ],
+    "health": {
+      "pe_group_id": 2
+    },
+    "is_legal_representative": false,
+    "last_name": "Тестов",
+    "middle_name": "Тестович",
+    "parallel_curriculum_id": 1,
+    "phone": "+7 000 000-00-01",
+    "preventions": null,
+    "service_type_id": 1,
+    "sex": "male",
+    "snils": "111-222-333 44",
+    "specialty": {
+      "code": null,
+      "name": null
+    },
+    "sudir_account_exists": false,
+    "sudir_login": null,
+    "user_id": 5001
+  },
+  "representatives": [
+    {
+      "birth_date": "1985-05-05",
+      "email": "rep@example.invalid",
+      "first_name": "Мария",
+      "guid": "00000000-0000-4000-8000-0000000000a1",
+      "last_name": "Представителева",
+      "middle_name": "Ивановна",
+      "phone": "+7 000 000-11-22",
+      "sex": "female",
+      "snils": "999-888-777 66",
+      "type": "mother",
+      "type_id": 1
+    }
+  ],
+  "school": {
+    "id": 3001,
+    "municipality": "г.о. Тестовый",
+    "name": "МБОУ «Гимназия № 0»",
+    "short_name": "Гимназия № 0"
+  }
+}

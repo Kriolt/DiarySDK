@@ -1,0 +1,68 @@
+{
+  "payload": [
+    {
+      "average": "0.00",
+      "dynamic": "UP",
+      "periods": [
+        {
+          "start": "2026-09-01",
+          "end": "2026-10-26",
+          "title": "1 четверть",
+          "dynamic": "UP",
+          "value": "4.50",
+          "marks": [
+            {
+              "id": 10001,
+              "value": "9",
+              "values": [{"name": "9", "grade_system_id": 2, "grade_system_type": "ten", "nmax": 10.0, "grade": {"origin": "9", "five": 4.5, "hundred": 90.0}}],
+              "comment": null,
+              "weight": 2,
+              "point_date": null,
+              "control_form_name": "Контрольная работа",
+              "comment_exists": false,
+              "created_at": "2026-10-20T10:15:00+03:00",
+              "updated_at": null,
+              "criteria": null,
+              "date": "2026-10-20",
+              "is_exam": false,
+              "is_point": false,
+              "original_grade_system_type": "ten"
+            }
+          ],
+          "count": 1,
+          "target": {"value": 5, "round": "4.5", "remain": 2, "paths": [{"value": 5, "weight": 2, "remain": 1}]},
+          "fixed_value": null,
+          "start_iso": "2026-09-01",
+          "end_iso": "2026-10-26"
+        }
+      ],
+      "subject_name": "Алгебра",
+      "subject_id": 101,
+      "average_by_all": "4.50",
+      "year_mark": null
+    },
+    {
+      "average": "0.00",
+      "dynamic": "NONE",
+      "periods": [
+        {
+          "start": "2026-09-01",
+          "end": "2026-10-26",
+          "title": "1 четверть",
+          "dynamic": "NONE",
+          "value": "0.00",
+          "marks": [],
+          "count": 0,
+          "target": null,
+          "fixed_value": null,
+          "start_iso": "2026-09-01",
+          "end_iso": "2026-10-26"
+        }
+      ],
+      "subject_name": "Черчение",
+      "subject_id": 109,
+      "average_by_all": "0.00",
+      "year_mark": null
+    }
+  ]
+}

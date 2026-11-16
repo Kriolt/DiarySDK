@@ -1,0 +1,132 @@
+[
+  {
+    "absence_reason_id": 13,
+    "course_lesson_type": null,
+    "date": "2026-10-20",
+    "end": "2026-10-20T09:15:00+03:00",
+    "health_status": "освобождён",
+    "homework": [
+      {
+        "materials": [
+          {
+            "action_name": null,
+            "content_type": null,
+            "description": null,
+            "title": "Задание.pdf",
+            "type_name": null,
+            "url": "https://dnevnik.test/files/zadanie.pdf"
+          }
+        ],
+        "text": "№ 1-5 стр. 10"
+      }
+    ],
+    "homework_counts": {
+      "executed": 0,
+      "presence_status_id": 1,
+      "total": 1
+    },
+    "id": 20001,
+    "is_cancelled": false,
+    "is_missed": false,
+    "is_replaced": false,
+    "lesson_form": null,
+    "lesson_type": "NORMAL",
+    "link_to_join": null,
+    "marks": [
+      {
+        "comment": null,
+        "control_form": "Контрольная работа",
+        "created_at": null,
+        "criteria": [],
+        "date": "2026-10-20",
+        "five": 4.5,
+        "has_files": null,
+        "hundred": 90.0,
+        "id": 10001,
+        "is_exam": false,
+        "is_point": false,
+        "nmax": 10.0,
+        "point_date": null,
+        "scale": "ten",
+        "subject": {
+          "id": 101,
+          "name": "Алгебра"
+        },
+        "ten": null,
+        "updated_at": null,
+        "value": "9",
+        "weight": 2
+      }
+    ],
+    "nonattendance_reason_id": 1,
+    "replaced_teacher_id": null,
+    "room": "204",
+    "source": "PLAN",
+    "source_id": "20001",
+    "start": "2026-10-20T08:30:00+03:00",
+    "subject": {
+      "id": 101,
+      "name": "Алгебра"
+    }
+  },
+  {
+    "absence_reason_id": null,
+    "course_lesson_type": null,
+    "date": "2026-10-20",
+    "end": "2026-10-20T10:10:00+03:00",
+    "health_status": null,
+    "homework": [
+      {
+        "materials": [],
+        "text": "Повторить § 3"
+      }
+    ],
+    "homework_counts": {
+      "executed": null,
+      "presence_status_id": null,
+      "total": null
+    },
+    "id": 20002,
+    "is_cancelled": true,
+    "is_missed": null,
+    "is_replaced": null,
+    "lesson_form": null,
+    "lesson_type": "NORMAL",
+    "link_to_join": null,
+    "marks": [],
+    "nonattendance_reason_id": null,
+    "replaced_teacher_id": null,
+    "room": "Лаборатория",
+    "source": "PLAN",
+    "source_id": null,
+    "start": "2026-10-20T09:25:00+03:00",
+    "subject": {
+      "id": 102,
+      "name": "Физика"
+    }
+  },
+  {
+    "absence_reason_id": null,
+    "course_lesson_type": null,
+    "date": "2026-10-21",
+    "end": "2026-10-21T16:00:00+03:00",
+    "health_status": null,
+    "homework": [],
+    "homework_counts": null,
+    "id": 20003,
+    "is_cancelled": false,
+    "is_missed": null,
+    "is_replaced": null,
+    "lesson_form": null,
+    "lesson_type": null,
+    "link_to_join": null,
+    "marks": [],
+    "nonattendance_reason_id": null,
+    "replaced_teacher_id": null,
+    "room": null,
+    "source": "EC",
+    "source_id": null,
+    "start": "2026-10-21T14:00:00+03:00",
+    "subject": null
+  }
+]

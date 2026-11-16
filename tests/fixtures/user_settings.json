@@ -1,0 +1,12 @@
+{
+  "goal": false,
+  "theme": {
+    "type": "dark",
+    "is_automatic": false,
+    "color_pattern": "indigo",
+    "future_field": "x"
+  },
+  "schedule_type": "compact",
+  "estimation_type": "five",
+  "extra_key": {"nested": [1, 2]}
+}

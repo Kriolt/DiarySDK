@@ -1,0 +1,82 @@
+[
+  {
+    "average": 4.5,
+    "dynamic": "UP",
+    "periods": [
+      {
+        "average": 4.5,
+        "dynamic": "UP",
+        "end": "2026-10-26",
+        "final_mark": null,
+        "marks": [
+          {
+            "comment": null,
+            "control_form": "Контрольная работа",
+            "created_at": "2026-10-20T10:15:00+03:00",
+            "criteria": null,
+            "date": "2026-10-20",
+            "five": 4.5,
+            "has_files": null,
+            "hundred": 90.0,
+            "id": 10001,
+            "is_exam": false,
+            "is_point": false,
+            "nmax": 10.0,
+            "point_date": null,
+            "scale": "ten",
+            "subject": {
+              "id": 101,
+              "name": "Алгебра"
+            },
+            "ten": null,
+            "updated_at": null,
+            "value": "9",
+            "weight": 2
+          }
+        ],
+        "marks_count": 1,
+        "start": "2026-09-01",
+        "target": {
+          "paths": [
+            {
+              "remain": 1,
+              "value": 5,
+              "weight": 2
+            }
+          ],
+          "remain": 2,
+          "round": "4.5",
+          "value": 5
+        },
+        "title": "1 четверть"
+      }
+    ],
+    "subject": {
+      "id": 101,
+      "name": "Алгебра"
+    },
+    "year_mark": null
+  },
+  {
+    "average": null,
+    "dynamic": "NONE",
+    "periods": [
+      {
+        "average": null,
+        "dynamic": "NONE",
+        "end": "2026-10-26",
+        "final_mark": null,
+        "marks": [],
+        "marks_count": 0,
+        "start": "2026-09-01",
+        "target": null,
+        "title": "1 четверть"
+      }
+    ],
+    "subject": {
+      "id": 109,
+      "name": "Черчение"
+    },
+    "year_mark": null
+  }
+]

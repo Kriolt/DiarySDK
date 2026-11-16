@@ -1,0 +1,36 @@
+[
+  {
+    "attestation_period_id": null,
+    "average_five": 4.5,
+    "average_five_30": 4.6,
+    "module_id": null,
+    "period_id": null,
+    "place": 3,
+    "place_30": 2,
+    "rank_status": "ACTIVE",
+    "rank_status_30": "ACTIVE",
+    "subject": {
+      "id": 101,
+      "name": "Алгебра"
+    },
+    "trend": "UP",
+    "trend_30": "UP"
+  },
+  {
+    "attestation_period_id": null,
+    "average_five": null,
+    "average_five_30": null,
+    "module_id": null,
+    "period_id": null,
+    "place": null,
+    "place_30": null,
+    "rank_status": null,
+    "rank_status_30": null,
+    "subject": {
+      "id": 102,
+      "name": "Физика"
+    },
+    "trend": null,
+    "trend_30": null
+  }
+]

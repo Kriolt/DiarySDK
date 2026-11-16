@@ -1,0 +1,39 @@
+[
+  {
+    "datetime": "2026-10-20T10:20:00+03:00",
+    "event_type": "create_mark",
+    "created_at": "2026-10-20T10:20:05+03:00",
+    "updated_at": "2026-10-20T10:20:05+03:00",
+    "subject_name": "Алгебра",
+    "teacher_name": "Тестова Анна Ивановна",
+    "student_profile_id": 7001,
+    "author_profile_id": 7101,
+    "lesson_date": "2026-10-20",
+    "old_mark_value": null,
+    "new_mark_value": "9",
+    "new_is_exam": false,
+    "new_mark_weight": 2,
+    "control_form_name": "Контрольная работа"
+  },
+  {
+    "datetime": "2026-10-22T16:00:00+03:00",
+    "event_type": "create_homework",
+    "created_at": "2026-10-22T16:00:03+03:00",
+    "updated_at": "2026-10-22T16:00:03+03:00",
+    "subject_name": "Литература",
+    "teacher_name": "Образцова Мария Петровна",
+    "new_hw_description": "Прочитать главу 5",
+    "new_date_assigned_on": "2026-10-22",
+    "new_date_prepared_for": "2026-10-26",
+    "student_profile_id": 7001,
+    "author_profile_id": 7102,
+    "lesson_date": "2026-10-22"
+  },
+  {
+    "event_type": "update_mark",
+    "subject_name": "Черчение",
+    "old_mark_value": "8",
+    "new_mark_value": "10",
+    "student_profile_id": 7001
+  }
+]

@@ -1,0 +1,4 @@
+[
+  {"subjectId": 101, "subjectName": "Алгебра", "rank": {"averageMarkFive": 4.5, "rankPlace": 3, "rankStatus": "ACTIVE", "trend": "UP", "averageMarkFive30": 4.6, "rankPlace30": 2, "rankStatus30": "ACTIVE", "trend30": "UP", "attestationPeriodId": null, "periodId": null, "moduleId": null}},
+  {"subjectId": 102, "subjectName": "Физика", "rank": {"averageMarkFive": null, "rankPlace": null, "rankStatus": null, "trend": null}}
+]

@@ -1,0 +1,36 @@
+{
+  "id": 10001,
+  "value": "9",
+  "values": [
+    {
+      "name": "9",
+      "grade_system_id": 2,
+      "grade_system_type": "ten",
+      "nmax": 10.0,
+      "grade": {"origin": "9", "five": 4.5, "hundred": 90.0, "ten": 9}
+    }
+  ],
+  "comment": "Хорошо",
+  "weight": 2,
+  "point_date": null,
+  "control_form_name": "Контрольная работа",
+  "comment_exists": true,
+  "created_at": "2026-10-20T10:15:00+03:00",
+  "updated_at": "2026-10-20T10:15:00+03:00",
+  "criteria": [],
+  "date": "2026-10-20",
+  "is_exam": false,
+  "is_point": false,
+  "original_grade_system_type": "ten",
+  "teacher": {"last_name": "Учителева", "first_name": "Анна", "middle_name": "Петровна"},
+  "lesson": {"topic": "Квадратные уравнения", "schedule_item_id": 20001},
+  "class_results": {
+    "total_students": 25,
+    "distribution": [
+      {"value": "9", "students": 4, "percent": 16},
+      {"value": "8", "students": 10, "percent": 40}
+    ]
+  },
+  "history": [{"value": "8", "changed_at": "2026-10-20T11:00:00+03:00"}],
+  "result_files": []
+}

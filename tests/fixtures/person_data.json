@@ -1,0 +1,92 @@
+{
+  "id": 7001,
+  "person_id": "00000000-0000-4000-8000-000000000001",
+  "merged_to": null,
+  "lastname": "Тестов",
+  "firstname": "Тест",
+  "patronymic": "Тестович",
+  "birthdate": "2010-03-15",
+  "birthplace": "г. Тестовый",
+  "snils": "555-666-777 88",
+  "gender_id": 1,
+  "citizenship_id": 1,
+  "validation_state_id": 1,
+  "created_by": "служебное",
+  "addresses": [
+    {
+      "id": 1,
+      "person_id": "00000000-0000-4000-8000-000000000001",
+      "address_id": 1,
+      "address_type_id": 1,
+      "address_type": {"id": 1, "name": "Регистрации", "actual_from": "2000-01-01", "actual_to": "2100-01-01"},
+      "address": {"id": 1, "address": "ул. Тестовая, д. 1", "fias_id": "служебный-фиас", "unom": 1, "flat": "1", "global_id": 1},
+      "created_by": "служебное"
+    }
+  ],
+  "documents": [
+    {
+      "id": 1,
+      "person_id": "00000000-0000-4000-8000-000000000001",
+      "document_type_id": 1,
+      "document_type": {"id": 1, "name": "Свидетельство о рождении", "actual_from": "2000-01-01", "actual_to": "2100-01-01"},
+      "series": "I-ТС",
+      "number": "000001",
+      "subdivision_code": null,
+      "issuer": "Отдел ЗАГС",
+      "issued": "2010-03-20",
+      "expiration": null,
+      "comment": null,
+      "data": {"act_number": "100", "act_date": "2010-03-20", "validation_source": "ЕГР ЗАГС"},
+      "attachments": null,
+      "created_by": "служебное",
+      "validation_state_id": 1
+    }
+  ],
+  "contacts": [
+    {
+      "id": 1,
+      "person_id": "00000000-0000-4000-8000-000000000001",
+      "type_id": 1,
+      "type": {"id": 1, "name": "Телефон", "actual_from": "2000-01-01", "actual_to": "2100-01-01"},
+      "data": "+7 000 000-00-02",
+      "default": true,
+      "created_by": "служебное",
+      "validation_state_id": 1
+    }
+  ],
+  "preventions": null,
+  "categories": null,
+  "agents": [{"agent_person_id": "00000000-0000-4000-8000-0000000000a1", "agent_type_id": 1}],
+  "children": null,
+  "education": [
+    {
+      "id": 1,
+      "person_id": "00000000-0000-4000-8000-000000000001",
+      "organization_id": 3001,
+      "class_uid": "class-uid-1",
+      "class": {
+        "id": 4001,
+        "uid": "class-uid-1",
+        "name": "10-Ф",
+        "letter": "Ф",
+        "academic_year_id": 13,
+        "parallel_id": 10,
+        "parallel": {"id": 10, "name": "10", "actual_from": "2000-01-01", "actual_to": "2100-01-01"}
+      },
+      "education_form_id": 1,
+      "education_form": {"id": 1, "name": "Очная", "actual_from": "2000-01-01", "actual_to": "2100-01-01"},
+      "financing_type_id": 1,
+      "financing_type": {"id": 1, "name": "Бюджет", "actual_from": "2000-01-01", "actual_to": "2100-01-01"},
+      "service_type_id": 1,
+      "service_type": {"id": 1, "name": "Основное", "actual_from": "2000-01-01", "actual_to": "2100-01-01"},
+      "deduction_reason_id": null,
+      "deduction_reason": null,
+      "training_begin_at": "2016-09-01",
+      "training_end_at": "2027-08-31",
+      "notes": null,
+      "created_by": "служебное"
+    }
+  ],
+  "citizenship": null,
+  "validation_errors": null
+}

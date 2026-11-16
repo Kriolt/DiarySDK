@@ -1,0 +1,82 @@
+{
+  "profile": {
+    "last_name": "Тестов",
+    "first_name": "Тест",
+    "middle_name": "Тестович",
+    "birth_date": "2010-03-15",
+    "sex": "male",
+    "user_id": 5001,
+    "id": 7001,
+    "contract_id": null,
+    "phone": null,
+    "email": null,
+    "snils": null,
+    "type": "student"
+  },
+  "children": [
+    {
+      "last_name": "Тестов",
+      "first_name": "Тест",
+      "middle_name": "Тестович",
+      "birth_date": "2010-03-15",
+      "sex": "male",
+      "user_id": 5001,
+      "id": 9001,
+      "contract_id": null,
+      "phone": "+7 000 000-00-01",
+      "email": "student@example.invalid",
+      "snils": "111-222-333 44",
+      "type": "student",
+      "school": {
+        "id": 3001,
+        "name": "МБОУ «Гимназия № 0»",
+        "short_name": "Гимназия № 0",
+        "county": "г.о. Тестовый",
+        "principal": "Директорова Д. Д.",
+        "phone": "+7 495 000-00-00",
+        "global_school_id": 3001
+      },
+      "class_name": "10-Ф",
+      "class_level_id": 10,
+      "class_unit_id": 4001,
+      "groups": [
+        {"id": 6001, "name": "Алгебра 10-Ф ф.-м.", "subject_id": 101, "is_fake": false},
+        {"id": 6002, "name": "Физика 10-Ф ф.-м.", "subject_id": 102, "is_fake": false},
+        {"id": 6003, "name": "Английский язык 10-Ф гр. 1", "subject_id": 103, "is_fake": false}
+      ],
+      "representatives": [
+        {
+          "last_name": "Представителева",
+          "first_name": "Мария",
+          "middle_name": "Ивановна",
+          "birth_date": "1985-05-05",
+          "sex": "female",
+          "user_id": 5002,
+          "id": 7002,
+          "contract_id": null,
+          "phone": "+7 000 000-11-22",
+          "email": "rep@example.invalid",
+          "snils": "999-888-777 66",
+          "type": "mother",
+          "type_id": 1,
+          "person_id": "00000000-0000-4000-8000-0000000000a1"
+        }
+      ],
+      "sections": [{"id": 8001, "name": "Робототехника"}],
+      "sudir_account_exists": false,
+      "sudir_login": null,
+      "is_legal_representative": false,
+      "parallel_curriculum_id": 1,
+      "grade_book_number": "ЛД-0042",
+      "grade_book_date": "2016-09-01",
+      "physical_training_health_group_id": 2,
+      "education_level_id": 3,
+      "service_type_id": 1,
+      "profession_specialty_code": null,
+      "profession_specialty_name": null,
+      "contingent_guid": "00000000-0000-4000-8000-000000000001",
+      "enrollment_date": "2016-09-01"
+    }
+  ],
+  "hash": "hash-1"
+}

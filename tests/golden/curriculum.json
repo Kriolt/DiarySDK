@@ -1,0 +1,62 @@
+{
+  "class_level_id": 10,
+  "comments": null,
+  "days_in_week": 5,
+  "education_form": "Очная",
+  "education_level": "Среднее общее образование",
+  "hours": 34,
+  "is_adapted": false,
+  "sections": [
+    {
+      "knowledge_field": "Математика и информатика",
+      "subjects": [
+        {
+          "max_hours_per_week": 4,
+          "min_hours_per_week": 3,
+          "parent_subject_id": null,
+          "passed_hours": 40,
+          "subject_id": 101,
+          "subject_name": "Алгебра",
+          "teachers": [
+            "Тестова Анна Ивановна"
+          ],
+          "total_hours": 136,
+          "weeks": [
+            {
+              "hours": 4,
+              "week_number": 1
+            },
+            {
+              "hours": 3,
+              "week_number": 2
+            }
+          ]
+        },
+        {
+          "max_hours_per_week": 2,
+          "min_hours_per_week": 2,
+          "parent_subject_id": 101,
+          "passed_hours": 20,
+          "subject_id": 102,
+          "subject_name": "Геометрия",
+          "teachers": [],
+          "total_hours": 68,
+          "weeks": []
+        }
+      ]
+    }
+  ],
+  "short_name": "УП-10",
+  "specialization": "Универсальный",
+  "study_profile": null,
+  "title": "Учебный план 10 класса",
+  "weeks": [
+    {
+      "begin": "2026-09-01",
+      "days": 5,
+      "end": "2026-09-06",
+      "hours": 34,
+      "week_number": 1
+    }
+  ]
+}

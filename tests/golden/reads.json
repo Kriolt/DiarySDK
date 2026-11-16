@@ -1,0 +1,486 @@
+{
+  "avatar": [
+    {
+      "auth": true,
+      "headers": {
+        "accept": "application/json",
+        "auth-token": "eyJ.diary.token",
+        "x-mes-hostid": "2",
+        "x-mes-subsystem": "headerweb"
+      },
+      "json": null,
+      "method": "GET",
+      "params": {},
+      "url": "https://dnevnik.test/api/avatarmanagement/v1/00000000-0000-4000-8000-000000000001"
+    },
+    {
+      "auth": true,
+      "headers": {
+        "accept": "image/*,*/*;q=0.8"
+      },
+      "json": null,
+      "method": "GET",
+      "params": {
+        "image_id": "8801"
+      },
+      "url": "https://dnevnik.test/avatars/00000000-0000-4000-8000-000000000001"
+    }
+  ],
+  "curriculum": [
+    {
+      "auth": true,
+      "headers": {
+        "accept": "application/json, text/plain, */*",
+        "accept-encoding": "gzip, deflate, br",
+        "accept-language": "ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3",
+        "auth-token": "eyJ.diary.token",
+        "client-type": "diary-mobile",
+        "connection": "keep-alive",
+        "content-type": "application/json",
+        "profile-id": "7001",
+        "x-mes-subsystem": "familymp"
+      },
+      "json": null,
+      "method": "GET",
+      "params": {
+        "student_id": "9001"
+      },
+      "url": "https://school-api.test/family/mobile/v1/programs/parallel_curriculum/1"
+    }
+  ],
+  "exams": [
+    {
+      "auth": true,
+      "headers": {
+        "accept": "application/json"
+      },
+      "json": null,
+      "method": "GET",
+      "params": {},
+      "url": "https://dnevnik.test/portfolio/app/persons/00000000-0000-4000-8000-000000000001/govexams/list/"
+    }
+  ],
+  "final_marks": [
+    {
+      "auth": true,
+      "headers": {
+        "accept": "application/json",
+        "auth-token": "eyJ.diary.token",
+        "profile-id": "7001",
+        "profile-type": "student",
+        "x-mes-roleid": "1",
+        "x-mes-subsystem": "familyweb"
+      },
+      "json": null,
+      "method": "GET",
+      "params": {
+        "academic_year_id": "13",
+        "is_year_marks_only": "true",
+        "person_id": "00000000-0000-4000-8000-000000000001",
+        "student_id": "9001"
+      },
+      "url": "https://dnevnik.test/api/family/web/v1/final_marks/v2"
+    }
+  ],
+  "homework": [
+    {
+      "headers": {
+        "accept": "application/json",
+        "auth-token": "eyJ.diary.token",
+        "client-type": "diary-mobile",
+        "profile-id": "7001",
+        "x-mes-subsystem": "familymp"
+      },
+      "json": null,
+      "method": "GET",
+      "params": {
+        "from": "2026-10-24",
+        "student_id": "9001",
+        "to": "2026-10-31"
+      },
+      "url": "https://school-api.test/family/mobile/v1/homeworks"
+    }
+  ],
+  "identity": [
+    {
+      "auth": true,
+      "headers": {
+        "accept": "application/json, text/plain, */*",
+        "accept-encoding": "gzip, deflate, br",
+        "accept-language": "ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3",
+        "auth-token": "eyJ.diary.token",
+        "connection": "keep-alive",
+        "content-type": "application/json",
+        "x-mes-subsystem": "familyweb"
+      },
+      "json": null,
+      "method": "GET",
+      "params": {
+        "nocache": "true"
+      },
+      "url": "https://dnevnik.test/api/family/web/v1/profile"
+    },
+    {
+      "auth": true,
+      "headers": {
+        "accept": "application/json, text/plain, */*",
+        "accept-encoding": "gzip, deflate, br",
+        "accept-language": "ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3",
+        "auth-token": "eyJ.diary.token",
+        "connection": "keep-alive",
+        "content-type": "application/json",
+        "x-mes-subsystem": "headerweb"
+      },
+      "json": null,
+      "method": "GET",
+      "params": {},
+      "url": "https://dnevnik.test/api/persondata/v1/persons/00000000-0000-4000-8000-000000000001"
+    }
+  ],
+  "lesson": [
+    {
+      "headers": {
+        "accept": "application/json",
+        "auth-token": "eyJ.diary.token",
+        "client-type": "diary-mobile",
+        "profile-id": "7001",
+        "x-mes-subsystem": "familymp"
+      },
+      "json": null,
+      "method": "GET",
+      "params": {
+        "student_id": "9001",
+        "type": "PLAN"
+      },
+      "url": "https://school-api.test/family/mobile/v1/lesson_schedule_items/20001"
+    }
+  ],
+  "mark": [
+    {
+      "headers": {
+        "accept": "application/json",
+        "auth-token": "eyJ.diary.token",
+        "client-type": "diary-mobile",
+        "profile-id": "7001",
+        "x-mes-subsystem": "familymp"
+      },
+      "json": null,
+      "method": "GET",
+      "params": {
+        "student_id": "9001"
+      },
+      "url": "https://school-api.test/family/mobile/v1/marks/10001"
+    }
+  ],
+  "marks": [
+    {
+      "auth": true,
+      "headers": {
+        "accept": "application/json, text/plain, */*",
+        "accept-encoding": "gzip, deflate, br",
+        "accept-language": "ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3",
+        "auth-token": "eyJ.diary.token",
+        "client-type": "diary-mobile",
+        "connection": "keep-alive",
+        "content-type": "application/json",
+        "profile-id": "7001",
+        "x-mes-subsystem": "familymp"
+      },
+      "json": null,
+      "method": "GET",
+      "params": {
+        "from": "2026-09-01",
+        "student_id": "9001",
+        "to": "2026-10-24"
+      },
+      "url": "https://school-api.test/family/mobile/v1/marks"
+    }
+  ],
+  "me": [
+    {
+      "auth": true,
+      "headers": {
+        "accept": "application/json, text/plain, */*",
+        "accept-encoding": "gzip, deflate, br",
+        "accept-language": "ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3",
+        "auth-token": "eyJ.diary.token",
+        "connection": "keep-alive",
+        "content-type": "application/json",
+        "x-mes-subsystem": "familyweb"
+      },
+      "json": null,
+      "method": "GET",
+      "params": {
+        "nocache": "true"
+      },
+      "url": "https://dnevnik.test/api/family/web/v1/profile"
+    }
+  ],
+  "notifications": [
+    {
+      "auth": true,
+      "headers": {
+        "accept": "application/json, text/plain, */*",
+        "accept-encoding": "gzip, deflate, br",
+        "accept-language": "ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3",
+        "auth-token": "eyJ.diary.token",
+        "client-type": "diary-mobile",
+        "connection": "keep-alive",
+        "content-type": "application/json",
+        "profile-id": "7001",
+        "x-mes-subsystem": "familymp"
+      },
+      "json": null,
+      "method": "GET",
+      "params": {
+        "student_id": "9001"
+      },
+      "url": "https://school-api.test/family/mobile/v1/notifications/search"
+    }
+  ],
+  "periods": [
+    {
+      "auth": true,
+      "headers": {
+        "accept": "application/json, text/plain, */*",
+        "accept-encoding": "gzip, deflate, br",
+        "accept-language": "ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3",
+        "auth-token": "eyJ.diary.token",
+        "client-type": "diary-mobile",
+        "connection": "keep-alive",
+        "content-type": "application/json",
+        "profile-id": "7001",
+        "x-mes-subsystem": "familymp"
+      },
+      "json": null,
+      "method": "GET",
+      "params": {
+        "from": "2026-09-01",
+        "student_id": "9001",
+        "to": "2027-08-31"
+      },
+      "url": "https://school-api.test/family/mobile/v1/periods_schedules"
+    }
+  ],
+  "rating": [
+    {
+      "auth": true,
+      "headers": {
+        "accept": "application/json, text/plain, */*",
+        "accept-encoding": "gzip, deflate, br",
+        "accept-language": "ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3",
+        "auth-token": "eyJ.diary.token",
+        "client-type": "diary-mobile",
+        "connection": "keep-alive",
+        "content-type": "application/json",
+        "profile-id": "7001",
+        "x-mes-subsystem": "familymp"
+      },
+      "json": null,
+      "method": "GET",
+      "params": {
+        "classUnitId": "4001",
+        "date": "2026-10-24",
+        "person_id": "00000000-0000-4000-8000-000000000001"
+      },
+      "url": "https://dnevnik.test/api/ej/rating/v1/rank/class"
+    }
+  ],
+  "rating_history": [
+    {
+      "auth": true,
+      "headers": {
+        "accept": "application/json, text/plain, */*",
+        "accept-encoding": "gzip, deflate, br",
+        "accept-language": "ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3",
+        "auth-token": "eyJ.diary.token",
+        "client-type": "diary-mobile",
+        "connection": "keep-alive",
+        "content-type": "application/json",
+        "profile-id": "7001",
+        "x-mes-subsystem": "familymp"
+      },
+      "json": null,
+      "method": "GET",
+      "params": {
+        "beginDate": "2026-09-01",
+        "endDate": "2026-10-24",
+        "personId": "00000000-0000-4000-8000-000000000001"
+      },
+      "url": "https://dnevnik.test/api/ej/rating/v1/rank/rankShort"
+    }
+  ],
+  "rating_subject": [
+    {
+      "headers": {
+        "accept": "application/json",
+        "auth-token": "eyJ.diary.token",
+        "client-type": "diary-mobile",
+        "profile-id": "7001",
+        "x-mes-subsystem": "familymp"
+      },
+      "json": null,
+      "method": "GET",
+      "params": {
+        "classUnitId": "4001",
+        "date": "2026-10-24",
+        "personId": "00000000-0000-4000-8000-000000000001",
+        "subjectId": "101"
+      },
+      "url": "https://dnevnik.test/api/ej/rating/v1/rank/class"
+    }
+  ],
+  "rating_subjects": [
+    {
+      "auth": true,
+      "headers": {
+        "accept": "application/json, text/plain, */*",
+        "accept-encoding": "gzip, deflate, br",
+        "accept-language": "ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3",
+        "auth-token": "eyJ.diary.token",
+        "client-type": "diary-mobile",
+        "connection": "keep-alive",
+        "content-type": "application/json",
+        "profile-id": "7001",
+        "x-mes-subsystem": "familymp"
+      },
+      "json": null,
+      "method": "GET",
+      "params": {
+        "date": "2026-10-24",
+        "personId": "00000000-0000-4000-8000-000000000001"
+      },
+      "url": "https://dnevnik.test/api/ej/rating/v1/rank/subjects"
+    }
+  ],
+  "schedule": [
+    {
+      "auth": true,
+      "headers": {
+        "accept": "application/json, text/plain, */*",
+        "accept-encoding": "gzip, deflate, br",
+        "accept-language": "ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3",
+        "auth-token": "eyJ.diary.token",
+        "connection": "keep-alive",
+        "content-type": "application/json",
+        "x-mes-role": "student",
+        "x-mes-subsystem": "familyweb"
+      },
+      "json": null,
+      "method": "GET",
+      "params": {
+        "begin_date": "2026-10-19",
+        "end_date": "2026-10-25",
+        "expand": "marks,homework,absence_reason_id,health_status,nonattendance_reason_id",
+        "person_ids": "00000000-0000-4000-8000-000000000001"
+      },
+      "url": "https://dnevnik.test/api/eventcalendar/v1/api/events"
+    }
+  ],
+  "school": [
+    {
+      "auth": true,
+      "headers": {
+        "accept": "application/json, text/plain, */*",
+        "accept-encoding": "gzip, deflate, br",
+        "accept-language": "ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3",
+        "auth-token": "eyJ.diary.token",
+        "client-type": "diary-mobile",
+        "connection": "keep-alive",
+        "content-type": "application/json",
+        "profile-id": "7001",
+        "x-mes-subsystem": "familymp"
+      },
+      "json": null,
+      "method": "GET",
+      "params": {
+        "class_unit_id": "4001",
+        "school_id": "3001"
+      },
+      "url": "https://school-api.test/family/mobile/v1/school_info"
+    }
+  ],
+  "settings": [
+    {
+      "headers": {
+        "accept": "application/json",
+        "auth-token": "eyJ.diary.token",
+        "client-type": "diary-mobile",
+        "profile-id": "7001",
+        "x-mes-subsystem": "familymp"
+      },
+      "json": null,
+      "method": "GET",
+      "params": {
+        "name": "settings_group_v1",
+        "subsystem_id": "1"
+      },
+      "url": "https://dnevnik.test/api/usersettings/v1"
+    }
+  ],
+  "subject": [
+    {
+      "auth": true,
+      "headers": {
+        "accept": "application/json, text/plain, */*",
+        "accept-encoding": "gzip, deflate, br",
+        "accept-language": "ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3",
+        "auth-token": "eyJ.diary.token",
+        "client-type": "diary-mobile",
+        "connection": "keep-alive",
+        "content-type": "application/json",
+        "profile-id": "7001",
+        "x-mes-subsystem": "familymp"
+      },
+      "json": null,
+      "method": "GET",
+      "params": {
+        "student_id": "9001"
+      },
+      "url": "https://school-api.test/family/mobile/v1/subject_marks"
+    },
+    {
+      "auth": true,
+      "headers": {
+        "accept": "application/json, text/plain, */*",
+        "accept-encoding": "gzip, deflate, br",
+        "accept-language": "ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3",
+        "auth-token": "eyJ.diary.token",
+        "client-type": "diary-mobile",
+        "connection": "keep-alive",
+        "content-type": "application/json",
+        "profile-id": "7001",
+        "x-mes-subsystem": "familymp"
+      },
+      "json": null,
+      "method": "GET",
+      "params": {
+        "student_id": "9001",
+        "subject_name": "Алгебра"
+      },
+      "url": "https://school-api.test/family/mobile/v1/subject_marks/for_subject"
+    }
+  ],
+  "subjects": [
+    {
+      "auth": true,
+      "headers": {
+        "accept": "application/json, text/plain, */*",
+        "accept-encoding": "gzip, deflate, br",
+        "accept-language": "ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3",
+        "auth-token": "eyJ.diary.token",
+        "client-type": "diary-mobile",
+        "connection": "keep-alive",
+        "content-type": "application/json",
+        "profile-id": "7001",
+        "x-mes-subsystem": "familymp"
+      },
+      "json": null,
+      "method": "GET",
+      "params": {
+        "student_id": "9001"
+      },
+      "url": "https://school-api.test/family/mobile/v1/subject_marks"
+    }
+  ]
+}

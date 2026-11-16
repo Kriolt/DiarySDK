@@ -1,0 +1,83 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.15"
+      - run: pip install -e '.[server,dev]'
+      - run: ruff check .
+      - run: ruff format --check .
+      - run: pytest
+      - run: python scripts/check_clean.py
+      - name: Сборка и проверка пакета
+        run: |
+          python -m build --outdir "$RUNNER_TEMP/dist"
+          twine check "$RUNNER_TEMP"/dist/*
+          python scripts/check_dist.py "$RUNNER_TEMP/dist"
+
+  core-only:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.15"
+      - name: Установка без extras не тянет сервер
+        run: |
+          python -m venv "$RUNNER_TEMP/core"
+          "$RUNNER_TEMP/core/bin/pip" install .
+          # -P: не подмешивать каталог скрипта, импортировать установленный пакет
+          cd "$RUNNER_TEMP" && "$RUNNER_TEMP/core/bin/python" -P "$GITHUB_WORKSPACE/scripts/check_core_only.py"
+
+  test-next:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.16"
+          allow-prereleases: true
+      - run: pip install -e '.[server,dev]'
+      - run: ruff check .
+      - run: ruff format --check .
+      - run: pytest
+      - run: python scripts/check_clean.py
+
+  image:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: docker/setup-buildx-action@v4
+      - uses: docker/build-push-action@v7
+        with:
+          context: .
+          load: true
+          push: false
+          tags: diarysdk:ci
+      - name: Контейнер поднимается и здоров
+        run: |
+          keys="$RUNNER_TEMP/api-keys"
+          echo "ci $(printf 'ci-key' | sha256sum | cut -d' ' -f1)" > "$keys"
+          docker run -d --name diarysdk --read-only -p 8000:8000 \
+            -v "$keys:/etc/diarysdk/api-keys:ro" diarysdk:ci
+          for _ in $(seq 1 30); do
+            status=$(docker inspect --format '{{.State.Health.Status}}' diarysdk)
+            [ "$status" = healthy ] && exit 0
+            sleep 2
+          done
+          docker logs diarysdk
+          echo "здоровья нет: $status" >&2
+          exit 1

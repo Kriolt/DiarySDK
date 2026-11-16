@@ -1,0 +1,44 @@
+{
+  "class_results": {
+    "distribution": [
+      {
+        "percent": 16,
+        "students": 4,
+        "value": "9"
+      },
+      {
+        "percent": 40,
+        "students": 10,
+        "value": "8"
+      }
+    ],
+    "total_students": 25
+  },
+  "comment": "Хорошо",
+  "control_form": "Контрольная работа",
+  "criteria": [],
+  "date": "2026-10-20",
+  "five": 4.5,
+  "history": [
+    {
+      "changed_at": "2026-10-20T11:00:00+03:00",
+      "value": "8"
+    }
+  ],
+  "id": 10001,
+  "is_exam": false,
+  "is_point": false,
+  "lesson": {
+    "schedule_item_id": 20001,
+    "topic": "Квадратные уравнения"
+  },
+  "point_date": null,
+  "result_files": [],
+  "teacher": {
+    "first_name": "Анна",
+    "last_name": "Учителева",
+    "middle_name": "Петровна"
+  },
+  "value": "9",
+  "weight": 2
+}

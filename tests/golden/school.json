@@ -1,0 +1,54 @@
+{
+  "address": "г. Тестовый, ул. Школьная, д. 1",
+  "branches": [
+    {
+      "address": "г. Тестовый, ул. Школьная, д. 1",
+      "building_id": 701,
+      "is_main": true,
+      "is_student_building": true,
+      "name": "Основное здание",
+      "type": "main"
+    },
+    {
+      "address": "г. Тестовый, ул. Садовая, д. 2",
+      "building_id": 702,
+      "is_main": false,
+      "is_student_building": false,
+      "name": "Корпус 2",
+      "type": "branch"
+    }
+  ],
+  "classroom_teachers": [
+    {
+      "first_name": "Анна",
+      "last_name": "Классная",
+      "middle_name": "Петровна"
+    }
+  ],
+  "county": "г.о. Тестовый",
+  "district": null,
+  "email": "school@example.invalid",
+  "id": 3001,
+  "name": "МБОУ «Гимназия № 0»",
+  "phone": "+7 495 000-00-00",
+  "principal": "Директорова Дарья Дмитриевна",
+  "teachers": [
+    {
+      "first_name": "Иван",
+      "last_name": "Учителев",
+      "middle_name": "Иванович",
+      "subjects": [
+        "Алгебра",
+        "Геометрия"
+      ]
+    },
+    {
+      "first_name": "Ольга",
+      "last_name": "Физикова",
+      "middle_name": null,
+      "subjects": []
+    }
+  ],
+  "type": "Гимназия",
+  "website": "https://school.example.invalid"
+}

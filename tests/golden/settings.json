@@ -1,0 +1,10 @@
+{
+  "estimation_type": "five",
+  "goal": false,
+  "schedule_type": "compact",
+  "theme": {
+    "color_pattern": "indigo",
+    "is_automatic": false,
+    "type": "dark"
+  }
+}

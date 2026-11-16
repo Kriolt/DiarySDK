@@ -1,0 +1,21 @@
+[
+  {
+    "date": "2026-10-26",
+    "description": "Каникулы 26.10 - 01.11",
+    "events": [
+      {
+        "id": 1,
+        "title": "Каникулы"
+      }
+    ],
+    "title": "Осенние каникулы",
+    "type": "vacation"
+  },
+  {
+    "date": "2026-11-04",
+    "description": null,
+    "events": null,
+    "title": "День народного единства",
+    "type": "holiday"
+  }
+]
