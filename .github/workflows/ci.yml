@@ -50,7 +50,7 @@ jobs:
         with:
           python-version: "3.16"
           allow-prereleases: true
-      - run: pip install -e '.[server,dev]'
+      - run: pip install -e '.[server,test]'
       - run: ruff check .
       - run: ruff format --check .
       - run: pytest

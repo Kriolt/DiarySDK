@@ -23,11 +23,16 @@ server = [
     "fastapi==0.162.7",
     "uvicorn==0.54.0",
 ]
-dev = [
-    "build==1.6.1",
+# Тесты и линтер. Отдельно от сборки: twine тянет cryptography/cffi, которые
+# на пре-релизе Python ещё не собираются (CI, задача test-next).
+test = [
     "pytest==9.2.0",
     "pytest-asyncio==1.5.0",
     "ruff==0.17.5",
+]
+dev = [
+    "diarysdk[test]",
+    "build==1.6.1",
     "twine==7.0.0",
 ]
 
