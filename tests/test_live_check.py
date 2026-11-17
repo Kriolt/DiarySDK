@@ -144,3 +144,13 @@ async def test_any_exception_is_reported_by_class_only(monkeypatch, now):  # noq
     assert code == 1
     assert "fail me: KeyError\n" in output
     assert SECRET not in output
+
+
+def test_skip_reason_tells_empty_list_from_missing_ids():
+    def pick(item):
+        return item
+
+    assert live_check._first_id(None, pick) == "чтение не удалось"
+    assert live_check._first_id([], pick) == "список пуст"
+    assert live_check._first_id([None, None], pick) == "ни у одного элемента нет id"
+    assert live_check._first_id([None, 7, 8], pick) == 7
