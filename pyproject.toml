@@ -20,7 +20,7 @@ dependencies = [
 
 [project.optional-dependencies]
 server = [
-    "fastapi==0.162.5",
+    "fastapi==0.162.7",
     "uvicorn==0.54.0",
 ]
 dev = [
