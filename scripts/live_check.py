@@ -31,8 +31,14 @@ WRITES = frozenset({"homework_done", "homework_undone", "update_settings", "upda
 Ask = Callable[[str], str]
 
 
-def _first_id(items: list, pick: Callable[[object], int | None]) -> int | None:
-    return next((i for i in map(pick, items) if i is not None), None)
+def _first_id(items: list | None, pick: Callable[[object], int | None]) -> int | str:
+    """Первый id из списка или причина, почему его нет (без значений полей)."""
+    if items is None:
+        return "чтение не удалось"
+    if not items:
+        return "список пуст"
+    found = next((i for i in map(pick, items) if i is not None), None)
+    return "ни у одного элемента нет id" if found is None else found
 
 
 def describe(error: Exception) -> str:
@@ -43,7 +49,7 @@ def describe(error: Exception) -> str:
 
 async def check_reads(student: Student, out: TextIO) -> bool:
     """Вызвать каждое чтение Student; True, если ни одно не упало."""
-    ids: dict[str, int | None] = {}
+    ids: dict[str, int | str] = {}
     failed = False
 
     async def run(name: str, call: Callable[[], Awaitable[object]]) -> object | None:
@@ -59,8 +65,8 @@ async def check_reads(student: Student, out: TextIO) -> bool:
 
     async def run_with_id(name: str, key: str, call: Callable[[int], Awaitable[object]]) -> None:
         value = ids.get(key)
-        if value is None:
-            print(f"skip {name}: нет данных для аргумента", file=out)
+        if not isinstance(value, int):
+            print(f"skip {name}: нет данных для аргумента ({value})", file=out)
         else:
             await run(name, lambda: call(value))
 
@@ -83,11 +89,11 @@ async def check_reads(student: Student, out: TextIO) -> bool:
         await run(name, call)
 
     marks = await run("marks", student.marks)
-    ids["mark"] = _first_id(marks or [], lambda m: m.id)
+    ids["mark"] = _first_id(marks, lambda m: m.id)
     schedule = await run("schedule", student.schedule)
-    ids["lesson"] = _first_id(schedule or [], lambda i: i.id)
+    ids["lesson"] = _first_id(schedule, lambda i: i.id)
     subjects = await run("subjects", student.subjects)
-    ids["subject"] = _first_id(subjects or [], lambda s: s.subject.id)
+    ids["subject"] = _first_id(subjects, lambda s: s.subject.id)
 
     await run_with_id("mark", "mark", student.mark)
     await run_with_id("lesson", "lesson", student.lesson)
