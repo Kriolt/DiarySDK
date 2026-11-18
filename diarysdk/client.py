@@ -187,6 +187,12 @@ async def _guarded[T](diary: Diary, token: Token, run: Callable[[], Awaitable[T]
         write_started.reset(marker)
 
 
+def _check_child_id(child_id: int | None) -> None:
+    """id ученика — положительное число, как требует и сервис (иначе 400 там)."""
+    if child_id is not None and child_id <= 0:
+        raise BadRequest("Неверные параметры запроса: child_id")
+
+
 def _check_email(value: str) -> None:
     """Значение — не адрес почты (правило сервиса: 3-255 символов, одна @) —
     BadRequest до обращения к дневнику."""
@@ -350,6 +356,7 @@ class Student:
         Дедлайн на чтении перед записью — обычный UpstreamTimeout.
         """
         diary, value = self._diary, self._token.value
+        _check_child_id(self._child_id)
 
         async def run() -> T:
             student = await diary._contexts.get(value, self._child_id)
@@ -563,6 +570,7 @@ class Parent:
         self, child_id: int, start: date | None = None, end: date | None = None
     ) -> list[JournalAck]:
         """Отметки «ознакомлен с дневником» за недели периода; по умолчанию — текущая."""
+        _check_child_id(child_id)
         start, end = periods.journal_period(start, end, clock.today_msk())
         return await self._call(
             lambda ctx: self._gateway.parent_journal_acks(ctx, child_id, start, end)
@@ -571,5 +579,10 @@ class Parent:
     async def acknowledge_journal(self, child_id: int, week: date | None = None) -> None:
         """Отметить «ознакомлен с дневником» за неделю (любой её день; по умолчанию —
         текущая). Неделя уже отмечена — ничего не делает. Отменить нельзя."""
-        day = week or clock.today_msk()
+        _check_child_id(child_id)
+        today = clock.today_msk()
+        day = week or today
+        if clock.week_bounds(day)[0] > clock.week_bounds(today)[0]:
+            # Отметку нельзя отменить, а её видят учителя: будущую неделю не отмечаем.
+            raise BadRequest("Неделя ещё не наступила: отметить её нельзя")
         await self._call(lambda ctx: self._gateway.parent_acknowledge_journal(ctx, child_id, day))

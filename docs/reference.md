@@ -184,7 +184,7 @@ HTTP-статус повторяют причину, `.upstream_status` — ст
 | `settings()`, `update_settings(update)` | настройки приложения родителя, общие для всех детей |
 | `update_contact(contact_id, value)` | почта в карточке родителя |
 | `journal_acks(child_id, start=None, end=None)` | `list[JournalAck]`: отметки «ознакомлен с дневником» по неделям; по умолчанию текущая, период ≤ 31 дня |
-| `acknowledge_journal(child_id, week=None)` | отметить неделю (любой её день, по умолчанию текущая); уже отмечена — ничего не делает. Отметку видят учителя, отменить её нельзя |
+| `acknowledge_journal(child_id, week=None)` | отметить неделю (любой её день, по умолчанию текущая); уже отмечена — ничего не делает, будущая неделя — `BadRequest`. Отметку видят учителя, отменить её нельзя |
 
 Через родителя `exams()`, `avatar()`, `homework_done()` и `homework_undone()`
 ученика — `NotForRole`: дневник даёт их только самому ученику. `update_settings` и `update_contact` родителя живьём не

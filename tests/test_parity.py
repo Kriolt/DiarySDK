@@ -417,3 +417,12 @@ async def test_certificates_same_for_parent(parents, token):
     remote = await parents.remote.parent(token).student(9001).certificates()
 
     assert remote == direct != []
+
+
+@pytest.mark.parametrize("child_id", [0, -1])
+async def test_non_positive_child_id_is_bad_request_in_both(parents, token, child_id):
+    for diary in (parents.direct, parents.remote):
+        with pytest.raises(errors.BadRequest):
+            await diary.parent(token).student(child_id).marks()
+        with pytest.raises(errors.BadRequest):
+            await diary.parent(token).journal_acks(child_id)

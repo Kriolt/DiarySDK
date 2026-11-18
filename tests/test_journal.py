@@ -104,3 +104,17 @@ async def test_unknown_child_is_not_found_before_journal_request(parent, server,
 async def test_period_longer_than_31_days_is_bad_request(parent):
     with pytest.raises(errors.BadRequest):
         await parent.journal_acks(9001, date(2026, 1, 1), date(2026, 3, 1))
+
+
+async def test_acknowledge_future_week_is_bad_request_before_request(parent, server):
+    # «Сегодня» — среда 4 февраля 2026: следующая неделя ещё не наступила.
+    with pytest.raises(errors.BadRequest):
+        await parent.acknowledge_journal(9001, date(2026, 2, 9))
+
+    assert _sent(server, "GET") == [] and _sent(server, "POST") == []
+
+
+async def test_acknowledge_current_week_on_sunday_is_allowed(parent, server):
+    await parent.acknowledge_journal(9001, date(2026, 2, 8))
+
+    assert len(_sent(server, "POST")) == 1
