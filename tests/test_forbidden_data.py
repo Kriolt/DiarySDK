@@ -197,7 +197,8 @@ def v1_routes(app) -> list[tuple[str, str]]:
             .replace("{homework_id}", "30001")
             .replace("{subject_id}", "101")
             .replace("{mark_id}", "10001")
-            .replace("{contact_id}", "2"),
+            .replace("{contact_id}", "2")
+            .replace("{group_id}", "5001"),
         )
         for path, methods in app.openapi()["paths"].items()
         if path.startswith("/v1/")
@@ -311,6 +312,9 @@ async def test_walk_covers_every_endpoint_of_the_contract(app):
         "/v1/curriculum",
         "/v1/school/teachers",
         "/v1/academic-debts",
+        "/v1/groups/5001/program",
+        "/v1/subjects/101/topics",
+        "/v1/control-works",
         "/v1/settings",
         "/v1/auth/password",
         "/v1/auth/esia",

@@ -15,11 +15,17 @@ from diarysdk.models.auth import (
 from diarysdk.models.avatar import Avatar
 from diarysdk.models.common import ClassUnit, Material, PersonName, SchoolBrief, Subject
 from diarysdk.models.curriculum import (
+    ControlWork,
     Curriculum,
     CurriculumSection,
     CurriculumSubject,
     CurriculumSubjectWeek,
     CurriculumWeek,
+    ProgramLesson,
+    ProgramModule,
+    ProgramTopic,
+    SubjectTopic,
+    TopicResult,
 )
 from diarysdk.models.exams import Exam
 from diarysdk.models.homework import Attachment, Homework
@@ -80,6 +86,7 @@ __all__ = [
     "ClassUnit",
     "Contact",
     "ContactUpdate",
+    "ControlWork",
     "Curriculum",
     "CurriculumSection",
     "CurriculumSubject",
@@ -120,6 +127,9 @@ __all__ = [
     "Period",
     "PeriodDay",
     "PersonName",
+    "ProgramLesson",
+    "ProgramModule",
+    "ProgramTopic",
     "Rating",
     "RatingEntry",
     "RatingMe",
@@ -141,6 +151,7 @@ __all__ = [
     "SubjectDetailPeriod",
     "SubjectRating",
     "SubjectSummary",
+    "SubjectTopic",
     "Target",
     "TargetPath",
     "Teacher",
@@ -148,4 +159,5 @@ __all__ = [
     "TokenExpiry",
     "TokenInfo",
     "TokenResponse",
+    "TopicResult",
 ]

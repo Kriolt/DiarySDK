@@ -127,6 +127,9 @@ Homework, Mark, ...`; список — `diarysdk.models.__all__`) и лежат 
 | `notifications()` | `list[Notification]` | |
 | `periods(start=None, end=None)` | `list[PeriodDay]` | весь текущий учебный год, до 366 дней; задан один край — учебный год этого края |
 | `curriculum()` | `Curriculum` | |
+| `work_program(group_id)` | `list[ProgramModule]` | рабочая программа группы (разделы, темы, уроки с датами); группы — `identity().person.groups` |
+| `subject_topics(subject_id)` | `list[SubjectTopic]` | темы предмета и ожидаемые результаты |
+| `control_works(start=None, end=None)` | `list[ControlWork]` | весь учебный год, до 366 дней. Форма ответа живьём не подтверждена (ответы были пустыми) |
 | `school_teachers(name=None)` | `list[SchoolTeacher]` | все учителя школы; `name` — поиск по части имени |
 | `academic_debts(year=None)` | `list[AcademicDebt]` | текущий учебный год; только долги этого ученика. Форма ответа живьём не подтверждена (ответы были пустыми) |
 
@@ -509,6 +512,9 @@ docker run --rm -p 8000:8000 --read-only \
 | `GET /v1/periods` | `from`, `to` | `list[PeriodDay]` |
 | `GET /v1/curriculum` | | `Curriculum` |
 | `GET /v1/school/teachers` | `name` | `list[SchoolTeacher]` |
+| `GET /v1/groups/{group_id}/program` | | `list[ProgramModule]` |
+| `GET /v1/subjects/{subject_id}/topics` | | `list[SubjectTopic]` |
+| `GET /v1/control-works` | `from`, `to` | `list[ControlWork]` |
 | `GET /v1/academic-debts` | `year` | `list[AcademicDebt]` |
 
 Даты — `YYYY-MM-DD`. На записи `502`/`504` с `"uncertain": true` (или без

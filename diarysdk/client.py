@@ -48,7 +48,7 @@ from diarysdk.errors import (
 )
 from diarysdk.models.auth import Captcha, LoginMfa
 from diarysdk.models.avatar import Avatar
-from diarysdk.models.curriculum import Curriculum
+from diarysdk.models.curriculum import ControlWork, Curriculum, ProgramModule, SubjectTopic
 from diarysdk.models.exams import Exam
 from diarysdk.models.homework import Homework
 from diarysdk.models.identity import ContactUpdate, Identity
@@ -387,6 +387,21 @@ class Student:
     async def final_marks(self, year: int | None = None) -> list[FinalMark]:
         year = periods.final_marks_year(year, self._today())
         return await self._call(lambda ctx: self._gateway.final_marks(ctx, year))
+
+    async def work_program(self, group_id: int) -> list[ProgramModule]:
+        """Рабочая программа учебной группы; группы — `identity().person.groups`."""
+        return await self._call(lambda ctx: self._gateway.work_program(ctx, group_id))
+
+    async def subject_topics(self, subject_id: int) -> list[SubjectTopic]:
+        """Темы предмета и ожидаемые результаты по ним."""
+        return await self._call(lambda ctx: self._gateway.subject_topics(ctx, subject_id))
+
+    async def control_works(
+        self, start: date | None = None, end: date | None = None
+    ) -> list[ControlWork]:
+        """Контрольные работы за период; по умолчанию — весь учебный год, до 366 дней."""
+        start, end = periods.school_periods_period(start, end, self._today())
+        return await self._call(lambda ctx: self._gateway.control_works(ctx, start, end))
 
     async def academic_debts(self, year: int | None = None) -> list[AcademicDebt]:
         """Академические задолженности ученика за учебный год (по умолчанию — текущий)."""

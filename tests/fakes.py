@@ -193,6 +193,9 @@ def add_diary_routes(fake: FakeTransport) -> None:
     fake.add(f"/avatars/{GUID}", b"\x89PNG-avatar", content_type="image/png")
     fake.add("/api/family/web/v1/final_marks/v2", fixture("final_marks.json"))
     fake.add("/api/ej/core/family/v1/teacher_profiles", fixture("teacher_profiles.json"))
+    fake.add("/api/family/web/v1/programs/lesson_plan", fixture("programs.json"))
+    fake.add("/api/ej/plan/family/v1/thematic_frames", fixture("thematic_frames.json"))
+    fake.add("/api/ej/plan/family/v1/test_lessons/period", fixture("test_lessons.json"))
     # Ответ по классу: вторая строка — одноклассник, наружу она не уходит.
     fake.add("/api/ej/core/family/v1/academic_debts", fixture("academic_debts.json"))
     # Отметка ДЗ: дневник отвечает пустым телом.

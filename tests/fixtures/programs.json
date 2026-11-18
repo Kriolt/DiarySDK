@@ -1,0 +1,36 @@
+[
+  {
+    "title": "Модуль 1. Числа",
+    "ordinal": 1,
+    "subject_id": 101,
+    "topics": [
+      {
+        "title": "Натуральные числа",
+        "ordinal": 1,
+        "integration_id": 7001,
+        "lessons": [
+          {
+            "title": "Сложение",
+            "lesson_schedule_id": 20001,
+            "ordinal": 1,
+            "date": "2026-09-02",
+            "events": [],
+            "oge_task_name": [],
+            "ege_task_name": [
+              "Задание 1"
+            ]
+          },
+          {
+            "title": "Вычитание",
+            "lesson_schedule_id": null,
+            "ordinal": 2,
+            "date": null,
+            "events": [],
+            "oge_task_name": [],
+            "ege_task_name": []
+          }
+        ]
+      }
+    ]
+  }
+]

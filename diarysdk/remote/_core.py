@@ -27,7 +27,7 @@ from diarysdk.errors import (
 from diarysdk.models.auth import LoginStep
 from diarysdk.models.auth import TokenResponse as TokenModel
 from diarysdk.models.avatar import Avatar
-from diarysdk.models.curriculum import Curriculum
+from diarysdk.models.curriculum import ControlWork, Curriculum, ProgramModule, SubjectTopic
 from diarysdk.models.exams import Exam
 from diarysdk.models.homework import Homework
 from diarysdk.models.identity import Identity
@@ -255,6 +255,18 @@ def mark(mark_id: int) -> Request:
 
 def final_marks(year: int | None) -> Request:
     return Request("GET", "/v1/final-marks", {"year": year}, list[FinalMark])
+
+
+def work_program(group_id: int) -> Request:
+    return Request("GET", f"/v1/groups/{group_id}/program", model=list[ProgramModule])
+
+
+def subject_topics(subject_id: int) -> Request:
+    return Request("GET", f"/v1/subjects/{subject_id}/topics", model=list[SubjectTopic])
+
+
+def control_works(start: date | None, end: date | None) -> Request:
+    return Request("GET", "/v1/control-works", {"from": start, "to": end}, list[ControlWork])
 
 
 def academic_debts(year: int | None) -> Request:

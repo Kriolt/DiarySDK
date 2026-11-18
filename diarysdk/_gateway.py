@@ -33,6 +33,7 @@ from diarysdk._mapping import me as me_mapping
 from diarysdk._mapping import notifications as notifications_mapping
 from diarysdk._mapping import parent as parent_mapping
 from diarysdk._mapping import periods as periods_mapping
+from diarysdk._mapping import plan as plan_mapping
 from diarysdk._mapping import rating as rating_mapping
 from diarysdk._mapping import schedule as schedule_mapping
 from diarysdk._mapping import school as school_mapping
@@ -71,7 +72,7 @@ from diarysdk.errors import (
     WriteUncertain,
 )
 from diarysdk.models.avatar import Avatar
-from diarysdk.models.curriculum import Curriculum
+from diarysdk.models.curriculum import ControlWork, Curriculum, ProgramModule, SubjectTopic
 from diarysdk.models.exams import Exam
 from diarysdk.models.homework import Homework
 from diarysdk.models.identity import Identity
@@ -265,6 +266,24 @@ class DiaryGateway:
         )
         if _refused(response):
             raise UpstreamError(upstream_status=response.status)
+
+    async def work_program(self, ctx: Ctx, group_id: int) -> list[ProgramModule]:
+        data = await raw.work_program(
+            self._transport, self._hosts, ctx.token, ctx.student, group_id
+        )
+        return plan_mapping.work_program(data)
+
+    async def subject_topics(self, ctx: Ctx, subject_id: int) -> list[SubjectTopic]:
+        data = await raw.thematic_frames(
+            self._transport, self._hosts, ctx.token, ctx.student, subject_id
+        )
+        return plan_mapping.subject_topics(data)
+
+    async def control_works(self, ctx: Ctx, start: date, end: date) -> list[ControlWork]:
+        data = await raw.test_lessons(
+            self._transport, self._hosts, ctx.token, ctx.student, start, end
+        )
+        return plan_mapping.control_works(data)
 
     async def school_teachers(self, ctx: Ctx, name: str | None) -> list[SchoolTeacher]:
         """Все страницы справочника учителей школы (не больше TEACHERS_MAX_PAGES)."""

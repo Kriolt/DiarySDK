@@ -9,7 +9,7 @@ from datetime import date
 from typing import TYPE_CHECKING, Any
 
 from diarysdk.errors import TokenExpired
-from diarysdk.models.curriculum import Curriculum
+from diarysdk.models.curriculum import ControlWork, Curriculum, ProgramModule, SubjectTopic
 from diarysdk.models.exams import Exam
 from diarysdk.models.homework import Homework
 from diarysdk.models.identity import Identity
@@ -100,6 +100,17 @@ class RemoteStudent:
 
     async def final_marks(self, year: int | None = None) -> list[FinalMark]:
         return await self._call(_core.final_marks(year))
+
+    async def work_program(self, group_id: int) -> list[ProgramModule]:
+        return await self._call(_core.work_program(group_id))
+
+    async def subject_topics(self, subject_id: int) -> list[SubjectTopic]:
+        return await self._call(_core.subject_topics(subject_id))
+
+    async def control_works(
+        self, start: date | None = None, end: date | None = None
+    ) -> list[ControlWork]:
+        return await self._call(_core.control_works(start, end))
 
     async def academic_debts(self, year: int | None = None) -> list[AcademicDebt]:
         return await self._call(_core.academic_debts(year))

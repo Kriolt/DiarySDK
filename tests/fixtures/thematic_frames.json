@@ -1,0 +1,30 @@
+[
+  {
+    "id": 61,
+    "title": "Уравнения",
+    "subject_program_integration_id": [
+      1
+    ],
+    "integration_id": 6100,
+    "didactic_units": [],
+    "color": null,
+    "results": [
+      {
+        "id": 71,
+        "integration_id": 7100,
+        "description": "Решает линейные уравнения",
+        "theme_integration_id": 6100,
+        "subject_integration_id": null,
+        "year_integration_id": null,
+        "education_level_integration_id": 3,
+        "text_for_school": "Решает уравнения",
+        "text_for_family": "Умеет решать уравнения",
+        "type_result": "предметный",
+        "mandatory": "обязательный",
+        "incr_result_link": 0,
+        "high_result_link": 0,
+        "group_id": 5001
+      }
+    ]
+  }
+]

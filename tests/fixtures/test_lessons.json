@@ -1,0 +1,19 @@
+{
+  "error": null,
+  "items": [
+    {
+      "subject_id": 101,
+      "subject_name": "Алгебра",
+      "test_lessons_date": "2026-10-20",
+      "control_form_name": "Контрольная работа",
+      "lesson_id": 20001,
+      "schedule_item_id": 20001,
+      "lesson_theme": "Уравнения",
+      "test_lessons_grade": "5",
+      "is_absent": false,
+      "is_point": false,
+      "is_success": true,
+      "group_id": 5001
+    }
+  ]
+}

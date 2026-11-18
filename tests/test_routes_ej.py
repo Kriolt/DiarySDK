@@ -30,3 +30,32 @@ async def test_academic_debts_future_year_is_bad_request(api, fake_diary):
 
     assert response.status_code == 400
     assert "academic_debts" not in fake_diary.calls
+
+
+async def test_work_program_route(api, fake_diary):
+    fake_diary.answers["work_program"] = []
+
+    response = await api.get("/v1/groups/5001/program")
+
+    assert response.status_code == 200
+    assert fake_diary.args["work_program"][1:] == (5001,)
+
+
+async def test_subject_topics_route(api, fake_diary):
+    fake_diary.answers["subject_topics"] = []
+
+    response = await api.get("/v1/subjects/101/topics")
+
+    assert response.status_code == 200
+    assert fake_diary.args["subject_topics"][1:] == (101,)
+
+
+async def test_control_works_route_defaults_to_school_year(api, fake_diary, today):
+    from datetime import date
+
+    fake_diary.answers["control_works"] = []
+
+    response = await api.get("/v1/control-works")
+
+    assert response.status_code == 200
+    assert fake_diary.args["control_works"][1:] == (date(2026, 9, 1), date(2027, 8, 31))

@@ -457,3 +457,52 @@ async def academic_debts(
         call="academic_debts",
     )
     return response.json()
+
+
+async def work_program(
+    transport, hosts: Hosts, token: str, student: StudentContext, group_id: int
+) -> Any:
+    """Рабочая программа учебной группы (сайт: «Рабочие программы учебного плана»)."""
+    response = await transport.send(
+        "GET",
+        f"{hosts.dnevnik}/api/family/web/v1/programs/lesson_plan",
+        headers=_ej_family(token, student),
+        params={
+            "student_id": str(student.student_id),
+            "group_id": str(group_id),
+            "school_id": str(student.school_id),
+        },
+        call="work_program",
+    )
+    return response.json()
+
+
+async def thematic_frames(
+    transport, hosts: Hosts, token: str, student: StudentContext, subject_id: int
+) -> Any:
+    response = await transport.send(
+        "GET",
+        f"{hosts.dnevnik}/api/ej/plan/family/v1/thematic_frames",
+        headers=_ej_family(token, student),
+        params={"subject_id": str(subject_id), "student_profile_id": str(student.student_id)},
+        call="thematic_frames",
+    )
+    return response.json()
+
+
+async def test_lessons(
+    transport, hosts: Hosts, token: str, student: StudentContext, start: date, end: date
+) -> Any:
+    response = await transport.send(
+        "GET",
+        f"{hosts.dnevnik}/api/ej/plan/family/v1/test_lessons/period",
+        headers=_ej_family(token, student),
+        params={
+            "student_profile_id": str(student.student_id),
+            "from": start.isoformat(),
+            "to": end.isoformat(),
+            "student_person_id": student.person_guid,
+        },
+        call="test_lessons",
+    )
+    return response.json()

@@ -20,7 +20,7 @@ import getpass
 import os
 import sys
 from collections.abc import Awaitable, Callable, Mapping
-from typing import TextIO
+from typing import Any, TextIO
 
 from diarysdk import Captcha, Diary, LoginFlow, LoginMfa, Student, Token
 from diarysdk.errors import UpstreamFormat
@@ -50,6 +50,7 @@ def describe(error: Exception) -> str:
 async def check_reads(student: Student, out: TextIO) -> bool:
     """Вызвать каждое чтение Student; True, если ни одно не упало."""
     ids: dict[str, int | str] = {}
+    results: dict[str, Any] = {}
     failed = False
 
     async def run(name: str, call: Callable[[], Awaitable[object]]) -> object | None:
@@ -87,8 +88,9 @@ async def check_reads(student: Student, out: TextIO) -> bool:
         ("homework", student.homework),
         ("school_teachers", student.school_teachers),
         ("academic_debts", student.academic_debts),
+        ("control_works", student.control_works),
     ):
-        await run(name, call)
+        results[name] = await run(name, call)
 
     marks = await run("marks", student.marks)
     ids["mark"] = _first_id(marks, lambda m: m.id)
@@ -96,10 +98,15 @@ async def check_reads(student: Student, out: TextIO) -> bool:
     ids["lesson"] = _first_id(schedule, lambda i: i.id)
     subjects = await run("subjects", student.subjects)
     ids["subject"] = _first_id(subjects, lambda s: s.subject.id)
+    identity = results.get("identity")
+    groups = identity.person.groups if identity is not None else None
+    ids["group"] = _first_id(groups, lambda g: g.id)
 
     await run_with_id("mark", "mark", student.mark)
     await run_with_id("lesson", "lesson", student.lesson)
     await run_with_id("subject", "subject", student.subject)
+    await run_with_id("subject_topics", "subject", student.subject_topics)
+    await run_with_id("work_program", "group", student.work_program)
     return not failed
 
 

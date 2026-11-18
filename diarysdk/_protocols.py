@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING, Literal, Protocol, Self
 if TYPE_CHECKING:
     from diarysdk.models.auth import Captcha, LoginMfa
     from diarysdk.models.avatar import Avatar
-    from diarysdk.models.curriculum import Curriculum
+    from diarysdk.models.curriculum import ControlWork, Curriculum, ProgramModule, SubjectTopic
     from diarysdk.models.exams import Exam
     from diarysdk.models.homework import Homework
     from diarysdk.models.identity import Identity
@@ -46,6 +46,14 @@ class StudentLike(Protocol):
     async def mark(self, mark_id: int) -> MarkDetail: ...
 
     async def final_marks(self, year: int | None = None) -> list[FinalMark]: ...
+
+    async def work_program(self, group_id: int) -> list[ProgramModule]: ...
+
+    async def subject_topics(self, subject_id: int) -> list[SubjectTopic]: ...
+
+    async def control_works(
+        self, start: date | None = None, end: date | None = None
+    ) -> list[ControlWork]: ...
 
     async def academic_debts(self, year: int | None = None) -> list[AcademicDebt]: ...
 
