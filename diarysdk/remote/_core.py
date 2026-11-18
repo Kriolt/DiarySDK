@@ -35,7 +35,7 @@ from diarysdk.models.lessons import Lesson
 from diarysdk.models.marks import FinalMark, Mark, MarkDetail
 from diarysdk.models.me import Me
 from diarysdk.models.notifications import Notification
-from diarysdk.models.parent import Child, ParentMe
+from diarysdk.models.parent import Child, JournalAck, ParentMe
 from diarysdk.models.periods import PeriodDay
 from diarysdk.models.rating import Rating, RatingPoint, SubjectRating
 from diarysdk.models.schedule import ScheduleItem
@@ -386,3 +386,15 @@ def parent_update_settings(update: SettingsUpdate) -> Request:
 
 def parent_update_contact(contact_id: int, value: str) -> Request:
     return Request("PUT", f"/v1/parent/identity/contacts/{contact_id}", body={"value": value})
+
+
+def parent_journal_acks(child_id: int, start: date | None, end: date | None) -> Request:
+    params = {"child_id": child_id, "from": start, "to": end}
+    return Request("GET", "/v1/parent/journal-acks", params, list[JournalAck])
+
+
+def parent_acknowledge_journal(child_id: int, week: date | None) -> Request:
+    body: dict = {"child_id": child_id}
+    if week is not None:
+        body["week"] = week.isoformat()
+    return Request("POST", "/v1/parent/journal-acks", body=body)

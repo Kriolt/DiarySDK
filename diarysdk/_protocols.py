@@ -19,7 +19,7 @@ if TYPE_CHECKING:
     from diarysdk.models.marks import FinalMark, Mark, MarkDetail
     from diarysdk.models.me import Me
     from diarysdk.models.notifications import Notification
-    from diarysdk.models.parent import Child, ParentMe
+    from diarysdk.models.parent import Child, JournalAck, ParentMe
     from diarysdk.models.periods import PeriodDay
     from diarysdk.models.rating import Rating, RatingPoint, SubjectRating
     from diarysdk.models.schedule import ScheduleItem
@@ -162,3 +162,9 @@ class ParentLike(Protocol):
     async def update_settings(self, update: SettingsUpdate) -> None: ...
 
     async def update_contact(self, contact_id: int, value: str) -> None: ...
+
+    async def journal_acks(
+        self, child_id: int, start: date | None = None, end: date | None = None
+    ) -> list[JournalAck]: ...
+
+    async def acknowledge_journal(self, child_id: int, week: date | None = None) -> None: ...

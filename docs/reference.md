@@ -172,6 +172,8 @@ HTTP-статус повторяют причину, `.upstream_status` — ст
 | `avatar()` | своя аватарка (`Avatar`) |
 | `settings()`, `update_settings(update)` | настройки приложения родителя, общие для всех детей |
 | `update_contact(contact_id, value)` | почта в карточке родителя |
+| `journal_acks(child_id, start=None, end=None)` | `list[JournalAck]`: отметки «ознакомлен с дневником» по неделям; по умолчанию текущая, период ≤ 31 дня |
+| `acknowledge_journal(child_id, week=None)` | отметить неделю (любой её день, по умолчанию текущая); уже отмечена — ничего не делает. Отметку видят учителя, отменить её нельзя |
 
 Через родителя `exams()` и `avatar()` ученика — `NotForRole`: дневник отдаёт их
 только самому ученику. `update_settings` и `update_contact` родителя живьём не
@@ -399,7 +401,7 @@ DIARYSDK_KEYS_FILE=./api-keys python -m diarysdk.server
 Выпуск ключа:
 
 ```sh
-python -m diarysdk.server.keys new <имя> [--scope login] [--scope write_profile]
+python -m diarysdk.server.keys new <имя> [--scope login] [--scope write_profile] [--scope acknowledge_journal]
 ```
 
 Ключ печатается в stderr один раз, строка для файла — в stdout. Разрешения:
@@ -407,7 +409,8 @@ python -m diarysdk.server.keys new <имя> [--scope login] [--scope write_profi
 | Разрешение | Что открывает |
 | --- | --- |
 | `login` | `/v1/auth/*`: вход по паролю и через Госуслуги |
-| `write_profile` | `PUT /v1/identity/contacts/{id}` |
+| `write_profile` | `PUT /v1/identity/contacts/{id}`, `PUT /v1/parent/identity/contacts/{id}` |
+| `acknowledge_journal` | `POST /v1/parent/journal-acks` |
 
 Имя потребителя — латиница, цифры, `_.-`; по нему считаются лимиты и пишется
 журнал.

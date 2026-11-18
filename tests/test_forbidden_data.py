@@ -91,7 +91,7 @@ ESIA_IMAGE = {
 @pytest.fixture
 def settings(settings, keys_file):
     # Ключ тестов с разрешениями login и write_profile: обход заходит и в /v1/auth/password.
-    keys_file.write_text(f"tests {hash_key(API_KEY)} login,write_profile\n")
+    keys_file.write_text(f"tests {hash_key(API_KEY)} login,write_profile,acknowledge_journal\n")
     return settings
 
 
@@ -133,6 +133,8 @@ def routes():
     )
     routes.add(f"/api/persondata/v1/persons/{GUID}", card)
     routes.add(f"/api/persondata/v1/persons/{GUID}/contacts/2", b"")
+    # mock_diary отвечает по пути без метода: и чтению, и отметке — пустой список.
+    routes.add("/api/ej/core/family/v1/aware_journals", [])
     return routes
 
 
@@ -241,7 +243,10 @@ async def walk(app) -> list[str]:
                 ("PUT", "/v1/parent/identity/contacts/2"),
             ):
                 body = CONTACT_BODY
-            response = await c.request(method, path, json=body)
+            params = {"child_id": 9001} if path == "/v1/parent/journal-acks" else None
+            if (method, path) == ("POST", "/v1/parent/journal-acks"):
+                body, params = {"child_id": 9001}, None
+            response = await c.request(method, path, json=body, params=params)
             assert response.status_code in (200, 204), (method, path, response.text)
         covered, flow_ids = await esia_walk(c)
     assert covered == {(m, p) for m, p in v1_routes(app) if is_esia(p)}
@@ -318,6 +323,7 @@ async def test_walk_covers_every_endpoint_of_the_contract(app):
         "/v1/parent/avatar",
         "/v1/parent/settings",
         "/v1/parent/identity/contacts/2",
+        "/v1/parent/journal-acks",
     }
 
 

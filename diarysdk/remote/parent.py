@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
+from datetime import date
 from typing import TYPE_CHECKING, Any
 
 from diarysdk.models.identity import Identity
-from diarysdk.models.parent import Child, ParentMe
+from diarysdk.models.parent import Child, JournalAck, ParentMe
 from diarysdk.models.settings import Settings, SettingsUpdate
 from diarysdk.remote import _core
 from diarysdk.remote._core import Avatar, Request
@@ -58,3 +59,11 @@ class RemoteParent:
 
     async def update_contact(self, contact_id: int, value: str) -> None:
         await self._call(_core.parent_update_contact(contact_id, value))
+
+    async def journal_acks(
+        self, child_id: int, start: date | None = None, end: date | None = None
+    ) -> list[JournalAck]:
+        return await self._call(_core.parent_journal_acks(child_id, start, end))
+
+    async def acknowledge_journal(self, child_id: int, week: date | None = None) -> None:
+        await self._call(_core.parent_acknowledge_journal(child_id, week))

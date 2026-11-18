@@ -180,3 +180,12 @@ class PersonData(Wire):
     children: Any = None
     education: list[Education] | None = None
     citizenship: Any = None
+
+
+class AwareJournal(Wire):
+    """Отметка ознакомления (ej/core/family aware_journals)."""
+
+    week: DT | None = None
+    # "ДД.ММ.ГГГГ ЧЧ:ММ" по Москве — как пишет и сайт.
+    created_at: str | None = None
+    student_profile_id: int | None = None

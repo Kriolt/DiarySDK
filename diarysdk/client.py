@@ -56,7 +56,7 @@ from diarysdk.models.lessons import Lesson
 from diarysdk.models.marks import FinalMark, Mark, MarkDetail
 from diarysdk.models.me import Me
 from diarysdk.models.notifications import Notification
-from diarysdk.models.parent import Child, ParentMe
+from diarysdk.models.parent import Child, JournalAck, ParentMe
 from diarysdk.models.periods import PeriodDay
 from diarysdk.models.rating import Rating, RatingPoint, SubjectRating
 from diarysdk.models.schedule import ScheduleItem
@@ -518,3 +518,18 @@ class Parent:
         """Заменить адрес почты в контакте родителя (как `Student.update_contact`)."""
         _check_email(value)
         await self._call(lambda ctx: self._gateway.parent_update_contact(ctx, contact_id, value))
+
+    async def journal_acks(
+        self, child_id: int, start: date | None = None, end: date | None = None
+    ) -> list[JournalAck]:
+        """Отметки «ознакомлен с дневником» за недели периода; по умолчанию — текущая."""
+        start, end = periods.journal_period(start, end, clock.today_msk())
+        return await self._call(
+            lambda ctx: self._gateway.parent_journal_acks(ctx, child_id, start, end)
+        )
+
+    async def acknowledge_journal(self, child_id: int, week: date | None = None) -> None:
+        """Отметить «ознакомлен с дневником» за неделю (любой её день; по умолчанию —
+        текущая). Неделя уже отмечена — ничего не делает. Отменить нельзя."""
+        day = week or clock.today_msk()
+        await self._call(lambda ctx: self._gateway.parent_acknowledge_journal(ctx, child_id, day))

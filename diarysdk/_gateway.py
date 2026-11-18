@@ -25,6 +25,7 @@ from diarysdk._mapping import exams as exams_mapping
 from diarysdk._mapping import final_marks as final_marks_mapping
 from diarysdk._mapping import homework as homework_mapping
 from diarysdk._mapping import identity as identity_mapping
+from diarysdk._mapping import journal as journal_mapping
 from diarysdk._mapping import lessons as lessons_mapping
 from diarysdk._mapping import marks as marks_mapping
 from diarysdk._mapping import me as me_mapping
@@ -77,7 +78,7 @@ from diarysdk.models.lessons import Lesson
 from diarysdk.models.marks import FinalMark, Mark, MarkDetail
 from diarysdk.models.me import Me
 from diarysdk.models.notifications import Notification as ContractNotification
-from diarysdk.models.parent import Child, ParentMe
+from diarysdk.models.parent import Child, JournalAck, ParentMe
 from diarysdk.models.periods import PeriodDay
 from diarysdk.models.rating import Rating, RatingPoint, SubjectRating
 from diarysdk.models.schedule import ScheduleItem
@@ -228,6 +229,41 @@ class DiaryGateway:
         if ctx.parent.person_guid is None:
             raise NotFound("Карточка родителя не найдена")
         await self._update_contact_of(ctx.token, ctx.parent, contact_id, value)
+
+    def _child_of(self, ctx: ParentCtx, child_id: int) -> int:
+        """id ученика родителя или NotFound — до запросов про этого ученика."""
+        if not any(child.id == child_id for child in ctx.parent.profile.children or []):
+            raise NotFound("Такого ученика у этого токена нет")
+        return child_id
+
+    async def parent_journal_acks(
+        self, ctx: ParentCtx, child_id: int, start: date, end: date
+    ) -> list[JournalAck]:
+        child = self._child_of(ctx, child_id)
+        data = await raw.aware_journals(
+            self._transport, self._hosts, ctx.token, ctx.parent.profile_id, child, start, end
+        )
+        return journal_mapping.acks(data)
+
+    async def parent_acknowledge_journal(self, ctx: ParentCtx, child_id: int, week: date) -> None:
+        """Отметка недели; уже отмечена — второй POST не уходит (отмены у сайта нет)."""
+        monday, sunday = clock.week_bounds(week)
+        acks = await self.parent_journal_acks(ctx, child_id, monday, sunday)
+        if journal_mapping.has_week(acks, child_id, monday):
+            return
+        body = {
+            "created_at": journal_mapping.stamp(clock.now_msk()),
+            "week": monday.isoformat(),
+            "parent_profile_id": ctx.parent.profile_id,
+            "student_profile_id": child_id,
+        }
+        response = await _write(
+            raw.post_aware_journal(
+                self._transport, self._hosts, ctx.token, ctx.parent.profile_id, body
+            )
+        )
+        if _refused(response):
+            raise UpstreamError(upstream_status=response.status)
 
     async def schedule(self, ctx: Ctx, start: date, end: date) -> list[ScheduleItem]:
         return schedule_mapping.schedule(await self.fetch_events(ctx, start, end))

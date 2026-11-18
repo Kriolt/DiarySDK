@@ -355,3 +355,51 @@ async def put_user_settings(
         json=group,
         call="user.settings.put",
     )
+
+
+def _aware_headers(token: str, parent_profile_id: int) -> dict[str, str]:
+    """Как у сайта: familyweb и активный пользователь — родитель."""
+    return {
+        **_bearer(token),
+        **_family_web(token),
+        "Profile-Id": str(parent_profile_id),
+        "Profile-Type": "parent",
+    }
+
+
+async def aware_journals(
+    transport,
+    hosts: Hosts,
+    token: str,
+    parent_profile_id: int,
+    child_id: int,
+    start: date,
+    end: date,
+) -> Any:
+    """Отметки ознакомления родителя за недели [start, end] (сайт: diary, неделя)."""
+    response = await transport.send(
+        "GET",
+        f"{hosts.dnevnik}/api/ej/core/family/v1/aware_journals",
+        headers=_aware_headers(token, parent_profile_id),
+        params={
+            "week_from": start.isoformat(),
+            "week_to": end.isoformat(),
+            "student_profile_ids": str(child_id),
+        },
+        call="aware_journals",
+    )
+    return response.json()
+
+
+async def post_aware_journal(
+    transport, hosts: Hosts, token: str, parent_profile_id: int, body: dict[str, Any]
+) -> DiaryResponse:
+    """Отметить неделю «ознакомлен» (POST, тело как у сайта). Отмены у сайта нет."""
+    return await _write(
+        transport,
+        "POST",
+        f"{hosts.dnevnik}/api/ej/core/family/v1/aware_journals",
+        headers=_aware_headers(token, parent_profile_id),
+        json=body,
+        call="aware_journals.post",
+    )

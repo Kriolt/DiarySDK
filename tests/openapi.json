@@ -1784,6 +1784,66 @@
         "title": "IdentityPerson",
         "type": "object"
       },
+      "JournalAck": {
+        "description": "Отметка родителя «ознакомлен с дневником» за неделю.",
+        "properties": {
+          "child_id": {
+            "title": "Child Id",
+            "type": "integer"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          },
+          "week": {
+            "format": "date",
+            "title": "Week",
+            "type": "string"
+          }
+        },
+        "required": [
+          "week",
+          "child_id"
+        ],
+        "title": "JournalAck",
+        "type": "object"
+      },
+      "JournalAckRequest": {
+        "properties": {
+          "child_id": {
+            "description": "id ученика из /v1/parent/children",
+            "exclusiveMinimum": 0.0,
+            "title": "Child Id",
+            "type": "integer"
+          },
+          "week": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "любой день недели; нет — текущая",
+            "title": "Week"
+          }
+        },
+        "required": [
+          "child_id"
+        ],
+        "title": "JournalAckRequest",
+        "type": "object"
+      },
       "JsonValue": {},
       "Lesson": {
         "properties": {
@@ -8481,6 +8541,262 @@
           }
         ],
         "summary": "Изменить адрес почты в контакте родителя",
+        "tags": [
+          "родитель"
+        ]
+      }
+    },
+    "/v1/parent/journal-acks": {
+      "get": {
+        "operationId": "get_journal_acks_v1_parent_journal_acks_get",
+        "parameters": [
+          {
+            "description": "id ученика из /v1/parent/children",
+            "in": "query",
+            "name": "child_id",
+            "required": true,
+            "schema": {
+              "description": "id ученика из /v1/parent/children",
+              "exclusiveMinimum": 0,
+              "title": "Child Id",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "по умолчанию — понедельник текущей недели",
+            "in": "query",
+            "name": "from",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "по умолчанию — понедельник текущей недели",
+              "title": "From"
+            }
+          },
+          {
+            "description": "по умолчанию — воскресенье; период не длиннее 31 дня",
+            "in": "query",
+            "name": "to",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "по умолчанию — воскресенье; период не длиннее 31 дня",
+              "title": "To"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/JournalAck"
+                  },
+                  "title": "Response Get Journal Acks V1 Parent Journal Acks Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "bad_request: неверные параметры или тело запроса (названо поле)"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "token_missing, token_invalid или token_expired: нужен токен ученика"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "bad_api_key или forbidden_scope: ключ потребителя не подходит"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "multiple_children: у родителя несколько детей, нужен child_id; not_for_role: этой роли дневник эти данные не отдаёт"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "rate_limited: заголовок Retry-After — секунды"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpstreamErrorResponse"
+                }
+              }
+            },
+            "description": "upstream_error или upstream_format: сбой дневника"
+          },
+          "504": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpstreamErrorResponse"
+                }
+              }
+            },
+            "description": "upstream_timeout: дневник не ответил"
+          }
+        },
+        "security": [
+          {
+            "APIKeyHeader": []
+          },
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Отметки «ознакомлен с дневником» по неделям",
+        "tags": [
+          "родитель"
+        ]
+      },
+      "post": {
+        "description": "Нужен ключ с разрешением acknowledge_journal. Неделя уже отмечена — 204 без повторной отметки. Отметку видят учителя, отменить её нельзя.",
+        "operationId": "post_journal_ack_v1_parent_journal_acks_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/JournalAckRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "bad_request: неверные параметры или тело запроса (названо поле)"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "token_missing, token_invalid или token_expired: нужен токен ученика"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "bad_api_key или forbidden_scope: ключ потребителя не подходит"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "multiple_children: у родителя несколько детей, нужен child_id; not_for_role: этой роли дневник эти данные не отдаёт"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "rate_limited: заголовок Retry-After — секунды"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpstreamErrorResponse"
+                }
+              }
+            },
+            "description": "upstream_error или upstream_format: сбой дневника"
+          },
+          "504": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpstreamErrorResponse"
+                }
+              }
+            },
+            "description": "upstream_timeout: дневник не ответил"
+          }
+        },
+        "security": [
+          {
+            "APIKeyHeader": []
+          },
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Отметить неделю «ознакомлен с дневником»",
         "tags": [
           "родитель"
         ]

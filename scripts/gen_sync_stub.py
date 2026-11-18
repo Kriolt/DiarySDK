@@ -39,7 +39,7 @@ from diarysdk.models.lessons import Lesson
 from diarysdk.models.marks import FinalMark, Mark, MarkDetail
 from diarysdk.models.me import Me
 from diarysdk.models.notifications import Notification
-from diarysdk.models.parent import Child, ParentMe
+from diarysdk.models.parent import Child, JournalAck, ParentMe
 from diarysdk.models.periods import PeriodDay
 from diarysdk.models.rating import Rating, RatingPoint, SubjectRating
 from diarysdk.models.schedule import ScheduleItem

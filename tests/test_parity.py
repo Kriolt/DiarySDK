@@ -93,7 +93,7 @@ def test_signatures_match(core, remote, protocol):
 @pytest.fixture(autouse=True)
 def full_key(keys_file):
     """Ключ потребителя с обоими разрешениями: вход и правка контактов."""
-    keys_file.write_text(f"tests {hash_key(API_KEY)} login,write_profile\n")
+    keys_file.write_text(f"tests {hash_key(API_KEY)} login,write_profile,acknowledge_journal\n")
 
 
 @pytest.fixture
@@ -318,6 +318,7 @@ PARENT_READS = {
     "settings": lambda p: p.settings(),
     "child marks": lambda p: p.student(9002).marks(),
     "child me": lambda p: p.student(9002).me(),
+    "journal acks": lambda p: p.journal_acks(9001),
 }
 
 
@@ -330,6 +331,8 @@ async def parents(both):
         server.fake.add(f"/api/persondata/v1/persons/{PARENT_GUID}", {"id": 1})
         server.fake.add(f"/api/avatarmanagement/v1/{PARENT_GUID}", [{"id": 5, "default": True}])
         server.fake.add(f"/avatars/{PARENT_GUID}", b"\x89PNG", content_type="image/png")
+        server.fake.add("GET /api/ej/core/family/v1/aware_journals", [])
+        server.fake.add("POST /api/ej/core/family/v1/aware_journals", {"id": 2})
     return both
 
 
@@ -350,3 +353,17 @@ async def test_parent_same_errors(parents, token):
             await diary.parent(token).student(999).marks()
         with pytest.raises(errors.NotForRole):
             await diary.parent(token).student(9002).exams()
+
+
+async def test_parent_acknowledge_same_wire(parents, token, settings):
+    await parents.direct.parent(token).acknowledge_journal(9001)
+    await parents.remote.parent(token).acknowledge_journal(9001)
+
+    def posts(server):
+        return [
+            (r.url.path, sorted(json.loads(r.content)))
+            for r in server.requests
+            if r.method == "POST"
+        ]
+
+    assert posts(parents.remote_server) == posts(parents.direct_server) != []

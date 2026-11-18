@@ -1,14 +1,17 @@
 """Родитель — владелец токена: свои данные, ученики, настройки, контакт."""
 
+from datetime import date
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Path, Response
+from fastapi import APIRouter, Depends, Path, Query, Response
+from pydantic import BaseModel, Field
 
 from diarysdk.models.identity import ContactUpdate, Identity
-from diarysdk.models.parent import Child, ParentMe
+from diarysdk.models.parent import Child, JournalAck, ParentMe
 from diarysdk.models.settings import Settings, SettingsUpdate
 from diarysdk.server.edge.auth import require_scope
 from diarysdk.server.routes.deps import ParentDep
+from diarysdk.server.routes.params import period_bound
 
 ContactId = Annotated[int, Path(gt=0, description="id контакта из /v1/parent/identity")]
 
@@ -72,4 +75,38 @@ async def patch_settings(parent: ParentDep, update: SettingsUpdate) -> Response:
 )
 async def put_contact(parent: ParentDep, contact_id: ContactId, update: ContactUpdate) -> Response:
     await parent.update_contact(contact_id, update.value)
+    return Response(status_code=204)
+
+
+ChildQuery = Annotated[int, Query(gt=0, description="id ученика из /v1/parent/children")]
+From = period_bound("from", "понедельник текущей недели")
+To = period_bound("to", "воскресенье; период не длиннее 31 дня")
+
+
+class JournalAckRequest(BaseModel):
+    child_id: int = Field(gt=0, description="id ученика из /v1/parent/children")
+    week: date | None = Field(default=None, description="любой день недели; нет — текущая")
+
+
+@router.get("/journal-acks", summary="Отметки «ознакомлен с дневником» по неделям")
+async def get_journal_acks(
+    parent: ParentDep, child_id: ChildQuery, start: From = None, end: To = None
+) -> list[JournalAck]:
+    return await parent.journal_acks(child_id, start, end)
+
+
+# Запись не повторяется; отменить отметку нельзя ни здесь, ни на сайте.
+@router.post(
+    "/journal-acks",
+    status_code=204,
+    response_class=Response,
+    dependencies=[Depends(require_scope("acknowledge_journal"))],
+    summary="Отметить неделю «ознакомлен с дневником»",
+    description=(
+        "Нужен ключ с разрешением acknowledge_journal. Неделя уже отмечена — 204 без "
+        "повторной отметки. Отметку видят учителя, отменить её нельзя."
+    ),
+)
+async def post_journal_ack(parent: ParentDep, request: JournalAckRequest) -> Response:
+    await parent.acknowledge_journal(request.child_id, request.week)
     return Response(status_code=204)

@@ -1,5 +1,7 @@
 """Родитель: его профиль и ученики, к которым у него есть доступ."""
 
+from datetime import date, datetime
+
 from diarysdk.models.common import Schema, SchoolBrief
 from diarysdk.models.me import TokenExpiry
 
@@ -26,3 +28,12 @@ class Child(Schema):
     school: SchoolBrief
     class_name: str | None = None
     is_legal_representative: bool | None = None
+
+
+class JournalAck(Schema):
+    """Отметка родителя «ознакомлен с дневником» за неделю."""
+
+    week: date
+    # Когда отметили (по Москве); дневник не прислал — null.
+    created_at: datetime | None = None
+    child_id: int

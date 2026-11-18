@@ -52,7 +52,7 @@ from diarysdk.models.marks import (
 )
 from diarysdk.models.me import Me, MePerson, Section, TokenExpiry
 from diarysdk.models.notifications import Notification, NotificationHomework, NotificationMark
-from diarysdk.models.parent import Child, ParentMe
+from diarysdk.models.parent import Child, JournalAck, ParentMe
 from diarysdk.models.periods import PeriodDay
 from diarysdk.models.rating import Rating, RatingEntry, RatingMe, RatingPoint, SubjectRating
 from diarysdk.models.schedule import HomeworkBrief, HomeworkCounts, ScheduleItem
@@ -98,6 +98,7 @@ __all__ = [
     "Identity",
     "IdentityBase",
     "IdentityPerson",
+    "JournalAck",
     "Lesson",
     "LessonTeacher",
     "LoginCaptcha",

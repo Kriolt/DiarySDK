@@ -1,6 +1,6 @@
 """Маршруты родителя и child_id в маршрутах ученика (ядро с подставным шлюзом)."""
 
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 
 import pytest
 from httpx import ASGITransport, AsyncClient
@@ -117,3 +117,41 @@ async def test_contact_with_write_profile(api, fake_diary):
 
     assert response.status_code == 204
     assert fake_diary.args["parent_update_contact"][1:] == (2, "new@example.test")
+
+
+async def test_journal_acks_route(api, fake_diary):
+    fake_diary.answers["parent_journal_acks"] = []
+
+    response = await api.get(
+        "/v1/parent/journal-acks", params={"child_id": 9001, "from": "2026-02-02"}
+    )
+
+    assert response.status_code == 200
+    # Ядро до шлюза дополняет период: конец — воскресенье той же недели.
+    assert fake_diary.args["parent_journal_acks"][1:] == (9001, date(2026, 2, 2), date(2026, 2, 8))
+
+
+async def test_acknowledge_needs_its_scope(api, fake_diary):
+    response = await api.post("/v1/parent/journal-acks", json={"child_id": 9001})
+
+    assert response.status_code == 403
+    assert response.json()["error"] == "forbidden_scope"
+    assert fake_diary.calls == []
+
+
+async def test_acknowledge_with_scope(tmp_path, fake_diary, today):
+    from diarysdk.server.config import Settings
+
+    path = tmp_path / "ack-keys"
+    path.write_text(f"tests {hash_key(API_KEY)} acknowledge_journal\n")
+    fake_diary.answers["parent_acknowledge_journal"] = None
+    app = create_app(Settings(keys_file=path, version="x"), diary=core_diary(fake_diary))
+    async with AsyncClient(
+        transport=ASGITransport(app), base_url="http://t", headers=AUTH_HEADERS
+    ) as c:
+        response = await c.post(
+            "/v1/parent/journal-acks", json={"child_id": 9001, "week": "2026-02-04"}
+        )
+
+    assert response.status_code == 204
+    assert fake_diary.args["parent_acknowledge_journal"][1:] == (9001, date(2026, 2, 4))
