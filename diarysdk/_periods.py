@@ -105,7 +105,7 @@ def journal_period(start: date | None, end: date | None, today: date) -> tuple[d
     """Ознакомление: по умолчанию текущая неделя, начало — понедельник своей недели,
     не больше 31 дня."""
     monday, sunday = clock.week_bounds(today)
-    start, end = resolve_period(
-        start, end, default_start=monday, default_end=sunday, span=6, max_days=31
-    )
-    return clock.week_bounds(start)[0], end
+    # Дневник отдаёт недели целиком: начало сдвигаем на понедельник до проверки длины.
+    if start is not None:
+        start = clock.week_bounds(start)[0]
+    return resolve_period(start, end, default_start=monday, default_end=sunday, span=6, max_days=31)

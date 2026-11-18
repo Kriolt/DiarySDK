@@ -8,6 +8,7 @@ from dataclasses import replace
 from datetime import date
 from typing import TYPE_CHECKING, Any, Literal
 
+from diarysdk import _protocols as protocols
 from diarysdk.errors import TokenExpired
 from diarysdk.models.certificates import Certificate
 from diarysdk.models.curriculum import ControlWork, Curriculum, ProgramModule, SubjectTopic
@@ -52,6 +53,7 @@ def as_token(token: str | Token) -> Token:
     return token if isinstance(token, Token) else Token(token)
 
 
+@protocols.documented(protocols.StudentLike)
 class RemoteStudent:
     """Запросы от имени одного ученика; создаётся `diary.student(token)`."""
 
@@ -169,8 +171,6 @@ class RemoteStudent:
         await self._call(_core.update_settings(update))
 
     async def update_contact(self, contact_id: int, value: str) -> None:
-        """Заменить адрес почты в контакте ученика. Нужен ключ с разрешением
-        write_profile (иначе ForbiddenScope); не почта — UnsupportedContact."""
         await self._call(_core.update_contact(contact_id, value))
 
     async def identity(self) -> Identity:

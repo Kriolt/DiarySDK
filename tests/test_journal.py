@@ -1,5 +1,6 @@
 """Ознакомление родителя с дневником: чтение отметок и отметка недели."""
 
+import asyncio
 import json
 import re
 from datetime import date
@@ -27,11 +28,32 @@ ACK = {
 @pytest.fixture
 def server(monkeypatch):
     monkeypatch.setattr(clock, "today_msk", lambda: date(2026, 2, 4))  # среда
-    server = DiaryServer()
+    server = AckServer()
     server.fake.add("/api/family/web/v1/profile", parent_profile())
     server.fake.add(f"GET {ACKS}", [])
     server.fake.add(f"POST {ACKS}", {"id": 2})
     return server
+
+
+class AckServer(DiaryServer):
+    """После POST чтение отметок возвращает отметку этой недели, как настоящий дневник."""
+
+    def __call__(self, request):
+        if request.method == "POST" and request.url.path == ACKS:
+            body = json.loads(request.content)
+            self.fake.add(
+                f"GET {ACKS}",
+                [{**ACK, "week": body["week"], "student_profile_id": body["student_profile_id"]}],
+            )
+        if request.method == "GET" and request.url.path == ACKS:
+            return self._slow(request)
+        return super().__call__(request)
+
+    async def _slow(self, request):
+        # Чтение отметок «медленное»: одновременные вызовы успевают пересечься.
+        response = super().__call__(request)
+        await asyncio.sleep(0.01)
+        return response
 
 
 @pytest.fixture
@@ -118,3 +140,16 @@ async def test_acknowledge_current_week_on_sunday_is_allowed(parent, server):
     await parent.acknowledge_journal(9001, date(2026, 2, 8))
 
     assert len(_sent(server, "POST")) == 1
+
+
+async def test_concurrent_acknowledge_posts_once(parent, server):
+    await asyncio.gather(*(parent.acknowledge_journal(9001) for _ in range(3)))
+
+    # Первая отметка уже видна следующим: подставной дневник отдаёт её после POST.
+    assert len(_sent(server, "POST")) == 1
+
+
+async def test_acknowledge_locks_are_released(parent):
+    await parent.acknowledge_journal(9001)
+
+    assert parent._diary._ack_locks == {}

@@ -381,3 +381,7 @@ def test_sync_parent_children_and_child_reads(settings, token):
             results.append(([c.id for c in parent.children()], child.me().class_.id))
 
     assert results == [([9001, 9002], 4002)] * 2
+
+
+def test_sync_exports_parent():
+    assert "Parent" in sync.__all__

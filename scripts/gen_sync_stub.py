@@ -85,8 +85,19 @@ def _returns(function: typing.Callable) -> str:
     return _annotation(annotation)
 
 
+def _docstring(source: object) -> list[str]:
+    """Документация протокола телом метода заглушки: её показывают IDE."""
+    doc = inspect.getdoc(source)
+    if not doc:
+        return ["        ..."]
+    body = [f"        {line}" if line else "" for line in doc.splitlines()]
+    body[0] = '        """' + body[0].lstrip()
+    return [*body, '        """']
+
+
 def _method(name: str, function: typing.Callable) -> str:
-    return f"    def {name}({_params(function)}) -> {_returns(function)}: ..."
+    head = f"    def {name}({_params(function)}) -> {_returns(function)}:"
+    return "\n".join([head, *_docstring(function)])
 
 
 def _members(protocol: type, skip: set[str] = frozenset()) -> list[str]:
@@ -97,7 +108,8 @@ def _members(protocol: type, skip: set[str] = frozenset()) -> list[str]:
         raw = inspect.getattr_static(protocol, name)
         if isinstance(raw, property):
             lines.append("    @property")
-            lines.append(f"    def {name}(self) -> {_returns(raw.fget)}: ...")
+            lines.append(f"    def {name}(self) -> {_returns(raw.fget)}:")
+            lines += _docstring(raw)
         else:
             lines.append(_method(name, raw))
     return lines

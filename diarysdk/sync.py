@@ -33,7 +33,7 @@ from diarysdk.remote import RemoteLoginFlow as _AsyncRemoteLoginFlow
 from diarysdk.remote import RemoteParent as _AsyncRemoteParent
 from diarysdk.remote import RemoteStudent as _AsyncRemoteStudent
 
-__all__ = ["Diary", "Login", "LoginFlow", "RemoteDiary", "Student"]
+__all__ = ["Diary", "Login", "LoginFlow", "Parent", "RemoteDiary", "Student"]
 
 _CLOSED = "Diary закрыт"
 
@@ -160,12 +160,12 @@ def _like(function: Callable, name: str, source: Callable) -> Callable:
     return function
 
 
-def _property(name: str) -> property:
+def _property(name: str, doc: str | None = None) -> property:
     def getter(self: _Proxy) -> Any:
         return self._adopt(getattr(self._target, name))
 
     getter.__name__ = name
-    return property(getter)
+    return property(getter, doc=doc)
 
 
 def _generate(name: str, protocol: type, base: type = _Proxy, skip: frozenset[str] = frozenset()):
@@ -176,7 +176,7 @@ def _generate(name: str, protocol: type, base: type = _Proxy, skip: frozenset[st
             continue
         raw = inspect.getattr_static(protocol, member)
         if isinstance(raw, property):
-            namespace[member] = _property(member)
+            namespace[member] = _property(member, raw.__doc__)
         elif inspect.iscoroutinefunction(raw):
             namespace[member] = _async_method(member, raw)
         else:

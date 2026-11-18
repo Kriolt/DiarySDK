@@ -25,6 +25,13 @@
 - `final_marks` через токен родителя больше не падает с `TokenInvalid`.
 - `MultipleChildren` подсказывает `diary.parent(token).student(child_id)`.
 - `live_check.py --parent`; `NoAvatar` и `NotForRole` печатаются как `skip`.
+- `acknowledge_journal`: одновременные вызовы на одну неделю ставят одну отметку,
+  будущую неделю отметить нельзя (`BadRequest`); период `journal_acks` — до 31 дня
+  с понедельника. `child_id ≤ 0` — `BadRequest` и в ядре.
+- Документация каждого открытого метода в стиле numpy (`help()`, IDE, `sync.pyi`):
+  текст один — в протоколах, ядро, удалённый клиент и `sync` берут его оттуда.
+- `school_teachers` останавливается, если дневник повторяет страницу;
+  неизвестный `child_id` минуту не спрашивает профиль заново.
 
 ## 0.1.0 — 2026-11-16
 

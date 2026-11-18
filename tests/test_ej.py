@@ -103,11 +103,26 @@ async def test_school_teachers_read_every_page():
     assert [r.params["page"] for r in fake.sent] == ["1", "2"]
 
 
-async def test_school_teachers_stop_at_page_limit():
+async def test_school_teachers_stop_when_page_repeats():
+    # Дневник проигнорировал page и отдаёт одну и ту же страницу.
     fake = PagedFake([[teacher(i) for i in range(50)]])
     gateway = DiaryGateway(fake, HOSTS)
 
-    await gateway.school_teachers(Ctx(token="t.t.t", student=STUDENT), None)
+    result = await gateway.school_teachers(Ctx(token="t.t.t", student=STUDENT), None)
+
+    assert len(fake.sent) == 2
+    assert len(result) == 50
+
+
+async def test_school_teachers_stop_at_page_limit():
+    class Endless(PagedFake):
+        async def send(self, method, url, **kwargs):
+            page = int(kwargs["params"]["page"])
+            self.add(TEACHERS, [teacher(page * 100 + i) for i in range(50)])
+            return await FakeTransport.send(self, method, url, **kwargs)
+
+    fake = Endless([])
+    await DiaryGateway(fake, HOSTS).school_teachers(Ctx(token="t.t.t", student=STUDENT), None)
 
     assert len(fake.sent) == 20
 

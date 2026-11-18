@@ -47,6 +47,18 @@ class Token:
         self.expires_at: datetime | None = expires_at
 
     def expires_in(self, now: datetime | None = None) -> timedelta | None:
+        """Сколько осталось до истечения токена.
+
+        Parameters
+        ----------
+        now : datetime.datetime, optional
+            Момент отсчёта (с часовым поясом); по умолчанию — сейчас.
+
+        Returns
+        -------
+        datetime.timedelta или None
+            Отрицательное, если токен уже истёк; `None`, если срок неизвестен.
+        """
         if self.expires_at is None:
             return None
         return self.expires_at - (now or datetime.now(UTC))
