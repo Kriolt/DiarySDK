@@ -25,6 +25,7 @@ def test_openapi_describes_our_400_not_fastapi_422(settings):
     marks = spec["paths"]["/v1/marks"]["get"]["responses"]
     # 422 остаётся только как наш multiple_children, не как ошибка проверки.
     assert "multiple_children" in marks["422"]["description"]
+    assert "not_for_role" in marks["422"]["description"]
     assert "HTTPValidationError" not in str(marks)
     assert marks["400"]["content"]["application/json"]["schema"] == {
         "$ref": "#/components/schemas/ErrorResponse"

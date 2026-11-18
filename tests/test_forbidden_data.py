@@ -179,6 +179,8 @@ async def app(settings, routes, monkeypatch):
         )
         monkeypatch.setattr(clock, "today_msk", lambda: date(2026, 10, 24))
         app = create_app(local)
+        # Обход переключает профиль на родительский перед маршрутами /v1/parent.
+        app.state.test_routes = routes
         async with app.router.lifespan_context(app):
             yield app
     finally:
@@ -205,17 +207,39 @@ def is_esia(path: str) -> bool:
     return path.startswith("/v1/auth/esia")
 
 
+def is_parent(path: str) -> bool:
+    return path.startswith("/v1/parent")
+
+
+def as_parent(app) -> bool:
+    """Профиль дневника — родительский: представитель ребёнка с СНИЛС владельца
+    и GUID карточки из маршрутов. Возвращает True, чтобы стоять в условии."""
+    routes = app.state.test_routes
+    profile = fixture("profile.json")
+    profile["children"][0]["snils"] = None
+    profile["profile"].update(type="parent", snils=PARENT_SNILS)
+    profile["children"][0]["representatives"] = [{"person_id": GUID, "snils": PARENT_SNILS}]
+    routes.add("/api/family/web/v1/profile", profile)
+    return True
+
+
 async def walk(app) -> list[str]:
     """Обход всех маршрутов /v1; вернёт flow_id входов через ЕСИА."""
     transport = ASGITransport(app)
     async with AsyncClient(transport=transport, base_url="http://t", headers=AUTH_HEADERS) as c:
-        for method, path in v1_routes(app):
+        # Сначала маршруты ученика, потом родителя — уже с профилем родителя.
+        for method, path in sorted(v1_routes(app), key=lambda r: is_parent(r[1])):
             if is_esia(path):
                 continue
+            if is_parent(path) and not as_parent(app):
+                continue
             body = LOGIN_BODY if path == "/v1/auth/password" else None
-            if (method, path) == ("PATCH", "/v1/settings"):
+            if (method, path) in (("PATCH", "/v1/settings"), ("PATCH", "/v1/parent/settings")):
                 body = SETTINGS_BODY
-            if (method, path) == ("PUT", "/v1/identity/contacts/2"):
+            if (method, path) in (
+                ("PUT", "/v1/identity/contacts/2"),
+                ("PUT", "/v1/parent/identity/contacts/2"),
+            ):
                 body = CONTACT_BODY
             response = await c.request(method, path, json=body)
             assert response.status_code in (200, 204), (method, path, response.text)
@@ -288,7 +312,16 @@ async def test_walk_covers_every_endpoint_of_the_contract(app):
         "/v1/auth/esia/{flow_id}/captcha/renew",
         "/v1/auth/esia/{flow_id}",
         "/v1/auth/token",
+        "/v1/parent/me",
+        "/v1/parent/children",
+        "/v1/parent/identity",
+        "/v1/parent/avatar",
+        "/v1/parent/settings",
+        "/v1/parent/identity/contacts/2",
     }
+
+
+PARENT_SNILS = "000-000-000 01"
 
 
 def _values(data):
@@ -319,6 +352,7 @@ async def test_log_has_no_token_bodies_guid_or_student_id(app):
         "Алгебра",
         "Квадратные уравнения",
         "111-222-333 44",
+        PARENT_SNILS,
         *secrets,
     ]:
         assert value not in text, value

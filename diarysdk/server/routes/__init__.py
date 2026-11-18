@@ -9,6 +9,7 @@ from diarysdk.server.routes import (
     marks,
     me,
     notifications,
+    parent,
     periods,
     rating,
     schedule,
@@ -32,4 +33,5 @@ ALL = [
     periods.router,
     curriculum.router,
     settings.router,
+    parent.router,
 ]

@@ -9,12 +9,6 @@ from diarysdk._wire.common import DT, Wire
 from diarysdk._wire.mobile import Mark
 
 
-class Profile(Wire):
-    id: int | None = None
-    # Тип владельца токена: "student", "parent".
-    type: str | None = None
-
-
 class School(Wire):
     id: int | None = None
     name: str | None = None
@@ -42,7 +36,14 @@ class Person(Wire):
 
 
 class Representative(Person):
-    pass
+    person_id: str | None = None
+
+
+class Profile(Person):
+    """Владелец токена; `type` — "student" или "parent"."""
+
+    id: int | None = None
+    user_id: int | None = None
 
 
 class Child(Person):

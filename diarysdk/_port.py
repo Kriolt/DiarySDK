@@ -123,6 +123,39 @@ class StudentContext:
     profile: WebFamilyProfile | None = field(default=None, repr=False, compare=False)
 
 
+class Owner(Protocol):
+    """Чьи настройки, карточка и аватарка: ученик или родитель-владелец токена."""
+
+    @property
+    def profile_id(self) -> int: ...
+
+    @property
+    def person_guid(self) -> str: ...
+
+
+@dataclass(frozen=True)
+class ParentContext:
+    """Владелец токена-родитель: профиль для заголовков и GUID его карточки.
+
+    Нужен там, где шлюзу важны только `profile_id` и `person_guid` (настройки,
+    карточка, аватарка) — те же поля, что у StudentContext.
+    """
+
+    profile_id: int
+    # GUID карточки родителя; не нашёлся — None (карточки и аватарки нет).
+    person_guid: str | None
+    expires_at: datetime
+    profile: WebFamilyProfile = field(repr=False, compare=False)
+
+
+@dataclass(frozen=True)
+class ParentCtx:
+    """Контекст одного запроса родителя. Токен не попадает в repr."""
+
+    token: str = field(repr=False)
+    parent: ParentContext
+
+
 @dataclass(frozen=True)
 class Ctx:
     """Контекст одного запроса: токен и ученик. Токен не попадает в repr."""

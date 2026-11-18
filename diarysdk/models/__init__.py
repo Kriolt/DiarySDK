@@ -52,6 +52,7 @@ from diarysdk.models.marks import (
 )
 from diarysdk.models.me import Me, MePerson, Section, TokenExpiry
 from diarysdk.models.notifications import Notification, NotificationHomework, NotificationMark
+from diarysdk.models.parent import Child, ParentMe
 from diarysdk.models.periods import PeriodDay
 from diarysdk.models.rating import Rating, RatingEntry, RatingMe, RatingPoint, SubjectRating
 from diarysdk.models.schedule import HomeworkBrief, HomeworkCounts, ScheduleItem
@@ -72,6 +73,7 @@ __all__ = [
     "Avatar",
     "Branch",
     "Captcha",
+    "Child",
     "ClassResults",
     "ClassUnit",
     "Contact",
@@ -111,6 +113,7 @@ __all__ = [
     "Notification",
     "NotificationHomework",
     "NotificationMark",
+    "ParentMe",
     "Period",
     "PeriodDay",
     "PersonName",

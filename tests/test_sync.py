@@ -304,10 +304,11 @@ def test_sync_diary_signatures(wrapper, async_class):
     assert _shape(wrapper.__init__, annotations=True) == _shape(
         async_class.__init__, annotations=True
     )
-    assert _methods(wrapper) == {"student", "close", "__enter__", "__exit__"}
-    assert _shape(wrapper.student, annotations=True) == _shape(
-        protocols.DiaryLike.student, annotations=True
-    )
+    assert _methods(wrapper) == {"student", "parent", "close", "__enter__", "__exit__"}
+    for name in ("student", "parent"):
+        assert _shape(getattr(wrapper, name), annotations=True) == _shape(
+            getattr(protocols.DiaryLike, name), annotations=True
+        )
     assert isinstance(inspect.getattr_static(wrapper, "login"), property)
 
 
@@ -363,3 +364,20 @@ def test_sync_does_not_reexport_async_remote_classes():
     # Приватные псевдонимы: sync.RemoteStudent не должен подсовывать async-класс.
     for name in ("RemoteLogin", "RemoteLoginFlow", "RemoteStudent"):
         assert not hasattr(sync, name), name
+
+
+def test_sync_parent_children_and_child_reads(settings, token):
+    from tests.test_parent import parent_profile
+
+    results = []
+    for build in (direct_diary, lambda server: remote_diary(settings, server)):
+        server = DiaryServer()
+        server.fake.add("/api/family/web/v1/profile", parent_profile())
+        with build(server)[0] as diary:
+            parent = diary.parent(token)
+            assert type(parent).__name__ == "Parent"
+            child = parent.student(9002)
+            assert type(child).__name__ == "Student"
+            results.append(([c.id for c in parent.children()], child.me().class_.id))
+
+    assert results == [([9001, 9002], 4002)] * 2

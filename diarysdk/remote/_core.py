@@ -35,6 +35,7 @@ from diarysdk.models.lessons import Lesson
 from diarysdk.models.marks import FinalMark, Mark, MarkDetail
 from diarysdk.models.me import Me
 from diarysdk.models.notifications import Notification
+from diarysdk.models.parent import Child, ParentMe
 from diarysdk.models.periods import PeriodDay
 from diarysdk.models.rating import Rating, RatingPoint, SubjectRating
 from diarysdk.models.schedule import ScheduleItem
@@ -353,3 +354,35 @@ def esia_renew(flow_id: str) -> Request:
 
 def esia_cancel(flow_id: str) -> Request:
     return Request("DELETE", f"/v1/auth/esia/{flow_id}", login=True)
+
+
+# --- родитель ---
+
+
+def parent_me() -> Request:
+    return Request("GET", "/v1/parent/me", model=ParentMe)
+
+
+def parent_identity() -> Request:
+    return Request("GET", "/v1/parent/identity", model=Identity)
+
+
+def parent_avatar() -> Request:
+    return Request("GET", "/v1/parent/avatar", model=Avatar)
+
+
+def parent_children() -> Request:
+    return Request("GET", "/v1/parent/children", model=list[Child])
+
+
+def parent_settings() -> Request:
+    return Request("GET", "/v1/parent/settings", model=Settings)
+
+
+def parent_update_settings(update: SettingsUpdate) -> Request:
+    body = update.model_dump(mode="json", exclude_unset=True)
+    return Request("PATCH", "/v1/parent/settings", body=body)
+
+
+def parent_update_contact(contact_id: int, value: str) -> Request:
+    return Request("PUT", f"/v1/parent/identity/contacts/{contact_id}", body={"value": value})

@@ -32,6 +32,7 @@ from diarysdk._port import (
     EsiaSession,
     EsiaStep,
     MfaChallenge,
+    ParentCtx,
     StudentContext,
 )
 from diarysdk._transport import Transport
@@ -55,6 +56,7 @@ from diarysdk.models.lessons import Lesson
 from diarysdk.models.marks import FinalMark, Mark, MarkDetail
 from diarysdk.models.me import Me
 from diarysdk.models.notifications import Notification
+from diarysdk.models.parent import Child, ParentMe
 from diarysdk.models.periods import PeriodDay
 from diarysdk.models.rating import Rating, RatingPoint, SubjectRating
 from diarysdk.models.schedule import ScheduleItem
@@ -134,6 +136,9 @@ class Diary:
     def student(self, token: str | Token) -> Student:
         return Student(self, token if isinstance(token, Token) else Token(token))
 
+    def parent(self, token: str | Token) -> Parent:
+        return Parent(self, token if isinstance(token, Token) else Token(token))
+
     async def _context(self, token: str, child_id: int | None = None) -> StudentContext:
         try:
             # Срок нужен контексту; без него это не токен дневника — и спрашивать нечего.
@@ -152,6 +157,44 @@ class Diary:
                 return await make()
         except TimeoutError:
             raise UpstreamTimeout() from None
+
+
+async def _guarded[T](diary: Diary, token: Token, run: Callable[[], Awaitable[T]]) -> T:
+    """Вызов от имени токена, не дольше deadline.
+
+    Если дедлайн вышел, когда запись уже отправлялась (шлюз отметил это в
+    write_started), исход неизвестен — WriteUncertain, а не UpstreamTimeout.
+    Дедлайн на чтении перед записью — обычный UpstreamTimeout.
+    """
+    if diary._closed:
+        raise RuntimeError("Diary закрыт")
+    # Просроченный токен не тратит запрос к дневнику.
+    token.ensure_usable(_utcnow())
+    await diary._transport.start()
+    started: list[bool] = []
+    marker = write_started.set(started)
+    try:
+        async with asyncio.timeout(diary._deadline):
+            return await run()
+    except TimeoutError:
+        timeout = UpstreamTimeout()
+        if started:
+            raise WriteUncertain(cause=timeout) from None
+        raise timeout from None
+    finally:
+        write_started.reset(marker)
+
+
+def _check_email(value: str) -> None:
+    """Значение — не адрес почты (правило сервиса: 3-255 символов, одна @) —
+    BadRequest до обращения к дневнику."""
+    try:
+        ContactUpdate(value=value)
+    except ValidationError as error:
+        # То же сообщение, что у сервиса на неверное тело запроса: имена полей,
+        # а у ошибки всей модели (нет адреса почты) — «body».
+        names = sorted({str(item["loc"][-1]) if item["loc"] else "body" for item in error.errors()})
+        raise BadRequest(f"Неверные параметры запроса: {', '.join(names)}") from None
 
 
 class Login:
@@ -304,30 +347,18 @@ class Student:
         write_started), исход неизвестен — WriteUncertain, а не UpstreamTimeout.
         Дедлайн на чтении перед записью — обычный UpstreamTimeout.
         """
-        diary = self._diary
-        token = self._token
-        if diary._closed:
-            raise RuntimeError("Diary закрыт")
-        # Просроченный токен не тратит запрос к дневнику.
-        token.ensure_usable(_utcnow())
-        await diary._transport.start()
-        started: list[bool] = []
-        marker = write_started.set(started)
+        diary, value = self._diary, self._token.value
+
+        async def run() -> T:
+            student = await diary._contexts.get(value, self._child_id)
+            return await call(Ctx(token=value, student=student))
+
         try:
-            async with asyncio.timeout(diary._deadline):
-                student = await diary._contexts.get(token.value, self._child_id)
-                return await call(Ctx(token=token.value, student=student))
-        except TimeoutError:
-            timeout = UpstreamTimeout()
-            if started:
-                raise WriteUncertain(cause=timeout) from None
-            raise timeout from None
+            return await _guarded(diary, self._token, run)
         except TokenInvalid:
             # Дневник не принял токен — его контекст больше не годится.
-            diary._contexts.evict(token.value, self._child_id)
+            diary._contexts.evict(value, self._child_id)
             raise
-        finally:
-            write_started.reset(marker)
 
     @property
     def _gateway(self) -> DiaryGateway:
@@ -408,15 +439,7 @@ class Student:
         Значение — не адрес почты (правило сервиса: 3-255 символов, одна @) —
         BadRequest до обращения к дневнику; контакт не почта — UnsupportedContact.
         """
-        try:
-            ContactUpdate(value=value)
-        except ValidationError as error:
-            # То же сообщение, что у сервиса на неверное тело запроса: имена полей,
-            # а у ошибки всей модели (нет адреса почты) — «body».
-            names = sorted(
-                {str(item["loc"][-1]) if item["loc"] else "body" for item in error.errors()}
-            )
-            raise BadRequest(f"Неверные параметры запроса: {', '.join(names)}") from None
+        _check_email(value)
         await self._call(lambda ctx: self._gateway.update_contact(ctx, contact_id, value))
 
     async def identity(self) -> Identity:
@@ -434,3 +457,64 @@ class Student:
 
     async def curriculum(self) -> Curriculum:
         return await self._call(self._gateway.curriculum)
+
+
+class Parent:
+    """Родитель — владелец токена: свои данные и доступные ему ученики.
+    Создаётся `diary.parent(token)` и сам запросов не делает."""
+
+    def __init__(self, diary: Diary, token: Token) -> None:
+        self._diary = diary
+        self._token = token
+
+    @property
+    def token(self) -> Token:
+        return self._token
+
+    def __repr__(self) -> str:
+        return f"Parent(token={self._token!r})"
+
+    @property
+    def _gateway(self) -> DiaryGateway:
+        return self._diary._gateway
+
+    async def _call[T](self, call: Callable[[ParentCtx], Awaitable[T]]) -> T:
+        """Профиль родителя (каждый раз свежий: он и есть контекст) → вызов."""
+        value = self._token.value
+
+        async def run() -> T:
+            try:
+                jwt.expires_at(value)
+            except jwt.InvalidToken:
+                raise TokenInvalid("Это не токен дневника") from None
+            parent = await self._gateway.parent_context(value)
+            return await call(ParentCtx(token=value, parent=parent))
+
+        return await _guarded(self._diary, self._token, run)
+
+    def student(self, child_id: int) -> Student:
+        """Ученик родителя по `Child.id`; неверный id — NotFound при первом вызове."""
+        return Student(self._diary, self._token, child_id)
+
+    async def me(self) -> ParentMe:
+        return await self._call(self._gateway.parent_me)
+
+    async def identity(self) -> Identity:
+        return await self._call(self._gateway.parent_identity)
+
+    async def avatar(self) -> Avatar:
+        return await self._call(self._gateway.parent_avatar)
+
+    async def children(self) -> list[Child]:
+        return await self._call(self._gateway.parent_children)
+
+    async def settings(self) -> Settings:
+        return await self._call(self._gateway.parent_settings)
+
+    async def update_settings(self, update: SettingsUpdate) -> None:
+        await self._call(lambda ctx: self._gateway.parent_update_settings(ctx, update))
+
+    async def update_contact(self, contact_id: int, value: str) -> None:
+        """Заменить адрес почты в контакте родителя (как `Student.update_contact`)."""
+        _check_email(value)
+        await self._call(lambda ctx: self._gateway.parent_update_contact(ctx, contact_id, value))

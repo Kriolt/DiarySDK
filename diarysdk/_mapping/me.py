@@ -29,8 +29,10 @@ def _age(birth: date | None, today: date) -> int | None:
     return today.year - birth.year - ((today.month, today.day) < (birth.month, birth.day))
 
 
-def me(profile: WebFamilyProfile, expires_at: datetime, today: date) -> Me:
-    child = the_child(profile)
+def me(
+    profile: WebFamilyProfile, expires_at: datetime, today: date, child_id: int | None = None
+) -> Me:
+    child = the_child(profile, child_id)
     sections = [
         Section(id=item.get("id"), name=item.get("name"))
         for item in child.sections or []

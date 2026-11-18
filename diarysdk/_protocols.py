@@ -19,6 +19,7 @@ if TYPE_CHECKING:
     from diarysdk.models.marks import FinalMark, Mark, MarkDetail
     from diarysdk.models.me import Me
     from diarysdk.models.notifications import Notification
+    from diarysdk.models.parent import Child, ParentMe
     from diarysdk.models.periods import PeriodDay
     from diarysdk.models.rating import Rating, RatingPoint, SubjectRating
     from diarysdk.models.schedule import ScheduleItem
@@ -124,15 +125,40 @@ class LoginLike(Protocol):
 
 
 class DiaryLike(Protocol):
-    """Точка входа: вход и ученики."""
+    """Точка входа: вход, ученики и родители."""
 
     @property
     def login(self) -> LoginLike: ...
 
     def student(self, token: str | Token) -> StudentLike: ...
 
+    def parent(self, token: str | Token) -> ParentLike: ...
+
     async def aclose(self) -> None: ...
 
     async def __aenter__(self) -> Self: ...
 
     async def __aexit__(self, *exc: object) -> None: ...
+
+
+class ParentLike(Protocol):
+    """Родитель — владелец токена: свои данные и доступные ему ученики."""
+
+    @property
+    def token(self) -> Token: ...
+
+    def student(self, child_id: int) -> StudentLike: ...
+
+    async def me(self) -> ParentMe: ...
+
+    async def identity(self) -> Identity: ...
+
+    async def avatar(self) -> Avatar: ...
+
+    async def children(self) -> list[Child]: ...
+
+    async def settings(self) -> Settings: ...
+
+    async def update_settings(self, update: SettingsUpdate) -> None: ...
+
+    async def update_contact(self, contact_id: int, value: str) -> None: ...

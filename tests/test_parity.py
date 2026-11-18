@@ -9,9 +9,9 @@ import httpx
 import pytest
 from httpx import ASGITransport
 
-from diarysdk import Diary, Login, LoginFlow, Student, errors
+from diarysdk import Diary, Login, LoginFlow, Parent, Student, errors
 from diarysdk import _protocols as protocols
-from diarysdk.remote import RemoteDiary, RemoteLogin, RemoteLoginFlow, RemoteStudent
+from diarysdk.remote import RemoteDiary, RemoteLogin, RemoteLoginFlow, RemoteParent, RemoteStudent
 from diarysdk.server.app import create_app
 from diarysdk.server.keys import hash_key
 from tests.conftest import API_KEY
@@ -25,6 +25,7 @@ PAIRS = [
     (Login, RemoteLogin, protocols.LoginLike),
     (LoginFlow, RemoteLoginFlow, protocols.LoginFlowLike),
     (Student, RemoteStudent, protocols.StudentLike),
+    (Parent, RemoteParent, protocols.ParentLike),
 ]
 # Конструкторы у двойников разные: у удалённого есть адрес, ключ и свои настройки.
 EXCLUDED = {"__init__"}
@@ -305,3 +306,47 @@ async def test_definite_upstream_error_on_write_is_not_write_uncertain_in_remote
     assert not isinstance(expected.value, errors.WriteUncertain)
     assert type(caught.value) is errors.UpstreamError
     assert caught.value.upstream_status == expected.value.upstream_status == 500
+
+
+# --- родитель ---
+
+PARENT_READS = {
+    "me": lambda p: p.me(),
+    "identity": lambda p: p.identity(),
+    "avatar": lambda p: p.avatar(),
+    "children": lambda p: p.children(),
+    "settings": lambda p: p.settings(),
+    "child marks": lambda p: p.student(9002).marks(),
+    "child me": lambda p: p.student(9002).me(),
+}
+
+
+@pytest.fixture
+async def parents(both):
+    from tests.test_parent import PARENT_GUID, parent_profile
+
+    for server in (both.direct_server, both.remote_server):
+        server.fake.add("/api/family/web/v1/profile", parent_profile())
+        server.fake.add(f"/api/persondata/v1/persons/{PARENT_GUID}", {"id": 1})
+        server.fake.add(f"/api/avatarmanagement/v1/{PARENT_GUID}", [{"id": 5, "default": True}])
+        server.fake.add(f"/avatars/{PARENT_GUID}", b"\x89PNG", content_type="image/png")
+    return both
+
+
+@pytest.mark.parametrize("name", PARENT_READS)
+async def test_parent_same_results(parents, token, name):
+    call = PARENT_READS[name]
+
+    direct = await call(parents.direct.parent(token))
+    remote = await call(parents.remote.parent(token))
+
+    assert remote == direct
+    assert _wire(parents.remote_server) == _wire(parents.direct_server)
+
+
+async def test_parent_same_errors(parents, token):
+    for diary in (parents.direct, parents.remote):
+        with pytest.raises(errors.NotFound):
+            await diary.parent(token).student(999).marks()
+        with pytest.raises(errors.NotForRole):
+            await diary.parent(token).student(9002).exams()

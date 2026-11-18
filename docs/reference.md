@@ -158,6 +158,25 @@ HTTP-статус повторяют причину, `.upstream_status` — ст
 `update_contact` правит только почту; для другого контакта —
 `UnsupportedContact`.
 
+## Parent: родитель
+
+`diary.parent(token)` — родитель, владелец токена. Объект `Parent` запросов
+не делает; токен не родителя — `NotForRole` при первом вызове.
+
+| Метод | Что |
+|---|---|
+| `children()` | `list[Child]`: ученики родителя (`id`, ФИО, школа, класс) |
+| `student(child_id)` | `Student` выбранного ученика, все методы выше; неверный id — `NotFound` |
+| `me()` | `ParentMe`: ФИО, тип, почта, телефон, срок токена |
+| `identity()` | `Identity` карточки родителя (документы, контакты, адреса); школы и класса нет |
+| `avatar()` | своя аватарка (`Avatar`) |
+| `settings()`, `update_settings(update)` | настройки приложения родителя, общие для всех детей |
+| `update_contact(contact_id, value)` | почта в карточке родителя |
+
+Через родителя `exams()` и `avatar()` ученика — `NotForRole`: дневник отдаёт их
+только самому ученику. `update_settings` и `update_contact` родителя живьём не
+проверены.
+
 ## Token
 
 `Token(value, expires_at=None, method="jwt")`:
@@ -181,7 +200,7 @@ UTC. Подпись SDK не проверяет — её проверяет дн
 
 `RemoteDiary(base_url, api_key, *, timeout=30.0, max_rate_wait=2.0, on_token_expired=None, http=None)`
 реализует тот же `DiaryLike`: `login`, `student(token)`, `aclose()`,
-`async with`. Классы `RemoteLogin`, `RemoteLoginFlow`, `RemoteStudent` — его
+`async with`. Классы `RemoteLogin`, `RemoteLoginFlow`, `RemoteStudent`, `RemoteParent` — его
 части, интерфейс у них тот же, что у `Login`, `LoginFlow`, `Student`.
 
 | Параметр | Что значит |
@@ -221,7 +240,7 @@ UTC. Подпись SDK не проверяет — её проверяет дн
 
 ## Протоколы
 
-`DiaryLike`, `LoginLike`, `LoginFlowLike`, `StudentLike` — `typing.Protocol`,
+`DiaryLike`, `LoginLike`, `LoginFlowLike`, `StudentLike`, `ParentLike` — `typing.Protocol`,
 которым отвечают и ядро, и удалённый клиент. Пишите код против протокола, и
 он работает с обоими:
 

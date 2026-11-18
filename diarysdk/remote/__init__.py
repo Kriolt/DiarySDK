@@ -2,6 +2,7 @@
 
 from diarysdk.remote.auth import RemoteLogin, RemoteLoginFlow
 from diarysdk.remote.client import RemoteDiary
+from diarysdk.remote.parent import RemoteParent
 from diarysdk.remote.student import RemoteStudent
 
-__all__ = ["RemoteDiary", "RemoteLogin", "RemoteLoginFlow", "RemoteStudent"]
+__all__ = ["RemoteDiary", "RemoteLogin", "RemoteLoginFlow", "RemoteParent", "RemoteStudent"]

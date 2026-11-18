@@ -64,8 +64,8 @@ def _describe(path: str, method: str, operation: dict[str, Any]) -> None:
             if is_login
             else "not_found или no_avatar: такого нет",
         )
-    elif path == "/v1/me/avatar":
-        responses["404"] = _response(ErrorResponse, "no_avatar: у ученика нет аватарки")
+    elif path in ("/v1/me/avatar", "/v1/parent/avatar"):
+        responses["404"] = _response(ErrorResponse, "no_avatar: аватарки нет")
     if is_login and path != "/v1/auth/esia/{flow_id}/captcha/renew":
         responses["409"] = _response(ErrorResponse, "login_blocked: ЕСИА заблокировала вход")
     if path == "/v1/settings" and method == "patch":
@@ -79,7 +79,9 @@ def _describe(path: str, method: str, operation: dict[str, Any]) -> None:
         responses["422"] = _response(ErrorResponse, "contact_not_email: правится только почта")
     elif calls_diary and not is_login:
         responses["422"] = _response(
-            ErrorResponse, "multiple_children: токен родителя с несколькими детьми"
+            ErrorResponse,
+            "multiple_children: у родителя несколько детей, нужен child_id; "
+            "not_for_role: этой роли дневник эти данные не отдаёт",
         )
     responses["429"] = _response(ErrorResponse, "rate_limited: заголовок Retry-After — секунды")
     if calls_diary:

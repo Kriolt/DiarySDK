@@ -29,6 +29,7 @@ from diarysdk._mapping import lessons as lessons_mapping
 from diarysdk._mapping import marks as marks_mapping
 from diarysdk._mapping import me as me_mapping
 from diarysdk._mapping import notifications as notifications_mapping
+from diarysdk._mapping import parent as parent_mapping
 from diarysdk._mapping import periods as periods_mapping
 from diarysdk._mapping import rating as rating_mapping
 from diarysdk._mapping import schedule as schedule_mapping
@@ -36,7 +37,15 @@ from diarysdk._mapping import school as school_mapping
 from diarysdk._mapping import settings as settings_mapping
 from diarysdk._mapping import subjects as subjects_mapping
 from diarysdk._mapping.context import student_context
-from diarysdk._port import Ctx, EsiaSession, EsiaStep, StudentContext
+from diarysdk._port import (
+    Ctx,
+    EsiaSession,
+    EsiaStep,
+    Owner,
+    ParentContext,
+    ParentCtx,
+    StudentContext,
+)
 from diarysdk._transport import DiaryResponse, RatingOff
 from diarysdk._wire.mobile import (
     Marks,
@@ -68,6 +77,7 @@ from diarysdk.models.lessons import Lesson
 from diarysdk.models.marks import FinalMark, Mark, MarkDetail
 from diarysdk.models.me import Me
 from diarysdk.models.notifications import Notification as ContractNotification
+from diarysdk.models.parent import Child, ParentMe
 from diarysdk.models.periods import PeriodDay
 from diarysdk.models.rating import Rating, RatingPoint, SubjectRating
 from diarysdk.models.schedule import ScheduleItem
@@ -176,7 +186,48 @@ class DiaryGateway:
 
     async def me(self, ctx: Ctx) -> Me:
         profile = await self._profile(ctx)
-        return me_mapping.me(profile, ctx.student.expires_at, self._today())
+        return me_mapping.me(profile, ctx.student.expires_at, self._today(), ctx.student.student_id)
+
+    # --- родитель ------------------------------------------------------
+
+    async def parent_context(self, token: str) -> ParentContext:
+        profile = await self.fetch_profile(token)
+        guid = jwt.decode_payload(token).get("msh")
+        return parent_mapping.parent_context(
+            profile, jwt.expires_at(token), guid if isinstance(guid, str) and guid else None
+        )
+
+    async def parent_me(self, ctx: ParentCtx) -> ParentMe:
+        return parent_mapping.me(ctx.parent.profile, ctx.parent.expires_at)
+
+    async def parent_children(self, ctx: ParentCtx) -> list[Child]:
+        return parent_mapping.children(ctx.parent.profile)
+
+    async def parent_identity(self, ctx: ParentCtx) -> Identity:
+        card = None
+        guid = ctx.parent.person_guid
+        if guid is not None:
+            try:
+                card = await self._web(ctx.token).get_person_data(person_id=guid)
+            except NotFound:
+                card = None
+        return identity_mapping.owner_identity(ctx.parent.profile.profile, card)
+
+    async def parent_avatar(self, ctx: ParentCtx) -> Avatar:
+        if ctx.parent.person_guid is None:
+            raise NoAvatar()
+        return await self._avatar_of(ctx.token, ctx.parent.person_guid)
+
+    async def parent_settings(self, ctx: ParentCtx) -> Settings:
+        return await self._settings_of(ctx.token, ctx.parent)
+
+    async def parent_update_settings(self, ctx: ParentCtx, update: SettingsUpdate) -> None:
+        await self._update_settings_of(ctx.token, ctx.parent, update)
+
+    async def parent_update_contact(self, ctx: ParentCtx, contact_id: int, value: str) -> None:
+        if ctx.parent.person_guid is None:
+            raise NotFound("Карточка родителя не найдена")
+        await self._update_contact_of(ctx.token, ctx.parent, contact_id, value)
 
     async def schedule(self, ctx: Ctx, start: date, end: date) -> list[ScheduleItem]:
         return schedule_mapping.schedule(await self.fetch_events(ctx, start, end))
@@ -186,8 +237,11 @@ class DiaryGateway:
 
     async def avatar(self, ctx: Ctx) -> Avatar:
         _not_for_parent(ctx)
+        return await self._avatar_of(ctx.token, ctx.student.person_guid)
+
+    async def _avatar_of(self, token: str, guid: str) -> Avatar:
         try:
-            response = await self.fetch_avatar(ctx)
+            response = await self._fetch_avatar(token, guid)
         except NotFound:
             raise NoAvatar() from None
         if response is None or not response.body:
@@ -217,15 +271,25 @@ class DiaryGateway:
             raise UpstreamError(upstream_status=response.status)
 
     async def settings(self, ctx: Ctx) -> Settings:
-        return settings_mapping.settings(await self.fetch_user_settings(ctx))
+        return await self._settings_of(ctx.token, ctx.student)
+
+    async def _settings_of(self, token: str, owner: Owner) -> Settings:
+        return settings_mapping.settings(
+            await raw.user_settings(self._transport, self._hosts, token, owner)
+        )
 
     async def update_settings(self, ctx: Ctx, update: SettingsUpdate) -> None:
-        group = await self.fetch_user_settings(ctx)
+        await self._update_settings_of(ctx.token, ctx.student, update)
+
+    async def _update_settings_of(self, token: str, owner: Owner, update: SettingsUpdate) -> None:
+        group = await raw.user_settings(self._transport, self._hosts, token, owner)
         if group is None:
             raise SettingsMissing()
         body = settings_mapping.merged(group, update)
         try:
-            response = await _write(self.send_user_settings(ctx, body))
+            response = await _write(
+                raw.put_user_settings(self._transport, self._hosts, token, owner, body)
+            )
         except TokenInvalid as error:
             # Тем же токеном только что прочитали группу: отказ — про право на
             # запись, а не про токен. Контекст токена не выбрасываем.
@@ -234,9 +298,14 @@ class DiaryGateway:
             raise UpstreamError(upstream_status=response.status)
 
     async def update_contact(self, ctx: Ctx, contact_id: int, value: str) -> None:
+        await self._update_contact_of(ctx.token, ctx.student, contact_id, value)
+
+    async def _update_contact_of(
+        self, token: str, owner: Owner, contact_id: int, value: str
+    ) -> None:
         # Ошибки чтения карточки (в том числе 401/403) идут как есть: контекст
         # токена при них выбрасывается, как у любого чтения.
-        card = await self.fetch_person_data(ctx)
+        card = await self._web(token).get_person_data(person_id=owner.person_guid)
         contact = identity_mapping.email_contact(card, contact_id)
         # Тело как у приложения: ровно пять полей. Ничего больше (статус
         # проверки, type, неизвестные поля) назад не отправляется.
@@ -249,9 +318,7 @@ class DiaryGateway:
         }
         try:
             response = await _write(
-                raw.put_contact(
-                    self._transport, self._hosts, ctx.token, ctx.student, contact_id, body
-                )
+                raw.put_contact(self._transport, self._hosts, token, owner, contact_id, body)
             )
         except TokenInvalid as error:
             # Тем же токеном только что прочитали карточку: отказ — про право на
@@ -276,7 +343,7 @@ class DiaryGateway:
             # ошибка всего ответа; контекст токена не выбрасывается. Сбои дневника
             # (таймаут, сеть, 5xx, формат) — не «нет карточки» и идут наружу.
             card = None
-        return identity_mapping.identity(profile, card)
+        return identity_mapping.identity(profile, card, ctx.student.student_id)
 
     async def lesson(self, ctx: Ctx, lesson_id: int) -> Lesson:
         return lessons_mapping.lesson(await self.fetch_lesson(ctx, lesson_id))
@@ -427,13 +494,15 @@ class DiaryGateway:
         return await self._web(ctx.token).get_person_data(person_id=ctx.student.person_guid)
 
     async def fetch_avatar(self, ctx: Ctx) -> DiaryResponse | None:
+        return await self._fetch_avatar(ctx.token, ctx.student.person_guid)
+
+    async def _fetch_avatar(self, token: str, guid: str) -> DiaryResponse | None:
         """Как сайт: список аватарок, затем картинка основной; None — их нет."""
-        guid = ctx.student.person_guid
-        listing = await raw.avatars(self._transport, self._hosts, ctx.token, guid)
+        listing = await raw.avatars(self._transport, self._hosts, token, guid)
         image_id = avatar_mapping.avatar_id(listing)
         if image_id is None:
             return None
-        return await raw.avatar(self._transport, self._hosts, ctx.token, guid, image_id)
+        return await raw.avatar(self._transport, self._hosts, token, guid, image_id)
 
     # --- источники вне контракта --------------------
 

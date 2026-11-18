@@ -12,6 +12,7 @@ from diarysdk.errors import TokenInvalid
 from diarysdk.remote import _core
 from diarysdk.remote._core import Request
 from diarysdk.remote.auth import RemoteLogin
+from diarysdk.remote.parent import RemoteParent
 from diarysdk.remote.student import RemoteStudent
 from diarysdk.token import Token
 
@@ -82,6 +83,9 @@ class RemoteDiary:
 
     def student(self, token: str | Token) -> RemoteStudent:
         return RemoteStudent(self, token)
+
+    def parent(self, token: str | Token) -> RemoteParent:
+        return RemoteParent(self, token)
 
     async def _send(self, spec: Request, token: str | None = None) -> Any:
         if token is not None and not token.isascii():

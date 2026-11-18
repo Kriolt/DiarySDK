@@ -13,7 +13,7 @@ from typing import Any
 from pydantic import BaseModel, ConfigDict, ValidationError
 
 from diarysdk._hosts import Hosts
-from diarysdk._port import StudentContext
+from diarysdk._port import Owner, StudentContext
 from diarysdk._transport import DiaryResponse
 from diarysdk.errors import NotFound, UpstreamError, UpstreamFormat, WriteUncertain
 
@@ -73,7 +73,7 @@ async def put_contact(
     transport,
     hosts: Hosts,
     token: str,
-    student: StudentContext,
+    student: Owner,
     contact_id: int,
     contact: dict[str, Any],
 ) -> DiaryResponse:
@@ -314,7 +314,7 @@ USER_SETTINGS_PARAMS: Mapping[str, str] = MappingProxyType(
 
 
 async def user_settings(
-    transport, hosts: Hosts, token: str, student: StudentContext
+    transport, hosts: Hosts, token: str, student: Owner
 ) -> dict[str, Any] | None:
     """Группа настроек settings_group_v1 сырым JSON — тот же запрос, что
     у приложения. Группы нет (пустое тело, null, {} или 404
@@ -342,7 +342,7 @@ async def user_settings(
 
 
 async def put_user_settings(
-    transport, hosts: Hosts, token: str, student: StudentContext, group: dict[str, Any]
+    transport, hosts: Hosts, token: str, student: Owner, group: dict[str, Any]
 ) -> DiaryResponse:
     """Записать группу целиком (PUT, как у приложения): дневник принимает только весь объект.
     Транспорт запись не повторяет."""

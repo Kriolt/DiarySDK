@@ -1,9 +1,9 @@
 """DiarySDK: клиент и сервер дневника «Моя школа»."""
 
 from diarysdk._hosts import Hosts
-from diarysdk._protocols import DiaryLike, LoginFlowLike, LoginLike, StudentLike
+from diarysdk._protocols import DiaryLike, LoginFlowLike, LoginLike, ParentLike, StudentLike
 from diarysdk._version import __version__
-from diarysdk.client import Diary, Login, LoginFlow, Student
+from diarysdk.client import Diary, Login, LoginFlow, Parent, Student
 from diarysdk.errors import (
     AuthError,
     BadApiKey,
@@ -65,6 +65,8 @@ __all__ = [
     "NoAvatar",
     "NotForRole",
     "NotFound",
+    "Parent",
+    "ParentLike",
     "RateLimited",
     "RemoteError",
     "SettingError",

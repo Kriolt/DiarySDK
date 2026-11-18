@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import inspect
 import logging
+from dataclasses import replace
 from datetime import date
 from typing import TYPE_CHECKING, Any
 
@@ -52,8 +53,10 @@ def as_token(token: str | Token) -> Token:
 class RemoteStudent:
     """Запросы от имени одного ученика; создаётся `diary.student(token)`."""
 
-    def __init__(self, diary: RemoteDiary, token: str | Token) -> None:
+    def __init__(self, diary: RemoteDiary, token: str | Token, child_id: int | None = None) -> None:
         self._diary = diary
+        # Ученик родителя: уходит параметром child_id в каждый запрос.
+        self._child_id = child_id
         self._token = as_token(token)
 
     @property
@@ -64,6 +67,8 @@ class RemoteStudent:
         return f"RemoteStudent(token={self._token!r})"
 
     async def _call(self, spec: Request) -> Any:
+        if self._child_id is not None:
+            spec = replace(spec, params={**spec.params, "child_id": self._child_id})
         try:
             return await self._diary._send(spec, self._token.value)
         except TokenExpired as expired:
