@@ -14,6 +14,7 @@ import contextlib
 from datetime import datetime
 from typing import TYPE_CHECKING, Literal
 
+from diarysdk import _protocols as protocols
 from diarysdk.errors import BadCaptcha, BadCode, DiaryError, UpstreamFormat
 from diarysdk.models.auth import Captcha, LoginMfa, LoginStep
 from diarysdk.models.auth import TokenResponse as TokenModel
@@ -41,6 +42,7 @@ def _token(model: TokenModel) -> Token:
     return Token(model.token, model.expires_at, model.method)
 
 
+@protocols.documented(protocols.LoginFlowLike)
 class RemoteLoginFlow:
     """Вход через ЕСИА не закончен. Один объект живёт весь вход: после неверного
     ответа его `.mfa` и `.captcha` обновляются, и повторить можно на нём же."""
@@ -97,26 +99,22 @@ class RemoteLoginFlow:
             await self._diary._send(_core.esia_cancel(self._flow_id))
 
     async def submit_code(self, code: str) -> Token | RemoteLoginFlow:
-        """Код из SMS или приложения. Неверный — `BadCode` с новым шагом в `.step`;
-        вход жив, `.mfa` обновлён, можно повторить."""
         return await self._step(_core.esia_code(self._flow_id, code))
 
     async def answer_captcha(self, answer: str) -> Token | RemoteLoginFlow:
-        """Ответ на капчу. Неверный — `BadCaptcha` со свежей капчей в `.step`."""
         return await self._step(_core.esia_captcha(self._flow_id, answer))
 
     async def renew_captcha(self) -> RemoteLoginFlow:
-        """Другая картинка капчи."""
         result = await self._step(_core.esia_renew(self._flow_id))
         if not isinstance(result, RemoteLoginFlow):
             raise TypeError("обновление капчи не даёт токена")
         return result
 
     async def close(self) -> None:
-        """Закрыть вход; повторный вызов и чужой поток — не ошибка."""
         await self._diary._send(_core.esia_cancel(self._flow_id))
 
 
+@protocols.documented(protocols.LoginLike)
 class RemoteLogin:
     """Вход: `diary.login`. Нужен ключ потребителя с разрешением login."""
 
@@ -130,7 +128,6 @@ class RemoteLogin:
         return _token(await self._diary._send(_core.password_login(login, password)))
 
     async def esia(self, login: str, password: str) -> Token | RemoteLoginFlow:
-        """Токен или, если ЕСИА просит код или капчу, поток входа."""
         result = await self._diary._send(_core.esia_login(login, password))
         if not isinstance(result, LoginStep):
             return _token(result)

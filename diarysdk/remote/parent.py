@@ -5,6 +5,7 @@ from __future__ import annotations
 from datetime import date
 from typing import TYPE_CHECKING, Any
 
+from diarysdk import _protocols as protocols
 from diarysdk.models.identity import Identity
 from diarysdk.models.parent import Child, JournalAck, ParentMe
 from diarysdk.models.settings import Settings, SettingsUpdate
@@ -17,6 +18,7 @@ if TYPE_CHECKING:
     from diarysdk.remote.client import RemoteDiary
 
 
+@protocols.documented(protocols.ParentLike)
 class RemoteParent:
     """Родитель через сервис; создаётся `diary.parent(token)` без запросов."""
 

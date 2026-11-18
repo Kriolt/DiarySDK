@@ -81,6 +81,11 @@
 
 ## Как держится паритет ядра и удалённого клиента
 
+Документация методов пишется один раз — в протоколах (`_protocols.py`, стиль
+numpy). Декоратор `documented(Protocol)` раздаёт её ядру и удалённому клиенту,
+`sync` и `sync.pyi` берут её при сборке; `tests/test_docstrings.py` следит, чтобы
+ни один открытый метод не остался без описания.
+
 Интерфейс записан один раз — протоколами в `_protocols.py` (`DiaryLike`,
 `LoginLike`, `LoginFlowLike`, `StudentLike`). Тест `tests/test_parity.py`:
 

@@ -101,3 +101,16 @@ def test_stub_diary_matches_async_class(stub, name, core):
 def test_stub_declares_every_runtime_class(stub):
     for name in sync.__all__:
         assert name in stub
+
+
+def test_stub_methods_carry_protocol_docs():
+    import ast
+
+    from diarysdk import _protocols as protocols
+
+    tree = ast.parse(STUB.read_text(encoding="utf-8"))
+    classes = {node.name: node for node in tree.body if isinstance(node, ast.ClassDef)}
+    method = next(
+        n for n in classes["Parent"].body if getattr(n, "name", "") == "acknowledge_journal"
+    )
+    assert ast.get_docstring(method) == inspect.getdoc(protocols.ParentLike.acknowledge_journal)

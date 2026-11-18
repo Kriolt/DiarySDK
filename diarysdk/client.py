@@ -22,6 +22,7 @@ from pydantic import ValidationError
 from diarysdk import _clock as clock
 from diarysdk import _jwt as jwt
 from diarysdk import _periods as periods
+from diarysdk import _protocols as protocols
 from diarysdk._context import ContextCache, hash_key
 from diarysdk._gateway import DiaryGateway, write_started
 from diarysdk._hosts import Hosts
@@ -92,6 +93,7 @@ def _captcha(challenge: CaptchaChallenge) -> Captcha:
     )
 
 
+@protocols.documented(protocols.DiaryLike)
 class Diary:
     """Дневник «Моя школа» напрямую: `async with Diary() as diary`."""
 
@@ -131,7 +133,6 @@ class Diary:
         await self.aclose()
 
     async def aclose(self) -> None:
-        """Закрыть соединения и незаконченные входы через ЕСИА."""
         self._closed = True
         for flow in list(self._flows):
             flow._shut()
@@ -207,6 +208,7 @@ def _check_email(value: str) -> None:
         raise BadRequest(f"Неверные параметры запроса: {', '.join(names)}") from None
 
 
+@protocols.documented(protocols.LoginLike)
 class Login:
     """Вход: `diary.login`."""
 
@@ -222,7 +224,6 @@ class Login:
         return Token(value, method="password")
 
     async def esia(self, login: str, password: str) -> Token | LoginFlow:
-        """Токен или, если ЕСИА просит код или капчу, поток входа."""
         gateway = self._diary._gateway
         session, result = await self._diary._timed(lambda: gateway.esia_start(login, password))
         if isinstance(result, str):
@@ -232,6 +233,7 @@ class Login:
         return flow
 
 
+@protocols.documented(protocols.LoginFlowLike)
 class LoginFlow:
     """Вход через ЕСИА не закончен. Один объект живёт весь вход: после неверного
     ответа его `.mfa` и `.captcha` обновляются, и повторить можно на нём же."""
@@ -262,18 +264,14 @@ class LoginFlow:
             session.close()
 
     async def submit_code(self, code: str) -> Token | LoginFlow:
-        """Код из SMS или приложения. Неверный — `BadCode` с новым шагом в `.step`;
-        вход жив, `.mfa` обновлён, можно повторить."""
         gateway = self._diary._gateway
         return await self._step("mfa", lambda session: gateway.esia_code(session, code))
 
     async def answer_captcha(self, answer: str) -> Token | LoginFlow:
-        """Ответ на капчу. Неверный — `BadCaptcha` со свежей капчей в `.step`."""
         gateway = self._diary._gateway
         return await self._step("captcha", lambda session: gateway.esia_captcha(session, answer))
 
     async def renew_captcha(self) -> LoginFlow:
-        """Другая картинка капчи."""
         gateway = self._diary._gateway
         result = await self._step("captcha", gateway.esia_captcha_renew)
         if not isinstance(result, LoginFlow):
@@ -281,7 +279,6 @@ class LoginFlow:
         return result
 
     async def close(self) -> None:
-        """Закрыть вход; повторный вызов не ошибка."""
         self._shut()
 
     async def _step(
@@ -334,6 +331,7 @@ class LoginFlow:
         error.flow = self
 
 
+@protocols.documented(protocols.StudentLike)
 class Student:
     """Запросы от имени одного ученика; создаётся `diary.student(token)`."""
 
@@ -400,41 +398,33 @@ class Student:
         return await self._call(lambda ctx: self._gateway.final_marks(ctx, year))
 
     async def work_program(self, group_id: int) -> list[ProgramModule]:
-        """Рабочая программа учебной группы; группы — `identity().person.groups`."""
         return await self._call(lambda ctx: self._gateway.work_program(ctx, group_id))
 
     async def subject_topics(self, subject_id: int) -> list[SubjectTopic]:
-        """Темы предмета и ожидаемые результаты по ним."""
         return await self._call(lambda ctx: self._gateway.subject_topics(ctx, subject_id))
 
     async def control_works(
         self, start: date | None = None, end: date | None = None
     ) -> list[ControlWork]:
-        """Контрольные работы за период; по умолчанию — весь учебный год, до 366 дней."""
         start, end = periods.school_periods_period(start, end, self._today())
         return await self._call(lambda ctx: self._gateway.control_works(ctx, start, end))
 
     async def academic_debts(self, year: int | None = None) -> list[AcademicDebt]:
-        """Академические задолженности ученика за учебный год (по умолчанию — текущий)."""
         year = periods.final_marks_year(year, self._today())
         return await self._call(lambda ctx: self._gateway.academic_debts(ctx, year))
 
     async def final_marks_file(
         self, year: int | None = None, orientation: Literal["portrait", "landscape"] = "portrait"
     ) -> DiaryFile:
-        """PDF итоговых оценок за учебный год (по умолчанию — текущий)."""
         if orientation not in ("portrait", "landscape"):
             raise BadRequest("Неверные параметры запроса: orientation")
         year = periods.final_marks_year(year, self._today())
         return await self._call(lambda ctx: self._gateway.final_marks_file(ctx, year, orientation))
 
     async def certificates(self) -> list[Certificate]:
-        """Заявки на справки об обучении за два года. Только через родителя:
-        ученику дневник их не отдаёт (NotForRole)."""
         return await self._call(self._gateway.certificates)
 
     async def school_teachers(self, name: str | None = None) -> list[SchoolTeacher]:
-        """Учителя школы ученика; `name` — поиск по части имени."""
         return await self._call(lambda ctx: self._gateway.school_teachers(ctx, name))
 
     async def subjects(self) -> list[SubjectSummary]:
@@ -483,11 +473,6 @@ class Student:
         await self._call(lambda ctx: self._gateway.update_settings(ctx, update))
 
     async def update_contact(self, contact_id: int, value: str) -> None:
-        """Заменить адрес почты в контакте ученика.
-
-        Значение — не адрес почты (правило сервиса: 3-255 символов, одна @) —
-        BadRequest до обращения к дневнику; контакт не почта — UnsupportedContact.
-        """
         _check_email(value)
         await self._call(lambda ctx: self._gateway.update_contact(ctx, contact_id, value))
 
@@ -508,6 +493,7 @@ class Student:
         return await self._call(self._gateway.curriculum)
 
 
+@protocols.documented(protocols.ParentLike)
 class Parent:
     """Родитель — владелец токена: свои данные и доступные ему ученики.
     Создаётся `diary.parent(token)` и сам запросов не делает."""
@@ -542,7 +528,6 @@ class Parent:
         return await _guarded(self._diary, self._token, run)
 
     def student(self, child_id: int) -> Student:
-        """Ученик родителя по `Child.id`; неверный id — NotFound при первом вызове."""
         return Student(self._diary, self._token, child_id)
 
     async def me(self) -> ParentMe:
@@ -564,14 +549,12 @@ class Parent:
         await self._call(lambda ctx: self._gateway.parent_update_settings(ctx, update))
 
     async def update_contact(self, contact_id: int, value: str) -> None:
-        """Заменить адрес почты в контакте родителя (как `Student.update_contact`)."""
         _check_email(value)
         await self._call(lambda ctx: self._gateway.parent_update_contact(ctx, contact_id, value))
 
     async def journal_acks(
         self, child_id: int, start: date | None = None, end: date | None = None
     ) -> list[JournalAck]:
-        """Отметки «ознакомлен с дневником» за недели периода; по умолчанию — текущая."""
         _check_child_id(child_id)
         start, end = periods.journal_period(start, end, clock.today_msk())
         return await self._call(
@@ -579,8 +562,6 @@ class Parent:
         )
 
     async def acknowledge_journal(self, child_id: int, week: date | None = None) -> None:
-        """Отметить «ознакомлен с дневником» за неделю (любой её день; по умолчанию —
-        текущая). Неделя уже отмечена — ничего не делает. Отменить нельзя."""
         _check_child_id(child_id)
         today = clock.today_msk()
         day = week or today

@@ -8,6 +8,7 @@ from typing import Any, Self
 
 import httpx
 
+from diarysdk import _protocols as protocols
 from diarysdk.errors import TokenInvalid
 from diarysdk.remote import _core
 from diarysdk.remote._core import Request
@@ -43,6 +44,7 @@ class _Config:
         return headers
 
 
+@protocols.documented(protocols.DiaryLike)
 class RemoteDiary:
     """Дневник через сервис: `async with RemoteDiary(url, key) as diary`."""
 
@@ -77,7 +79,6 @@ class RemoteDiary:
         await self.aclose()
 
     async def aclose(self) -> None:
-        """Закрыть соединения; чужой `http` остаётся хозяину."""
         if self._owns_http:
             await self._http.aclose()
 
