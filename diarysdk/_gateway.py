@@ -20,6 +20,7 @@ from diarysdk._hosts import Hosts
 from diarysdk._login import esia as login_esia
 from diarysdk._login import password as login_steps
 from diarysdk._mapping import avatar as avatar_mapping
+from diarysdk._mapping import certificates as certificates_mapping
 from diarysdk._mapping import curriculum as curriculum_mapping
 from diarysdk._mapping import ej as ej_mapping
 from diarysdk._mapping import exams as exams_mapping
@@ -72,8 +73,10 @@ from diarysdk.errors import (
     WriteUncertain,
 )
 from diarysdk.models.avatar import Avatar
+from diarysdk.models.certificates import Certificate
 from diarysdk.models.curriculum import ControlWork, Curriculum, ProgramModule, SubjectTopic
 from diarysdk.models.exams import Exam
+from diarysdk.models.files import DiaryFile
 from diarysdk.models.homework import Homework
 from diarysdk.models.identity import Identity
 from diarysdk.models.lessons import Lesson
@@ -138,6 +141,14 @@ async def _write[T](send: Awaitable[T]) -> T:
         if error.upstream_status is None or error.upstream_status in _UNCERTAIN_STATUSES:
             raise WriteUncertain(cause=error) from None
         raise
+
+
+def _years_back(day: date, years: int) -> date:
+    """Та же дата `years` лет назад; 29 февраля — 28-е."""
+    try:
+        return day.replace(year=day.year - years)
+    except ValueError:
+        return day.replace(year=day.year - years, day=28)
 
 
 def _not_for_parent(ctx: Ctx) -> None:
@@ -284,6 +295,38 @@ class DiaryGateway:
             self._transport, self._hosts, ctx.token, ctx.student, start, end
         )
         return plan_mapping.control_works(data)
+
+    async def final_marks_file(self, ctx: Ctx, year: int, orientation: str) -> DiaryFile:
+        response = await raw.final_marks_file(
+            self._transport, self._hosts, ctx.token, ctx.student, year, orientation
+        )
+        if not response.body.startswith(b"%PDF"):
+            # Не PDF — страница ошибки портала; наружу её не отдаём.
+            raise UpstreamFormat(problems=["final_marks/file: ждали PDF"])
+        return DiaryFile(response.body, "application/pdf", f"final-marks-{year}.pdf")
+
+    async def certificates(self, ctx: Ctx) -> list[Certificate]:
+        """Заявки на справки за два года. Ученику дневник их не отдаёт (403) —
+        только родителю."""
+        if ctx.student.access != "parent":
+            raise NotForRole("Справки дневник отдаёт только родителю", role="student")
+        today = self._today()
+        start = _years_back(today, 2)
+        names = certificates_mapping.statuses(
+            await raw.certificate_statuses(self._transport, self._hosts, ctx.token, ctx.student)
+        )
+        items = []
+        for number in range(raw.CERTIFICATES_MAX_PAGES):
+            offset = number * raw.CERTIFICATES_PER_PAGE
+            page = certificates_mapping.page(
+                await raw.certificates(
+                    self._transport, self._hosts, ctx.token, ctx.student, start, today, offset
+                )
+            )
+            items += page.certificates or []
+            if not page.certificates or offset + raw.CERTIFICATES_PER_PAGE >= (page.count or 0):
+                break
+        return certificates_mapping.certificates(items, names)
 
     async def school_teachers(self, ctx: Ctx, name: str | None) -> list[SchoolTeacher]:
         """Все страницы справочника учителей школы (не больше TEACHERS_MAX_PAGES)."""

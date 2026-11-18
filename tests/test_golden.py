@@ -6,6 +6,7 @@
 """
 
 import copy
+import dataclasses
 import json
 import os
 import typing
@@ -19,8 +20,18 @@ from pydantic import TypeAdapter
 
 from diarysdk._gateway import DiaryGateway
 from diarysdk.models.avatar import Avatar
+from diarysdk.models.files import DiaryFile
 from diarysdk.models.settings import SettingsThemeUpdate, SettingsUpdate
-from tests.fakes import CTX, GUID, HOSTS, FakeTransport, Sent, add_diary_routes, fixture
+from tests.fakes import (
+    CTX,
+    GUID,
+    HOSTS,
+    STUDENT,
+    FakeTransport,
+    Sent,
+    add_diary_routes,
+    fixture,
+)
 
 GOLDEN = Path(__file__).parent / "golden"
 TODAY = date(2026, 10, 24)
@@ -30,6 +41,8 @@ END = date(2026, 10, 24)
 HIDDEN_HEADERS = {"authorization", "cookie", "user-agent"}
 
 Call = Callable[[DiaryGateway], Awaitable[object]]
+# Справки дневник отдаёт только при доступе родителя.
+PARENT_CTX = dataclasses.replace(CTX, student=dataclasses.replace(STUDENT, access="parent"))
 
 READS: dict[str, Call] = {
     "me": lambda g: g.me(CTX),
@@ -56,6 +69,8 @@ READS: dict[str, Call] = {
     "work_program": lambda g: g.work_program(CTX, 5001),
     "subject_topics": lambda g: g.subject_topics(CTX, 101),
     "control_works": lambda g: g.control_works(CTX, START, date(2027, 8, 31)),
+    "final_marks_file": lambda g: g.final_marks_file(CTX, 2025, "portrait"),
+    "certificates": lambda g: g.certificates(PARENT_CTX),
     "settings": lambda g: g.settings(CTX),
     "schedule": lambda g: g.schedule(CTX, date(2026, 10, 19), date(2026, 10, 25)),
 }
@@ -125,6 +140,12 @@ async def _run(call: Call) -> tuple[object, list[dict]]:
 def _output(name: str, result: object) -> object:
     if isinstance(result, Avatar):
         return {"content": result.content.decode(), "content_type": result.content_type}
+    if isinstance(result, DiaryFile):
+        return {
+            "content": result.content.decode(),
+            "content_type": result.content_type,
+            "filename": result.filename,
+        }
     hints = typing.get_type_hints(getattr(DiaryGateway, name.removesuffix("_subject")))
     return TypeAdapter(hints["return"]).dump_python(result, mode="json")
 

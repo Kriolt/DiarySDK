@@ -63,6 +63,10 @@ Homework, Mark, ...`; список — `diarysdk.models.__all__`) и лежат 
 Госуслуги (`https://esia.gosuslugi.ru`, только для входа). Меняется в тестах и
 за прокси.
 
+### `DiaryFile(content, content_type, filename)`
+
+Файл от дневника (PDF итоговых): байты, тип и имя для сохранения; из `diarysdk.models`.
+
 ### `Avatar(content, content_type)`
 
 Результат `Student.avatar()`: байты картинки и её MIME-тип.
@@ -130,6 +134,8 @@ Homework, Mark, ...`; список — `diarysdk.models.__all__`) и лежат 
 | `work_program(group_id)` | `list[ProgramModule]` | рабочая программа группы (разделы, темы, уроки с датами); группы — `identity().person.groups` |
 | `subject_topics(subject_id)` | `list[SubjectTopic]` | темы предмета и ожидаемые результаты |
 | `control_works(start=None, end=None)` | `list[ControlWork]` | весь учебный год, до 366 дней. Форма ответа живьём не подтверждена (ответы были пустыми) |
+| `final_marks_file(year=None, orientation="portrait")` | `DiaryFile` | PDF итоговых оценок за учебный год (текущий); `orientation` — `portrait` или `landscape` |
+| `certificates()` | `list[Certificate]` | заявки на справки за два года; только через родителя, ученику — `NotForRole`. Форма ответа живьём не подтверждена (списки были пустыми) |
 | `school_teachers(name=None)` | `list[SchoolTeacher]` | все учителя школы; `name` — поиск по части имени |
 | `academic_debts(year=None)` | `list[AcademicDebt]` | текущий учебный год; только долги этого ученика. Форма ответа живьём не подтверждена (ответы были пустыми) |
 
@@ -512,6 +518,8 @@ docker run --rm -p 8000:8000 --read-only \
 | `GET /v1/periods` | `from`, `to` | `list[PeriodDay]` |
 | `GET /v1/curriculum` | | `Curriculum` |
 | `GET /v1/school/teachers` | `name` | `list[SchoolTeacher]` |
+| `GET /v1/final-marks/file` | `year`, `orientation` | PDF (`application/pdf`, имя файла в `Content-Disposition`) |
+| `GET /v1/certificates` | `child_id` (токен родителя) | `list[Certificate]` |
 | `GET /v1/groups/{group_id}/program` | | `list[ProgramModule]` |
 | `GET /v1/subjects/{subject_id}/topics` | | `list[SubjectTopic]` |
 | `GET /v1/control-works` | `from`, `to` | `list[ControlWork]` |

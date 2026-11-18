@@ -506,3 +506,61 @@ async def test_lessons(
         call="test_lessons",
     )
     return response.json()
+
+
+async def final_marks_file(
+    transport, hosts: Hosts, token: str, student: StudentContext, start_year: int, orientation: str
+) -> DiaryResponse:
+    """PDF итоговых оценок за учебный год — кнопка «Скачать» сайта."""
+    return await transport.send(
+        "GET",
+        f"{hosts.dnevnik}/api/family/web/v1/final_marks/file",
+        headers={**_ej_family(token, student), "Accept": "*/*"},
+        params={
+            "student_id": str(student.student_id),
+            "academic_year_id": str(academic_year_id(start_year)),
+            "orientation": orientation,
+        },
+        call="final_marks.file",
+    )
+
+
+# Справки: страницы по 10, как у сайта; больше 10 страниц — уже не справки ученика.
+CERTIFICATES_PER_PAGE = 10
+CERTIFICATES_MAX_PAGES = 10
+
+
+async def certificate_statuses(transport, hosts: Hosts, token: str, student: StudentContext) -> Any:
+    response = await transport.send(
+        "GET",
+        f"{hosts.dnevnik}/api/certificates/family/v1/certificates/statuses",
+        headers=_ej_family(token, student),
+        call="certificates.statuses",
+    )
+    return response.json()
+
+
+async def certificates(
+    transport,
+    hosts: Hosts,
+    token: str,
+    student: StudentContext,
+    start: date,
+    end: date,
+    offset: int,
+) -> Any:
+    """Заявки на справки за [start, end]; studentId — GUID ученика (как у сайта)."""
+    response = await transport.send(
+        "GET",
+        f"{hosts.dnevnik}/api/certificates/family/v1/certificates",
+        headers=_ej_family(token, student),
+        params={
+            "requestDateFrom": start.isoformat(),
+            "requestDateTo": end.isoformat(),
+            "studentId": student.person_guid,
+            "limit": str(CERTIFICATES_PER_PAGE),
+            "offset": str(offset),
+        },
+        call="certificates",
+    )
+    return response.json()

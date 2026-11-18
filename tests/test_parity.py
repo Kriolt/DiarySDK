@@ -15,7 +15,7 @@ from diarysdk.remote import RemoteDiary, RemoteLogin, RemoteLoginFlow, RemotePar
 from diarysdk.server.app import create_app
 from diarysdk.server.keys import hash_key
 from tests.conftest import API_KEY
-from tests.fakes import FakeDiary, core_diary
+from tests.fakes import FakeDiary, core_diary, fixture
 from tests.test_client import READS, STUDENT_WRITES, DiaryServer
 from tests.test_golden import GOLDEN, _output
 from tests.tokens import valid_token
@@ -388,3 +388,32 @@ async def test_ej_same_results(both, token, name):
 
     assert remote == direct != []
     assert _wire(both.remote_server) == _wire(both.direct_server)
+
+
+async def test_final_marks_file_same_bytes(both, token):
+    for server in (both.direct_server, both.remote_server):
+        server.fake.add(
+            "/api/family/web/v1/final_marks/file",
+            b"%PDF-1 x",
+            content_type="application/octet-stream",
+        )
+
+    direct = await both.direct.student(token).final_marks_file(2025)
+    remote = await both.remote.student(token).final_marks_file(2025)
+
+    assert remote == direct
+    assert (remote.content, remote.content_type) == (b"%PDF-1 x", "application/pdf")
+
+
+async def test_certificates_same_for_parent(parents, token):
+    for server in (parents.direct_server, parents.remote_server):
+        server.fake.add(
+            "/api/certificates/family/v1/certificates/statuses",
+            fixture("certificate_statuses.json"),
+        )
+        server.fake.add("/api/certificates/family/v1/certificates", fixture("certificates.json"))
+
+    direct = await parents.direct.parent(token).student(9001).certificates()
+    remote = await parents.remote.parent(token).student(9001).certificates()
+
+    assert remote == direct != []

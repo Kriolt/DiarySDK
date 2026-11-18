@@ -59,3 +59,36 @@ async def test_control_works_route_defaults_to_school_year(api, fake_diary, toda
 
     assert response.status_code == 200
     assert fake_diary.args["control_works"][1:] == (date(2026, 9, 1), date(2027, 8, 31))
+
+
+async def test_final_marks_file_route(api, fake_diary):
+    from diarysdk.models import DiaryFile
+
+    fake_diary.answers["final_marks_file"] = DiaryFile(b"%PDF-1", "application/pdf", "f.pdf")
+
+    response = await api.get(
+        "/v1/final-marks/file", params={"year": 2025, "orientation": "landscape"}
+    )
+
+    assert response.status_code == 200
+    assert response.content == b"%PDF-1"
+    assert response.headers["content-type"] == "application/pdf"
+    assert 'filename="f.pdf"' in response.headers["content-disposition"]
+    assert fake_diary.args["final_marks_file"][1:] == (2025, "landscape")
+
+
+async def test_final_marks_file_bad_orientation(api, fake_diary):
+    response = await api.get("/v1/final-marks/file", params={"orientation": "sideways"})
+
+    assert response.status_code == 400
+    assert "final_marks_file" not in fake_diary.calls
+
+
+async def test_certificates_route(api, fake_diary):
+    from diarysdk.models import Certificate
+
+    fake_diary.answers["certificates"] = [Certificate(id=1, status="Сформирована")]
+
+    response = await api.get("/v1/certificates")
+
+    assert (response.status_code, response.json()[0]["status"]) == (200, "Сформирована")

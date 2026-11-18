@@ -6,11 +6,13 @@ import inspect
 import logging
 from dataclasses import replace
 from datetime import date
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Literal
 
 from diarysdk.errors import TokenExpired
+from diarysdk.models.certificates import Certificate
 from diarysdk.models.curriculum import ControlWork, Curriculum, ProgramModule, SubjectTopic
 from diarysdk.models.exams import Exam
+from diarysdk.models.files import DiaryFile
 from diarysdk.models.homework import Homework
 from diarysdk.models.identity import Identity
 from diarysdk.models.lessons import Lesson
@@ -114,6 +116,14 @@ class RemoteStudent:
 
     async def academic_debts(self, year: int | None = None) -> list[AcademicDebt]:
         return await self._call(_core.academic_debts(year))
+
+    async def final_marks_file(
+        self, year: int | None = None, orientation: Literal["portrait", "landscape"] = "portrait"
+    ) -> DiaryFile:
+        return await self._call(_core.final_marks_file(year, orientation))
+
+    async def certificates(self) -> list[Certificate]:
+        return await self._call(_core.certificates())
 
     async def school_teachers(self, name: str | None = None) -> list[SchoolTeacher]:
         return await self._call(_core.school_teachers(name))

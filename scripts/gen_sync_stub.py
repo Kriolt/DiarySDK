@@ -31,8 +31,10 @@ import httpx
 
 from diarysdk import Avatar, Hosts
 from diarysdk.models.auth import Captcha, LoginMfa
+from diarysdk.models.certificates import Certificate
 from diarysdk.models.curriculum import ControlWork, Curriculum, ProgramModule, SubjectTopic
 from diarysdk.models.exams import Exam
+from diarysdk.models.files import DiaryFile
 from diarysdk.models.homework import Homework
 from diarysdk.models.identity import Identity
 from diarysdk.models.lessons import Lesson

@@ -11,8 +11,10 @@ from typing import TYPE_CHECKING, Literal, Protocol, Self
 if TYPE_CHECKING:
     from diarysdk.models.auth import Captcha, LoginMfa
     from diarysdk.models.avatar import Avatar
+    from diarysdk.models.certificates import Certificate
     from diarysdk.models.curriculum import ControlWork, Curriculum, ProgramModule, SubjectTopic
     from diarysdk.models.exams import Exam
+    from diarysdk.models.files import DiaryFile
     from diarysdk.models.homework import Homework
     from diarysdk.models.identity import Identity
     from diarysdk.models.lessons import Lesson
@@ -56,6 +58,12 @@ class StudentLike(Protocol):
     ) -> list[ControlWork]: ...
 
     async def academic_debts(self, year: int | None = None) -> list[AcademicDebt]: ...
+
+    async def final_marks_file(
+        self, year: int | None = None, orientation: Literal["portrait", "landscape"] = "portrait"
+    ) -> DiaryFile: ...
+
+    async def certificates(self) -> list[Certificate]: ...
 
     async def school_teachers(self, name: str | None = None) -> list[SchoolTeacher]: ...
 

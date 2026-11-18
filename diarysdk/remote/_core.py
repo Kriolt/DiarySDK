@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 import json
+import re
 from collections.abc import Generator
 from dataclasses import dataclass, field
 from datetime import date
@@ -27,8 +28,10 @@ from diarysdk.errors import (
 from diarysdk.models.auth import LoginStep
 from diarysdk.models.auth import TokenResponse as TokenModel
 from diarysdk.models.avatar import Avatar
+from diarysdk.models.certificates import Certificate
 from diarysdk.models.curriculum import ControlWork, Curriculum, ProgramModule, SubjectTopic
 from diarysdk.models.exams import Exam
+from diarysdk.models.files import DiaryFile
 from diarysdk.models.homework import Homework
 from diarysdk.models.identity import Identity
 from diarysdk.models.lessons import Lesson
@@ -95,6 +98,12 @@ def parse_success(spec: Request, response: httpx.Response) -> Any:
         return None
     if spec.model is Avatar:
         return Avatar(response.content, response.headers.get("content-type", ""))
+    if spec.model is DiaryFile:
+        return DiaryFile(
+            response.content,
+            response.headers.get("content-type", ""),
+            _filename(response.headers.get("content-disposition")),
+        )
     model = spec.model
     if model is LoginResult:
         model = LoginStep if response.status_code == 202 else TokenModel
@@ -108,6 +117,14 @@ def parse_success(spec: Request, response: httpx.Response) -> Any:
             "Ответ сервиса не соответствует модели клиента, обновите diarysdk",
             status=response.status_code,
         ) from error
+
+
+def _filename(disposition: str | None) -> str | None:
+    """Имя из Content-Disposition сервиса: attachment; filename="…"."""
+    if not disposition:
+        return None
+    match = re.search(r'filename="([^"]+)"', disposition)
+    return match.group(1) if match else None
 
 
 _KNOWN_STEPS = frozenset({"mfa", "captcha"})
@@ -271,6 +288,15 @@ def control_works(start: date | None, end: date | None) -> Request:
 
 def academic_debts(year: int | None) -> Request:
     return Request("GET", "/v1/academic-debts", {"year": year}, list[AcademicDebt])
+
+
+def final_marks_file(year: int | None, orientation: str) -> Request:
+    params = {"year": year, "orientation": orientation}
+    return Request("GET", "/v1/final-marks/file", params, DiaryFile)
+
+
+def certificates() -> Request:
+    return Request("GET", "/v1/certificates", model=list[Certificate])
 
 
 def school_teachers(name: str | None) -> Request:

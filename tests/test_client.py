@@ -102,6 +102,7 @@ READS = {
     "academic_debts": (lambda s: s.academic_debts(2025), "academic_debts"),
     "work_program": (lambda s: s.work_program(5001), "work_program"),
     "subject_topics": (lambda s: s.subject_topics(101), "subject_topics"),
+    "final_marks_file": (lambda s: s.final_marks_file(2025), "final_marks_file"),
     "control_works": (
         lambda s: s.control_works(date(2026, 9, 1), date(2027, 8, 31)),
         "control_works",
@@ -135,7 +136,10 @@ def test_student_method_tests_cover_the_whole_surface():
         if not name.startswith("_")
     }
     exercised = set()
-    for call, _ in [*READS.values(), *((c, None) for c in STUDENT_WRITES.values())]:
+    calls = [*READS.values(), *((c, None) for c in STUDENT_WRITES.values())]
+    # Справки — только через родителя: их чтение проверяет tests/test_parity.py.
+    calls.append((lambda s: s.certificates(), None))
+    for call, _ in calls:
         probe = _Probe()
         call(probe)
         exercised.add(probe.name)

@@ -43,7 +43,9 @@ async def test_reads_ok_and_no_field_values(now):  # noqa: F811
     code, output = await _run(server, env={"DIARYSDK_TOKEN": valid_token()})
 
     assert code == 0
-    assert set(output.splitlines()) == {f"ok {name}" for name in _read_names()}
+    # Справки ученику недоступны: дневник отдаёт их только родителю.
+    expected = {f"ok {name}" for name in _read_names() - {"certificates"}}
+    assert set(output.splitlines()) == expected | {"skip certificates: недоступно для этой роли"}
     for value in FIXTURE_VALUES:
         assert value not in output
 

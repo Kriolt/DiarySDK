@@ -48,8 +48,10 @@ from diarysdk.errors import (
 )
 from diarysdk.models.auth import Captcha, LoginMfa
 from diarysdk.models.avatar import Avatar
+from diarysdk.models.certificates import Certificate
 from diarysdk.models.curriculum import ControlWork, Curriculum, ProgramModule, SubjectTopic
 from diarysdk.models.exams import Exam
+from diarysdk.models.files import DiaryFile
 from diarysdk.models.homework import Homework
 from diarysdk.models.identity import ContactUpdate, Identity
 from diarysdk.models.lessons import Lesson
@@ -407,6 +409,20 @@ class Student:
         """Академические задолженности ученика за учебный год (по умолчанию — текущий)."""
         year = periods.final_marks_year(year, self._today())
         return await self._call(lambda ctx: self._gateway.academic_debts(ctx, year))
+
+    async def final_marks_file(
+        self, year: int | None = None, orientation: Literal["portrait", "landscape"] = "portrait"
+    ) -> DiaryFile:
+        """PDF итоговых оценок за учебный год (по умолчанию — текущий)."""
+        if orientation not in ("portrait", "landscape"):
+            raise BadRequest("Неверные параметры запроса: orientation")
+        year = periods.final_marks_year(year, self._today())
+        return await self._call(lambda ctx: self._gateway.final_marks_file(ctx, year, orientation))
+
+    async def certificates(self) -> list[Certificate]:
+        """Заявки на справки об обучении за два года. Только через родителя:
+        ученику дневник их не отдаёт (NotForRole)."""
+        return await self._call(self._gateway.certificates)
 
     async def school_teachers(self, name: str | None = None) -> list[SchoolTeacher]:
         """Учителя школы ученика; `name` — поиск по части имени."""

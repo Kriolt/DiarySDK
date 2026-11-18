@@ -1,6 +1,7 @@
 """Маршруты /v1: параметры → сервис → ответ."""
 
 from diarysdk.server.routes import (
+    certificates,
     curriculum,
     exams,
     homework,
@@ -33,5 +34,6 @@ ALL = [
     periods.router,
     curriculum.router,
     settings.router,
+    certificates.router,
     parent.router,
 ]

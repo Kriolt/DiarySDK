@@ -1,0 +1,14 @@
+[
+  {
+    "statusID": 0,
+    "statusDescription": "Не сформирована"
+  },
+  {
+    "statusID": 20,
+    "statusDescription": "Сформирована"
+  },
+  {
+    "statusID": 60,
+    "statusDescription": "Получена"
+  }
+]

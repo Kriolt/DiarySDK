@@ -133,6 +133,8 @@ def routes():
     )
     routes.add(f"/api/persondata/v1/persons/{GUID}", card)
     routes.add(f"/api/persondata/v1/persons/{GUID}/contacts/2", b"")
+    routes.add("/api/certificates/family/v1/certificates/statuses", [])
+    routes.add("/api/certificates/family/v1/certificates", {"certificates": None, "count": 0})
     # mock_diary отвечает по пути без метода: и чтению, и отметке — пустой список.
     routes.add("/api/ej/core/family/v1/aware_journals", [])
     return routes
@@ -211,7 +213,8 @@ def is_esia(path: str) -> bool:
 
 
 def is_parent(path: str) -> bool:
-    return path.startswith("/v1/parent")
+    # Справки — маршрут ученика, но только для токена родителя (child_id).
+    return path.startswith("/v1/parent") or path == "/v1/certificates"
 
 
 def as_parent(app) -> bool:
@@ -244,7 +247,8 @@ async def walk(app) -> list[str]:
                 ("PUT", "/v1/parent/identity/contacts/2"),
             ):
                 body = CONTACT_BODY
-            params = {"child_id": 9001} if path == "/v1/parent/journal-acks" else None
+            child = path in ("/v1/parent/journal-acks", "/v1/certificates")
+            params = {"child_id": 9001} if child else None
             if (method, path) == ("POST", "/v1/parent/journal-acks"):
                 body, params = {"child_id": 9001}, None
             response = await c.request(method, path, json=body, params=params)
@@ -315,6 +319,8 @@ async def test_walk_covers_every_endpoint_of_the_contract(app):
         "/v1/groups/5001/program",
         "/v1/subjects/101/topics",
         "/v1/control-works",
+        "/v1/final-marks/file",
+        "/v1/certificates",
         "/v1/settings",
         "/v1/auth/password",
         "/v1/auth/esia",

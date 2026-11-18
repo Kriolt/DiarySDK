@@ -46,6 +46,42 @@
       "url": "https://dnevnik.test/avatars/00000000-0000-4000-8000-000000000001"
     }
   ],
+  "certificates": [
+    {
+      "auth": true,
+      "headers": {
+        "accept": "application/json",
+        "auth-token": "eyJ.diary.token",
+        "profile-id": "7001",
+        "profile-type": "parent",
+        "x-mes-subsystem": "familyweb"
+      },
+      "json": null,
+      "method": "GET",
+      "params": {},
+      "url": "https://dnevnik.test/api/certificates/family/v1/certificates/statuses"
+    },
+    {
+      "auth": true,
+      "headers": {
+        "accept": "application/json",
+        "auth-token": "eyJ.diary.token",
+        "profile-id": "7001",
+        "profile-type": "parent",
+        "x-mes-subsystem": "familyweb"
+      },
+      "json": null,
+      "method": "GET",
+      "params": {
+        "limit": "10",
+        "offset": "0",
+        "requestDateFrom": "2024-10-24",
+        "requestDateTo": "2026-10-24",
+        "studentId": "00000000-0000-4000-8000-000000000001"
+      },
+      "url": "https://dnevnik.test/api/certificates/family/v1/certificates"
+    }
+  ],
   "control_works": [
     {
       "auth": true,
@@ -122,6 +158,27 @@
         "student_id": "9001"
       },
       "url": "https://dnevnik.test/api/family/web/v1/final_marks/v2"
+    }
+  ],
+  "final_marks_file": [
+    {
+      "auth": true,
+      "headers": {
+        "accept": "*/*",
+        "auth-token": "eyJ.diary.token",
+        "profile-id": "7001",
+        "profile-type": "student",
+        "x-mes-roleid": "1",
+        "x-mes-subsystem": "familyweb"
+      },
+      "json": null,
+      "method": "GET",
+      "params": {
+        "academic_year_id": "13",
+        "orientation": "portrait",
+        "student_id": "9001"
+      },
+      "url": "https://dnevnik.test/api/family/web/v1/final_marks/file"
     }
   ],
   "homework": [

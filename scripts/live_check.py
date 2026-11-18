@@ -23,7 +23,7 @@ from collections.abc import Awaitable, Callable, Mapping
 from typing import Any, TextIO
 
 from diarysdk import Captcha, Diary, LoginFlow, LoginMfa, Student, Token
-from diarysdk.errors import UpstreamFormat
+from diarysdk.errors import NotForRole, UpstreamFormat
 
 # Методы Student, которые меняют данные ученика: скрипт их не вызывает.
 WRITES = frozenset({"homework_done", "homework_undone", "update_settings", "update_contact"})
@@ -57,6 +57,9 @@ async def check_reads(student: Student, out: TextIO) -> bool:
         nonlocal failed
         try:
             result = await call()
+        except NotForRole:
+            print(f"skip {name}: недоступно для этой роли", file=out)
+            return None
         except Exception as error:  # любой сбой чтения — fail, а не падение скрипта
             failed = True
             print(f"fail {name}: {describe(error)}", file=out)
@@ -89,6 +92,8 @@ async def check_reads(student: Student, out: TextIO) -> bool:
         ("school_teachers", student.school_teachers),
         ("academic_debts", student.academic_debts),
         ("control_works", student.control_works),
+        ("final_marks_file", student.final_marks_file),
+        ("certificates", student.certificates),
     ):
         results[name] = await run(name, call)
 

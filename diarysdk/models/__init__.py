@@ -13,6 +13,7 @@ from diarysdk.models.auth import (
     TokenResponse,
 )
 from diarysdk.models.avatar import Avatar
+from diarysdk.models.certificates import Certificate
 from diarysdk.models.common import ClassUnit, Material, PersonName, SchoolBrief, Subject
 from diarysdk.models.curriculum import (
     ControlWork,
@@ -28,6 +29,7 @@ from diarysdk.models.curriculum import (
     TopicResult,
 )
 from diarysdk.models.exams import Exam
+from diarysdk.models.files import DiaryFile
 from diarysdk.models.homework import Attachment, Homework
 from diarysdk.models.identity import (
     Address,
@@ -81,6 +83,7 @@ __all__ = [
     "Avatar",
     "Branch",
     "Captcha",
+    "Certificate",
     "Child",
     "ClassResults",
     "ClassUnit",
@@ -92,6 +95,7 @@ __all__ = [
     "CurriculumSubject",
     "CurriculumSubjectWeek",
     "CurriculumWeek",
+    "DiaryFile",
     "Document",
     "DocumentAct",
     "DocumentAttachment",

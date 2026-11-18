@@ -1,0 +1,16 @@
+{
+  "certificates": [
+    {
+      "id": 77,
+      "statusID": 20,
+      "requestDate": "2026-10-01",
+      "issueDate": "2026-10-02",
+      "holdDate": "2027-10-02",
+      "purpose": "По месту требования",
+      "studentBirthDate": "2012-05-05"
+    }
+  ],
+  "count": 1,
+  "limit": 10,
+  "offset": 0
+}
