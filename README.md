@@ -1,8 +1,8 @@
 # DiarySDK
 
 Python-библиотека для школьного дневника «Моя школа» (Московская область):
-данные ученика по его токену — оценки, расписание, домашние задания,
-рейтинг, настройки, профиль. Её же можно запустить как HTTP-сервис и ходить
+данные ученика по его токену или токену родителя — оценки, расписание,
+домашние задания, рейтинг, учебный план, справки, настройки, профиль. Её же можно запустить как HTTP-сервис и ходить
 в дневник через него.
 
 Три части в одном пакете:
@@ -28,9 +28,9 @@ Python-библиотека для школьного дневника «Моя 
 Требуется Python 3.15 или новее.
 
 ```sh
-pip install "diarysdk @ git+https://github.com/Kriolt/DiarySDK@v0.1.0"
+pip install "diarysdk @ git+https://github.com/Kriolt/DiarySDK@v0.2.0"
 # с сервисом (FastAPI, uvicorn):
-pip install "diarysdk[server] @ git+https://github.com/Kriolt/DiarySDK@v0.1.0"
+pip install "diarysdk[server] @ git+https://github.com/Kriolt/DiarySDK@v0.2.0"
 ```
 
 Зависимости ядра: `httpx`, `pydantic`, `tzdata`. Ядро не требует FastAPI.
@@ -112,6 +112,38 @@ Jupyter), он заблокирует и её цикл событий на вр�
 [`examples/sync_remote.py`](examples/sync_remote.py),
 [`examples/bot_flow.py`](examples/bot_flow.py) (бот целиком: вход, хранение
 токена, чтение, запись, повторный вход).
+
+## Родитель
+
+Токен родителя открывает его собственные данные и всех его учеников:
+
+<!-- test -->
+```python
+import asyncio
+import os
+
+from diarysdk import Diary
+
+
+async def main() -> None:
+    async with Diary() as api:
+        parent = api.parent(os.environ["DIARY_TOKEN"])
+        for child in await parent.children():
+            student = parent.student(child.id)
+            print(child.first_name, len(await student.marks()), "оценок")
+
+
+asyncio.run(main())
+```
+
+`parent.student(child_id)` — тот же `Student` со всеми методами. Кое-что
+дневник отдаёт только самому ученику: через родителя `exams()`, `avatar()`
+и отметка ДЗ дают `NotForRole`. Справки (`certificates()`), наоборот, —
+только через родителя. У родителя есть `me()`, `identity()`, `avatar()`,
+настройки, своя почта и отметка «ознакомлен с дневником»
+(`journal_acks`, `acknowledge_journal`; отметку видят учителя, отменить её
+нельзя). Через сервис ученика выбирает параметр `child_id`. Подробно — в
+[справочнике](docs/reference.md#parent-родитель).
 
 ## Вход
 
@@ -305,8 +337,8 @@ asyncio.run(main())
   цикл событий (см. выше). У `sync.Diary` и `sync.RemoteDiary` нет
   финализатора: незакрытый экземпляр оставляет поток-демон с соединениями до
   конца процесса, поэтому закрывайте его через `with` или `close()`.
-- **Один ученик на токен.** Токен родителя с несколькими детьми в v1 не
-  поддерживается (`MultipleChildren`).
+- **Токен родителя с несколькими детьми** в `diary.student(token)` —
+  `MultipleChildren`: выбирайте ребёнка через `diary.parent(token)`.
 
 ## Сервер
 

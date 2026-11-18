@@ -7,6 +7,7 @@
 
 import builtins
 import re
+from datetime import UTC, datetime
 from pathlib import Path
 
 import httpx
@@ -16,7 +17,9 @@ from httpx import ASGITransport
 import diarysdk
 import diarysdk.remote
 import diarysdk.sync
-from diarysdk._port import EsiaStep
+from diarysdk._port import EsiaStep, ParentContext
+from diarysdk._wire.web import WebFamilyProfile
+from diarysdk.models import Child, SchoolBrief
 from diarysdk.models.common import Subject
 from diarysdk.models.homework import Homework
 from diarysdk.models.marks import Mark
@@ -63,6 +66,13 @@ def world(tmp_path, monkeypatch):
         marks=[Mark(id=1, subject=Subject(name="Алгебра"), value="9")],
         homework=[Homework(id=5, is_done=False)],
         set_homework_done=None,
+        parent_context=ParentContext(
+            profile_id=7001,
+            person_guid=None,
+            expires_at=datetime(2030, 1, 1, tzinfo=UTC),
+            profile=WebFamilyProfile(),
+        ),
+        parent_children=[Child(id=9001, first_name="Иван", school=SchoolBrief())],
     )
     keys = tmp_path / "api-keys"
     keys.write_text(f"docs {hash_key(DOC_KEY)} login,write_profile\n")

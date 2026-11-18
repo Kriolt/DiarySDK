@@ -381,7 +381,7 @@ async def school_name(api: DiaryLike, token: str) -> str | None:
 ## Сервер: запуск и настройки
 
 ```sh
-pip install "diarysdk[server] @ git+https://github.com/Kriolt/DiarySDK@v0.1.0"
+pip install "diarysdk[server] @ git+https://github.com/Kriolt/DiarySDK@v0.2.0"
 DIARYSDK_KEYS_FILE=./api-keys python -m diarysdk.server
 ```
 
