@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import math
 from collections.abc import Mapping, Sequence
-from typing import Any, ClassVar, Self
+from typing import Any, ClassVar, Literal, Self
 
 from pydantic import BaseModel, ValidationError
 
@@ -155,7 +155,31 @@ class NoAvatar(NotFound):
 class MultipleChildren(DiaryError):
     code = "multiple_children"
     http_status = 422
-    default_message = "Токен родителя с несколькими детьми в v1 не поддерживается"
+    default_message = (
+        "У родителя несколько детей: выберите ребёнка через diary.parent(token).student(child_id)"
+    )
+
+
+class NotForRole(DiaryError):
+    """Для этой роли (`role`: "student" | "parent") дневник эти данные не отдаёт.
+
+    `role` по проводу не ходит: удалённый клиент получает только код и текст.
+    """
+
+    code = "not_for_role"
+    http_status = 422
+    default_message = "Для этой роли дневник эти данные не отдаёт"
+
+    def __init__(
+        self,
+        message: str = "",
+        *,
+        role: Literal["student", "parent"] | None = None,
+        status: int | None = None,
+        retry_after: float | None = None,
+    ) -> None:
+        super().__init__(message, status=status, retry_after=retry_after)
+        self.role = role
 
 
 class SettingError(DiaryError):

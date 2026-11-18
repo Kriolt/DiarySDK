@@ -312,7 +312,8 @@ async def school_name(api: DiaryLike, token: str) -> str | None:
 | `bad_request` | `BadRequest` | 400 | неверные параметры запроса |
 | `not_found` | `NotFound` | 404 | в дневнике такого нет |
 | `no_avatar` | `NoAvatar` | 404 | у ученика нет аватарки |
-| `multiple_children` | `MultipleChildren` | 422 | токен родителя с несколькими детьми |
+| `multiple_children` | `MultipleChildren` | 422 | токен родителя с несколькими детьми: нужен `diary.parent` |
+| `not_for_role` | `NotForRole` | 422 | для этой роли дневник эти данные не отдаёт |
 | `setting_error` | `SettingError` | 409 | настройку записать нельзя |
 | `settings_missing` | `SettingsMissing` | 409 | в дневнике нет настроек приложения |
 | `setting_unset` | `SettingNotSet` | 409 | у настройки нет значения |

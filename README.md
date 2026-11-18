@@ -254,7 +254,7 @@ asyncio.run(main())
 | Класс | Когда | Что делать |
 | --- | --- | --- |
 | `AuthError` (`TokenInvalid`, `TokenExpired`, `BadCredentials`, `LoginBlocked`, `FlowExpired`, `BadCode`, `BadCaptcha`, `UnsupportedStep`) | токен или вход не приняты | звать ученика входить заново |
-| `BadRequest`, `NotFound`, `NoAvatar`, `MultipleChildren` | запрос неверный или данных нет | исправить запрос |
+| `BadRequest`, `NotFound`, `NoAvatar`, `MultipleChildren`, `NotForRole` | запрос неверный или данных нет | исправить запрос |
 | `SettingError` (`SettingsMissing`, `SettingNotSet`, `SettingUnrestorable`), `UnsupportedContact` | запись невозможна, не отправлена | не повторять без изменений |
 | `RateLimited` | лимит запросов | подождать `retry_after` |
 | `UpstreamError` (`UpstreamTimeout`, `UpstreamFormat`) | дневник недоступен или ответил непонятно | повторить позже |
