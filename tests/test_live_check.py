@@ -10,7 +10,7 @@ import pytest
 
 from diarysdk import BadCredentials, Diary
 from diarysdk import client as client_module
-from tests.fakes import HOSTS
+from tests.fakes import HOSTS, fixture
 from tests.test_client import DiaryServer, now  # noqa: F401 - now: фикстура срока токена
 from tests.tokens import valid_token
 
@@ -156,3 +156,39 @@ def test_skip_reason_tells_empty_list_from_missing_ids():
     assert live_check._first_id([], pick) == "список пуст"
     assert live_check._first_id([None, None], pick) == "ни у одного элемента нет id"
     assert live_check._first_id([None, 7, 8], pick) == 7
+
+
+async def test_parent_mode_checks_parent_and_every_child_without_values(now):  # noqa: F811
+    from tests.test_parent import PARENT_GUID, parent_profile
+
+    server = DiaryServer()
+    server.fake.add("/api/family/web/v1/profile", parent_profile())
+    server.fake.add(f"/api/persondata/v1/persons/{PARENT_GUID}", fixture("person_data.json"))
+    server.fake.add(f"/api/avatarmanagement/v1/{PARENT_GUID}", [])
+    server.fake.add("/api/ej/core/family/v1/aware_journals", [])
+
+    code, output = await _run(server, method="parent", env={"DIARYSDK_TOKEN": valid_token()})
+
+    lines = set(output.splitlines())
+    assert {
+        "ok parent.me",
+        "ok parent.children",
+        "ok parent.identity",
+        "ok parent.settings",
+    } <= lines
+    assert "ok parent.journal_acks" in lines
+    assert "skip parent.avatar: нет аватарки" in lines
+    for child in ("child1", "child2"):
+        assert f"ok {child}:marks" in lines
+        assert f"ok {child}:certificates" in lines
+        assert f"skip {child}:exams: недоступно для этой роли" in lines
+    assert not [r for r in server.requests if r.method in ("POST", "PUT", "PATCH", "DELETE")]
+    for value in [*FIXTURE_VALUES, "Пётр", PARENT_GUID]:
+        assert value not in output
+    assert code == 0
+
+
+def test_parent_writes_are_listed_and_never_called():
+    assert {"acknowledge_journal", "update_settings", "update_contact"} <= live_check.WRITES
+    source = SCRIPT.read_text(encoding="utf-8")
+    assert ".acknowledge_journal" not in source
