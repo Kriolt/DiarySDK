@@ -131,3 +131,16 @@ def test_start_only_for_school_periods_ends_with_that_school_year():
         D(2026, 9, 15),
         D(2027, 8, 31),
     )
+
+
+def test_journal_period_limit_counts_from_monday():
+    from diarysdk._periods import journal_period
+    from diarysdk.errors import BadRequest
+
+    # Среда + 30 дней — 31 день, но с понедельника этой недели уже 33.
+    with pytest.raises(BadRequest):
+        journal_period(date(2026, 2, 4), date(2026, 3, 6), date(2026, 2, 4))
+    assert journal_period(date(2026, 2, 4), date(2026, 3, 4), date(2026, 2, 4)) == (
+        date(2026, 2, 2),
+        date(2026, 3, 4),
+    )

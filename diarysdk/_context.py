@@ -15,6 +15,10 @@ from collections.abc import Awaitable, Callable
 from dataclasses import replace
 
 from diarysdk._port import StudentContext
+from diarysdk.errors import NotFound
+
+# Сколько помнить, что у токена нет такого ребёнка, секунд.
+MISSING_TTL = 60.0
 
 # (SHA-256 токена, id выбранного ребёнка или None).
 type _Key = tuple[str, int | None]
@@ -39,9 +43,17 @@ class ContextCache:
         self._clock = clock
         self._entries: OrderedDict[_Key, tuple[StudentContext, float]] = OrderedDict()
         self._pending: dict[_Key, asyncio.Future[StudentContext]] = {}
+        # Неизвестный ребёнок (NotFound): не спрашиваем профиль снова минуту —
+        # перебор child_id иначе стоил бы запрос к дневнику на каждый id.
+        self._missing: OrderedDict[_Key, float] = OrderedDict()
 
     async def get(self, token: str, child_id: int | None = None) -> StudentContext:
         key = (hash_key(token), child_id)
+        missing = self._missing.get(key)
+        if missing is not None:
+            if missing > self._clock():
+                raise NotFound("Такого ученика у этого токена нет")
+            del self._missing[key]
         entry = self._entries.get(key)
         if entry is not None:
             context, expires = entry
@@ -66,6 +78,12 @@ class ContextCache:
     async def _load(self, key: _Key, token: str, child_id: int | None) -> StudentContext:
         try:
             context = await self._resolve(token, child_id)
+        except NotFound:
+            if child_id is not None:
+                self._missing[key] = self._clock() + MISSING_TTL
+                while len(self._missing) > self._maxsize:
+                    self._missing.popitem(last=False)
+            raise
         finally:
             self._pending.pop(key, None)
         # Разобранный профиль достаётся только тем, кто ждал эту загрузку; в кэше

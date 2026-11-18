@@ -120,3 +120,25 @@ async def test_cache_keeps_children_apart():
     await cache.get("t")
 
     assert resolve.calls == [("t", 1), ("t", 2), "t"]
+
+
+async def test_unknown_child_is_remembered_for_a_minute():
+    from diarysdk.errors import NotFound
+
+    calls = []
+
+    async def resolve(token, child_id=None):
+        calls.append(child_id)
+        raise NotFound()
+
+    clock = FakeClock()
+    cache = ContextCache(resolve, clock=clock)
+    for _ in range(3):
+        with pytest.raises(NotFound):
+            await cache.get("t", 999)
+    assert calls == [999]
+
+    clock.now = 61
+    with pytest.raises(NotFound):
+        await cache.get("t", 999)
+    assert calls == [999, 999]

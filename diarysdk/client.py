@@ -22,7 +22,7 @@ from pydantic import ValidationError
 from diarysdk import _clock as clock
 from diarysdk import _jwt as jwt
 from diarysdk import _periods as periods
-from diarysdk._context import ContextCache
+from diarysdk._context import ContextCache, hash_key
 from diarysdk._gateway import DiaryGateway, write_started
 from diarysdk._hosts import Hosts
 from diarysdk._port import (
@@ -115,6 +115,8 @@ class Diary:
         self._deadline = deadline
         self._contexts = ContextCache(self._context)
         self._flows: weakref.WeakSet[LoginFlow] = weakref.WeakSet()
+        # Отметки ознакомления: одна на (токен, ученик, неделя) одновременно.
+        self._ack_locks: dict[tuple[str, int, date], list] = {}
         self._closed = False
         self.login = Login(self)
 
@@ -585,4 +587,19 @@ class Parent:
         if clock.week_bounds(day)[0] > clock.week_bounds(today)[0]:
             # Отметку нельзя отменить, а её видят учителя: будущую неделю не отмечаем.
             raise BadRequest("Неделя ещё не наступила: отметить её нельзя")
-        await self._call(lambda ctx: self._gateway.parent_acknowledge_journal(ctx, child_id, day))
+        monday = clock.week_bounds(day)[0]
+        key = (hash_key(self._token.value), child_id, monday)
+        locks = self._diary._ack_locks
+        entry = locks.setdefault(key, [asyncio.Lock(), 0])
+        entry[1] += 1
+        try:
+            # Второй одновременный вызов ждёт первый и видит его отметку: без второго POST.
+            async with entry[0]:
+                await self._call(
+                    lambda ctx: self._gateway.parent_acknowledge_journal(ctx, child_id, day)
+                )
+        finally:
+            # Блокировка живёт, пока ею кто-то пользуется (и ждущие тоже).
+            entry[1] -= 1
+            if entry[1] == 0:
+                del locks[key]

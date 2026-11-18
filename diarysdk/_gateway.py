@@ -332,11 +332,17 @@ class DiaryGateway:
     async def school_teachers(self, ctx: Ctx, name: str | None) -> list[SchoolTeacher]:
         """Все страницы справочника учителей школы (не больше TEACHERS_MAX_PAGES)."""
         result: list[SchoolTeacher] = []
+        seen: set[int] = set()
         for page in range(1, raw.TEACHERS_MAX_PAGES + 1):
             data = await raw.teacher_profiles(
                 self._transport, self._hosts, ctx.token, ctx.student, name, page
             )
-            result += ej_mapping.teachers(data)
+            fresh = [t for t in ej_mapping.teachers(data) if t.id not in seen]
+            # Страница без новых учителей — дневник проигнорировал page: дальше то же.
+            if not fresh:
+                break
+            seen.update(t.id for t in fresh)
+            result += fresh
             if not isinstance(data, list) or len(data) < raw.TEACHERS_PER_PAGE:
                 break
         return result

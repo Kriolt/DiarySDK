@@ -33,7 +33,7 @@ from diarysdk.remote import RemoteLoginFlow as _AsyncRemoteLoginFlow
 from diarysdk.remote import RemoteParent as _AsyncRemoteParent
 from diarysdk.remote import RemoteStudent as _AsyncRemoteStudent
 
-__all__ = ["Diary", "Login", "LoginFlow", "RemoteDiary", "Student"]
+__all__ = ["Diary", "Login", "LoginFlow", "Parent", "RemoteDiary", "Student"]
 
 _CLOSED = "Diary закрыт"
 
