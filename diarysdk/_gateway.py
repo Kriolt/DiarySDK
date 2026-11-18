@@ -152,8 +152,9 @@ def _years_back(day: date, years: int) -> date:
 
 
 def _not_for_parent(ctx: Ctx) -> None:
-    """Аватарку и экзамены дневник отдаёт только владельцу токена: родителю — нет
-    (живой ответ: 403 «user_id не принадлежит пользователю», 469 «не найден»)."""
+    """Аватарку, экзамены и отметку ДЗ дневник даёт только владельцу токена: родителю —
+    нет (живой ответ: 403 «user_id не принадлежит пользователю», 469 «не найден», отказ
+    токена на отметке ДЗ)."""
     if ctx.student.access == "parent":
         raise NotForRole(role="parent")
 
@@ -380,6 +381,7 @@ class DiaryGateway:
         return homework_mapping.homework(await self.fetch_homework(ctx, start, end))
 
     async def set_homework_done(self, ctx: Ctx, homework_id: int, done: bool) -> None:
+        _not_for_parent(ctx)
         response = await _write(self.send_homework_done(ctx, homework_id, done))
         if _refused(response):
             # 2xx, но запись не принята: для потребителя — ошибка дневника.

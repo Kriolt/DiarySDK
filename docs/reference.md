@@ -186,8 +186,8 @@ HTTP-статус повторяют причину, `.upstream_status` — ст
 | `journal_acks(child_id, start=None, end=None)` | `list[JournalAck]`: отметки «ознакомлен с дневником» по неделям; по умолчанию текущая, период ≤ 31 дня |
 | `acknowledge_journal(child_id, week=None)` | отметить неделю (любой её день, по умолчанию текущая); уже отмечена — ничего не делает. Отметку видят учителя, отменить её нельзя |
 
-Через родителя `exams()` и `avatar()` ученика — `NotForRole`: дневник отдаёт их
-только самому ученику. `update_settings` и `update_contact` родителя живьём не
+Через родителя `exams()`, `avatar()`, `homework_done()` и `homework_undone()`
+ученика — `NotForRole`: дневник даёт их только самому ученику. `update_settings` и `update_contact` родителя живьём не
 проверены.
 
 ## Token

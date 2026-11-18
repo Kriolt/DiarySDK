@@ -504,3 +504,13 @@ async def test_parent_access_reads_without_parent_data_fail_before_request(gatew
 
     assert error.value.role == "parent"
     assert fake.sent == []
+
+
+@pytest.mark.parametrize("done", [True, False])
+async def test_parent_access_cannot_mark_homework_before_request(gateway, fake, done):
+    # Живьём 18.11: дневник отвечает родителю отказом токена — отметка ДЗ только ученику.
+    with pytest.raises(NotForRole) as error:
+        await gateway.set_homework_done(Ctx(token="t.t.t", student=PARENT), 30001, done)
+
+    assert error.value.role == "parent"
+    assert fake.sent == []
