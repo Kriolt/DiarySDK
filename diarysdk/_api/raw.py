@@ -26,6 +26,14 @@ def _family_web(token: str) -> dict[str, str]:
     return {"Auth-Token": token, "X-Mes-Subsystem": "familyweb", "Accept": "application/json"}
 
 
+def _role_headers(student: StudentContext) -> dict[str, str]:
+    """Роль владельца токена для family/web. Ученик — как у сайта (student, 1);
+    родителю `X-Mes-RoleId: 1` дневник отвечает 401, а `parent` без него — 200."""
+    if student.access == "parent":
+        return {"Profile-Type": "parent"}
+    return {"Profile-Type": "student", "X-Mes-RoleId": "1"}
+
+
 def _family_mobile(token: str, profile_id: int) -> dict[str, str]:
     return {
         "Auth-Token": token,
@@ -214,8 +222,7 @@ async def final_marks(
             **_bearer(token),
             **_family_web(token),
             "Profile-Id": str(student.profile_id),
-            "Profile-Type": "student",
-            "X-Mes-RoleId": "1",
+            **_role_headers(student),
         },
         params={
             "person_id": student.person_guid,

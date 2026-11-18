@@ -114,6 +114,10 @@ class StudentContext:
     expires_at: datetime
     # Учебный план параллели; в профиле его может не быть.
     parallel_curriculum_id: int | None = None
+    # Чей токен: ученика или родителя (тогда это выбранный ребёнок родителя).
+    access: Literal["student", "parent"] = "student"
+    # Профиль родителя при доступе родителя; у ученика None.
+    parent_profile_id: int | None = None
     # Разобранный профиль, из которого собран контекст: только у свежесобранного,
     # чтобы me/identity не запрашивали его второй раз. В кэш он не попадает.
     profile: WebFamilyProfile | None = field(default=None, repr=False, compare=False)

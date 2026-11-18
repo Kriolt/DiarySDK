@@ -10,6 +10,7 @@ from diarysdk._port import Ctx
 from diarysdk.errors import (
     NetworkError,
     NoAvatar,
+    NotForRole,
     NotFound,
     TokenInvalid,
     UpstreamError,
@@ -480,3 +481,26 @@ async def test_missing_settings_group_is_all_null(gateway, fake, body, status):
         "schedule_type": None,
         "estimation_type": None,
     }
+
+
+PARENT = dataclasses.replace(STUDENT, access="parent", parent_profile_id=STUDENT.profile_id)
+
+
+async def test_final_marks_headers_follow_access(gateway, fake):
+    fake.add("/api/family/web/v1/final_marks/v2", fixture("final_marks.json"))
+
+    await gateway.final_marks(Ctx(token="t.t.t", student=STUDENT), 2025)
+    await gateway.final_marks(Ctx(token="t.t.t", student=PARENT), 2025)
+
+    student, parent = fake.sent
+    assert (student.header("profile-type"), student.header("x-mes-roleid")) == ("student", "1")
+    assert (parent.header("profile-type"), parent.header("x-mes-roleid")) == ("parent", None)
+
+
+@pytest.mark.parametrize("method", ["exams", "avatar"])
+async def test_parent_access_reads_without_parent_data_fail_before_request(gateway, fake, method):
+    with pytest.raises(NotForRole) as error:
+        await getattr(gateway, method)(Ctx(token="t.t.t", student=PARENT))
+
+    assert error.value.role == "parent"
+    assert fake.sent == []

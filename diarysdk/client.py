@@ -134,13 +134,13 @@ class Diary:
     def student(self, token: str | Token) -> Student:
         return Student(self, token if isinstance(token, Token) else Token(token))
 
-    async def _context(self, token: str) -> StudentContext:
+    async def _context(self, token: str, child_id: int | None = None) -> StudentContext:
         try:
             # Срок нужен контексту; без него это не токен дневника — и спрашивать нечего.
             jwt.expires_at(token)
         except jwt.InvalidToken:
             raise TokenInvalid("Это не токен дневника") from None
-        return await self._gateway.student_context(token)
+        return await self._gateway.student_context(token, child_id)
 
     async def _timed[T](self, make: Callable[[], Awaitable[T]]) -> T:
         """Один вызов не дольше deadline: дальше — UpstreamTimeout."""
@@ -284,9 +284,11 @@ class LoginFlow:
 class Student:
     """Запросы от имени одного ученика; создаётся `diary.student(token)`."""
 
-    def __init__(self, diary: Diary, token: Token) -> None:
+    def __init__(self, diary: Diary, token: Token, child_id: int | None = None) -> None:
         self._diary = diary
         self._token = token
+        # Выбранный ребёнок родителя; None — единственный ученик токена.
+        self._child_id = child_id
 
     @property
     def token(self) -> Token:
@@ -313,7 +315,7 @@ class Student:
         marker = write_started.set(started)
         try:
             async with asyncio.timeout(diary._deadline):
-                student = await diary._contexts.get(token.value)
+                student = await diary._contexts.get(token.value, self._child_id)
                 return await call(Ctx(token=token.value, student=student))
         except TimeoutError:
             timeout = UpstreamTimeout()
@@ -322,7 +324,7 @@ class Student:
             raise timeout from None
         except TokenInvalid:
             # Дневник не принял токен — его контекст больше не годится.
-            diary._contexts.evict(token.value)
+            diary._contexts.evict(token.value, self._child_id)
             raise
         finally:
             write_started.reset(marker)

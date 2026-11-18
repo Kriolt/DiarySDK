@@ -11,6 +11,8 @@ from diarysdk._wire.mobile import Mark
 
 class Profile(Wire):
     id: int | None = None
+    # Тип владельца токена: "student", "parent".
+    type: str | None = None
 
 
 class School(Wire):

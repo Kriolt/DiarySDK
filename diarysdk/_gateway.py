@@ -51,6 +51,7 @@ from diarysdk._wire.rating import RatingRankClass, RatingRankShort, RatingRankSu
 from diarysdk._wire.web import EventsResponse, PersonData, WebFamilyProfile
 from diarysdk.errors import (
     NoAvatar,
+    NotForRole,
     NotFound,
     SettingsMissing,
     TokenInvalid,
@@ -126,6 +127,13 @@ async def _write[T](send: Awaitable[T]) -> T:
         raise
 
 
+def _not_for_parent(ctx: Ctx) -> None:
+    """Аватарку и экзамены дневник отдаёт только владельцу токена: родителю — нет
+    (живой ответ: 403 «user_id не принадлежит пользователю», 469 «не найден»)."""
+    if ctx.student.access == "parent":
+        raise NotForRole(role="parent")
+
+
 class DiaryGateway:
     def __init__(
         self, transport, hosts: Hosts, *, today: Callable[[], date] = clock.today_msk
@@ -157,9 +165,9 @@ class DiaryGateway:
     async def esia_captcha_renew(self, session: EsiaSession) -> EsiaStep:
         return await login_esia.esia_captcha_renew(self._transport, self._hosts, _esia(session))
 
-    async def student_context(self, token: str) -> StudentContext:
+    async def student_context(self, token: str, child_id: int | None = None) -> StudentContext:
         profile = await self.fetch_profile(token)
-        context = student_context(profile, jwt.expires_at(token))
+        context = student_context(profile, jwt.expires_at(token), child_id)
         return replace(context, profile=profile)
 
     async def _profile(self, ctx: Ctx) -> WebFamilyProfile:
@@ -177,6 +185,7 @@ class DiaryGateway:
         return school_mapping.school(await self.fetch_school(ctx))
 
     async def avatar(self, ctx: Ctx) -> Avatar:
+        _not_for_parent(ctx)
         try:
             response = await self.fetch_avatar(ctx)
         except NotFound:
@@ -192,6 +201,7 @@ class DiaryGateway:
         return Avatar(content=response.body, content_type=content_type)
 
     async def exams(self, ctx: Ctx) -> list[Exam]:
+        _not_for_parent(ctx)
         return exams_mapping.exams(await self.fetch_exams(ctx))
 
     async def final_marks(self, ctx: Ctx, year: int) -> list[FinalMark]:
