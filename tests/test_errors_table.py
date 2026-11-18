@@ -21,6 +21,7 @@ from diarysdk.errors import (
     MultipleChildren,
     NetworkError,
     NoAvatar,
+    NotForRole,
     NotFound,
     RateLimited,
     RemoteError,
@@ -65,6 +66,7 @@ TABLE = {
     NotFound: ("not_found", 404),
     NoAvatar: ("no_avatar", 404),
     MultipleChildren: ("multiple_children", 422),
+    NotForRole: ("not_for_role", 422),
     SettingError: ("setting_error", 409),
     SettingsMissing: ("settings_missing", 409),
     SettingNotSet: ("setting_unset", 409),
@@ -264,3 +266,18 @@ def test_raw_code_defaults_to_class_code_and_follows_known_code():
     assert BadRequest().raw_code == "bad_request"
     assert WriteUncertain(cause=UpstreamTimeout()).raw_code == "upstream_timeout"
     assert from_response(404, {"error": "no_avatar"}).raw_code == "no_avatar"
+
+
+def test_not_for_role_keeps_role_out_of_wire_and_back_as_same_class():
+    error = NotForRole(role="parent")
+    assert error.role == "parent"
+    status, body = to_response(error)
+    assert (status, body["error"]) == (422, "not_for_role")
+    assert "role" not in body
+    back = from_response(status, body)
+    assert type(back) is NotForRole
+    assert back.message == error.message
+
+
+def test_multiple_children_points_to_parent_api():
+    assert "diary.parent" in MultipleChildren().message

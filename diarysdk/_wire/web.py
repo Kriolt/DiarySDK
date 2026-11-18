@@ -9,10 +9,6 @@ from diarysdk._wire.common import DT, Wire
 from diarysdk._wire.mobile import Mark
 
 
-class Profile(Wire):
-    id: int | None = None
-
-
 class School(Wire):
     id: int | None = None
     name: str | None = None
@@ -40,7 +36,14 @@ class Person(Wire):
 
 
 class Representative(Person):
-    pass
+    person_id: str | None = None
+
+
+class Profile(Person):
+    """Владелец токена; `type` — "student" или "parent"."""
+
+    id: int | None = None
+    user_id: int | None = None
 
 
 class Child(Person):
@@ -177,3 +180,12 @@ class PersonData(Wire):
     children: Any = None
     education: list[Education] | None = None
     citizenship: Any = None
+
+
+class AwareJournal(Wire):
+    """Отметка ознакомления (ej/core/family aware_journals)."""
+
+    week: DT | None = None
+    # "ДД.ММ.ГГГГ ЧЧ:ММ" по Москве — как пишет и сайт.
+    created_at: str | None = None
+    student_profile_id: int | None = None

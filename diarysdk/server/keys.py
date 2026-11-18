@@ -27,7 +27,7 @@ _CONSUMER = re.compile(r"[A-Za-z0-9_.-]+")
 _SCOPES = re.compile(r"[a-z0-9_]+(,[a-z0-9_]+)*")
 # Какие разрешения умеет выдавать CLI. В файле допустимы и другие: так старый
 # сервис не отвергнет файл, написанный под более новый.
-KNOWN_SCOPES = ("login", "write_profile")
+KNOWN_SCOPES = ("login", "write_profile", "acknowledge_journal")
 
 
 class KeyFileError(Exception):
@@ -132,7 +132,8 @@ def main(argv: list[str] | None = None) -> int:
         action="append",
         help=(
             "разрешение ключа, можно несколько раз: login — вход по логину и паролю "
-            "через /v1/auth; write_profile — правка контактов ученика"
+            "через /v1/auth; write_profile — правка контактов; "
+            "acknowledge_journal — отметка родителя «ознакомлен с дневником»"
         ),
     )
     args = parser.parse_args(argv)

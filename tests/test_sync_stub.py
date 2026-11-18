@@ -89,9 +89,11 @@ def test_stub_diary_matches_async_class(stub, name, core):
     stubbed = stub[name]
     assert _signature(stubbed.__init__) == _signature(core.__init__)
     assert _signature(stubbed.student) == _signature(core.student)
+    assert _signature(stubbed.parent) == _signature(core.parent)
     assert {n for n, _ in inspect.getmembers(stubbed, inspect.isfunction) if n[0] != "_"} == {
         "close",
         "student",
+        "parent",
     }
     assert isinstance(stubbed.login, property)
 

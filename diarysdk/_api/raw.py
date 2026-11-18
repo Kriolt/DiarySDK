@@ -13,7 +13,7 @@ from typing import Any
 from pydantic import BaseModel, ConfigDict, ValidationError
 
 from diarysdk._hosts import Hosts
-from diarysdk._port import StudentContext
+from diarysdk._port import Owner, StudentContext
 from diarysdk._transport import DiaryResponse
 from diarysdk.errors import NotFound, UpstreamError, UpstreamFormat, WriteUncertain
 
@@ -24,6 +24,14 @@ def _bearer(token: str) -> dict[str, str]:
 
 def _family_web(token: str) -> dict[str, str]:
     return {"Auth-Token": token, "X-Mes-Subsystem": "familyweb", "Accept": "application/json"}
+
+
+def _role_headers(student: StudentContext) -> dict[str, str]:
+    """Роль владельца токена для family/web. Ученик — как у сайта (student, 1);
+    родителю `X-Mes-RoleId: 1` дневник отвечает 401, а `parent` без него — 200."""
+    if student.access == "parent":
+        return {"Profile-Type": "parent"}
+    return {"Profile-Type": "student", "X-Mes-RoleId": "1"}
 
 
 def _family_mobile(token: str, profile_id: int) -> dict[str, str]:
@@ -65,7 +73,7 @@ async def put_contact(
     transport,
     hosts: Hosts,
     token: str,
-    student: StudentContext,
+    student: Owner,
     contact_id: int,
     contact: dict[str, Any],
 ) -> DiaryResponse:
@@ -214,8 +222,7 @@ async def final_marks(
             **_bearer(token),
             **_family_web(token),
             "Profile-Id": str(student.profile_id),
-            "Profile-Type": "student",
-            "X-Mes-RoleId": "1",
+            **_role_headers(student),
         },
         params={
             "person_id": student.person_guid,
@@ -307,7 +314,7 @@ USER_SETTINGS_PARAMS: Mapping[str, str] = MappingProxyType(
 
 
 async def user_settings(
-    transport, hosts: Hosts, token: str, student: StudentContext
+    transport, hosts: Hosts, token: str, student: Owner
 ) -> dict[str, Any] | None:
     """Группа настроек settings_group_v1 сырым JSON — тот же запрос, что
     у приложения. Группы нет (пустое тело, null, {} или 404
@@ -335,7 +342,7 @@ async def user_settings(
 
 
 async def put_user_settings(
-    transport, hosts: Hosts, token: str, student: StudentContext, group: dict[str, Any]
+    transport, hosts: Hosts, token: str, student: Owner, group: dict[str, Any]
 ) -> DiaryResponse:
     """Записать группу целиком (PUT, как у приложения): дневник принимает только весь объект.
     Транспорт запись не повторяет."""
@@ -348,3 +355,212 @@ async def put_user_settings(
         json=group,
         call="user.settings.put",
     )
+
+
+def _aware_headers(token: str, parent_profile_id: int) -> dict[str, str]:
+    """Как у сайта: familyweb и активный пользователь — родитель."""
+    return {
+        **_bearer(token),
+        **_family_web(token),
+        "Profile-Id": str(parent_profile_id),
+        "Profile-Type": "parent",
+    }
+
+
+async def aware_journals(
+    transport,
+    hosts: Hosts,
+    token: str,
+    parent_profile_id: int,
+    child_id: int,
+    start: date,
+    end: date,
+) -> Any:
+    """Отметки ознакомления родителя за недели [start, end] (сайт: diary, неделя)."""
+    response = await transport.send(
+        "GET",
+        f"{hosts.dnevnik}/api/ej/core/family/v1/aware_journals",
+        headers=_aware_headers(token, parent_profile_id),
+        params={
+            "week_from": start.isoformat(),
+            "week_to": end.isoformat(),
+            "student_profile_ids": str(child_id),
+        },
+        call="aware_journals",
+    )
+    return response.json()
+
+
+async def post_aware_journal(
+    transport, hosts: Hosts, token: str, parent_profile_id: int, body: dict[str, Any]
+) -> DiaryResponse:
+    """Отметить неделю «ознакомлен» (POST, тело как у сайта). Отмены у сайта нет."""
+    return await _write(
+        transport,
+        "POST",
+        f"{hosts.dnevnik}/api/ej/core/family/v1/aware_journals",
+        headers=_aware_headers(token, parent_profile_id),
+        json=body,
+        call="aware_journals.post",
+    )
+
+
+# Учителя школы отдаются страницами; больше 20 страниц по 50 — уже не школа.
+TEACHERS_PER_PAGE = 50
+TEACHERS_MAX_PAGES = 20
+
+
+def _ej_family(token: str, student: StudentContext) -> dict[str, str]:
+    """Заголовки ej/core/family, как у сайта: familyweb и активный пользователь."""
+    return {
+        **_bearer(token),
+        **_family_web(token),
+        "Profile-Id": str(student.profile_id),
+        **_role_headers(student),
+    }
+
+
+async def teacher_profiles(
+    transport, hosts: Hosts, token: str, student: StudentContext, name: str | None, page: int
+) -> Any:
+    params = {
+        "school_id": str(student.school_id),
+        "with_virtual_teachers": "false",
+        "full_list_teachers": "true",
+        "per_page": str(TEACHERS_PER_PAGE),
+        "page": str(page),
+    }
+    if name:
+        params["user_sub_name"] = name
+    response = await transport.send(
+        "GET",
+        f"{hosts.dnevnik}/api/ej/core/family/v1/teacher_profiles",
+        headers=_ej_family(token, student),
+        params=params,
+        call="teacher_profiles",
+    )
+    return response.json()
+
+
+async def academic_debts(
+    transport, hosts: Hosts, token: str, student: StudentContext, start_year: int
+) -> Any:
+    """Задолженности класса за учебный год — как у сайта (по class_unit_ids)."""
+    response = await transport.send(
+        "GET",
+        f"{hosts.dnevnik}/api/ej/core/family/v1/academic_debts",
+        headers=_ej_family(token, student),
+        params={
+            "class_unit_ids": str(student.class_unit_id),
+            "academic_year_id": str(academic_year_id(start_year)),
+        },
+        call="academic_debts",
+    )
+    return response.json()
+
+
+async def work_program(
+    transport, hosts: Hosts, token: str, student: StudentContext, group_id: int
+) -> Any:
+    """Рабочая программа учебной группы (сайт: «Рабочие программы учебного плана»)."""
+    response = await transport.send(
+        "GET",
+        f"{hosts.dnevnik}/api/family/web/v1/programs/lesson_plan",
+        headers=_ej_family(token, student),
+        params={
+            "student_id": str(student.student_id),
+            "group_id": str(group_id),
+            "school_id": str(student.school_id),
+        },
+        call="work_program",
+    )
+    return response.json()
+
+
+async def thematic_frames(
+    transport, hosts: Hosts, token: str, student: StudentContext, subject_id: int
+) -> Any:
+    response = await transport.send(
+        "GET",
+        f"{hosts.dnevnik}/api/ej/plan/family/v1/thematic_frames",
+        headers=_ej_family(token, student),
+        params={"subject_id": str(subject_id), "student_profile_id": str(student.student_id)},
+        call="thematic_frames",
+    )
+    return response.json()
+
+
+async def test_lessons(
+    transport, hosts: Hosts, token: str, student: StudentContext, start: date, end: date
+) -> Any:
+    response = await transport.send(
+        "GET",
+        f"{hosts.dnevnik}/api/ej/plan/family/v1/test_lessons/period",
+        headers=_ej_family(token, student),
+        params={
+            "student_profile_id": str(student.student_id),
+            "from": start.isoformat(),
+            "to": end.isoformat(),
+            "student_person_id": student.person_guid,
+        },
+        call="test_lessons",
+    )
+    return response.json()
+
+
+async def final_marks_file(
+    transport, hosts: Hosts, token: str, student: StudentContext, start_year: int, orientation: str
+) -> DiaryResponse:
+    """PDF итоговых оценок за учебный год — кнопка «Скачать» сайта."""
+    return await transport.send(
+        "GET",
+        f"{hosts.dnevnik}/api/family/web/v1/final_marks/file",
+        headers={**_ej_family(token, student), "Accept": "*/*"},
+        params={
+            "student_id": str(student.student_id),
+            "academic_year_id": str(academic_year_id(start_year)),
+            "orientation": orientation,
+        },
+        call="final_marks.file",
+    )
+
+
+# Справки: страницы по 10, как у сайта; больше 10 страниц — уже не справки ученика.
+CERTIFICATES_PER_PAGE = 10
+CERTIFICATES_MAX_PAGES = 10
+
+
+async def certificate_statuses(transport, hosts: Hosts, token: str, student: StudentContext) -> Any:
+    response = await transport.send(
+        "GET",
+        f"{hosts.dnevnik}/api/certificates/family/v1/certificates/statuses",
+        headers=_ej_family(token, student),
+        call="certificates.statuses",
+    )
+    return response.json()
+
+
+async def certificates(
+    transport,
+    hosts: Hosts,
+    token: str,
+    student: StudentContext,
+    start: date,
+    end: date,
+    offset: int,
+) -> Any:
+    """Заявки на справки за [start, end]; studentId — GUID ученика (как у сайта)."""
+    response = await transport.send(
+        "GET",
+        f"{hosts.dnevnik}/api/certificates/family/v1/certificates",
+        headers=_ej_family(token, student),
+        params={
+            "requestDateFrom": start.isoformat(),
+            "requestDateTo": end.isoformat(),
+            "studentId": student.person_guid,
+            "limit": str(CERTIFICATES_PER_PAGE),
+            "offset": str(offset),
+        },
+        call="certificates",
+    )
+    return response.json()

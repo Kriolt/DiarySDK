@@ -24,8 +24,9 @@ from diarysdk._mapping.common import (
     school_brief,
 )
 from diarysdk._mapping.context import the_child
-from diarysdk._wire.web import PersonData, WebFamilyProfile
+from diarysdk._wire.web import Person, PersonData, WebFamilyProfile
 from diarysdk.errors import NotFound, UnsupportedContact
+from diarysdk.models.common import ClassUnit, SchoolBrief
 from diarysdk.models.identity import (
     Address,
     Contact,
@@ -183,8 +184,10 @@ def email_contact(card: PersonData, contact_id: int) -> dict[str, Any]:
     return found
 
 
-def identity(profile: WebFamilyProfile, card: PersonData | None) -> Identity:
-    child = the_child(profile)
+def identity(
+    profile: WebFamilyProfile, card: PersonData | None, child_id: int | None = None
+) -> Identity:
+    child = the_child(profile, child_id)
     return Identity(
         person=IdentityPerson(
             last_name=child.last_name,
@@ -247,4 +250,36 @@ def identity(profile: WebFamilyProfile, card: PersonData | None) -> Identity:
             )
             for rep in child.representatives or []
         ],
+    )
+
+
+def owner_identity(person: Person | None, card: PersonData | None) -> Identity:
+    """Карточка владельца токена, который не ученик (родитель): школы, класса,
+    представителей и учебных полей у него нет — только персона и карточка."""
+    person = person or Person()
+    return Identity(
+        person=IdentityPerson(
+            last_name=person.last_name,
+            first_name=person.first_name,
+            middle_name=person.middle_name,
+            birth_date=as_date(person.birth_date),
+            sex=person.sex,
+            phone=person.phone or None,
+            email=person.email or None,
+            snils=person.snils or (card.snils if card else None) or None,
+            user_id=as_int(field(person, "user_id")),
+            birthplace=card.birthplace if card else None,
+            citizenship_id=card.citizenship_id if card else None,
+            documents=_section(_documents, card),
+            addresses=_section(_addresses, card),
+            education=_section(_education, card),
+            contacts=_section(_contacts, card),
+            categories=as_json(card.categories) if card else None,
+            agents=as_json(card.agents) if card else None,
+            preventions=as_json(card.preventions) if card else None,
+            citizenship=as_json(card.citizenship) if card else None,
+            children=as_json(card.children) if card else None,
+        ),
+        school=SchoolBrief(),
+        class_=ClassUnit(),
     )

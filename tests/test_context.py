@@ -21,8 +21,8 @@ class Resolver:
         self.delay = delay
         self.fail_first = fail_first
 
-    async def __call__(self, token):
-        self.calls.append(token)
+    async def __call__(self, token, child_id=None):
+        self.calls.append(token if child_id is None else (token, child_id))
         await asyncio.sleep(self.delay)
         if self.fail_first and len(self.calls) == 1:
             raise UpstreamError(upstream_status=503)
@@ -108,3 +108,15 @@ async def test_token_itself_is_not_kept():
     await cache.get("secret.token.value")
 
     assert "secret.token.value" not in repr(vars(cache))
+
+
+async def test_cache_keeps_children_apart():
+    resolve = Resolver()
+    cache = ContextCache(resolve, clock=FakeClock())
+
+    await cache.get("t", 1)
+    await cache.get("t", 2)
+    await cache.get("t", 1)
+    await cache.get("t")
+
+    assert resolve.calls == [("t", 1), ("t", 2), "t"]

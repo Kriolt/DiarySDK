@@ -3,6 +3,29 @@
 Формат — по [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/), версии —
 по [SemVer](https://semver.org/lang/ru/).
 
+## 0.2.0 — 2026-11-18
+
+Родитель и новые разделы дневника.
+
+- `diary.parent(token)` → `Parent`: `me()`, `identity()`, `avatar()`,
+  `children()`, `student(child_id)`, `settings()`, `update_settings()`,
+  `update_contact()`, отметка «ознакомлен с дневником» (`journal_acks`,
+  `acknowledge_journal`). То же в `RemoteDiary` (`RemoteParent`) и `sync`.
+- Сервис: маршруты `/v1/parent/*`, необязательный `child_id` в маршрутах
+  ученика, разрешение ключа `acknowledge_journal`.
+- Новые чтения `Student`: `school_teachers`, `academic_debts`,
+  `work_program`, `subject_topics`, `control_works`, `final_marks_file`
+  (PDF, `DiaryFile`), `certificates` (только через родителя). Маршруты
+  `/v1/school/teachers`, `/v1/academic-debts`, `/v1/groups/{id}/program`,
+  `/v1/subjects/{id}/topics`, `/v1/control-works`, `/v1/final-marks/file`,
+  `/v1/certificates`.
+- Ошибка `NotForRole` (`not_for_role`, 422): дневник этой роли данные не даёт
+  (через родителя — `exams`, `avatar`, отметка ДЗ; ученику — справки).
+- `Token.roles` читает роли из `rls` настоящего JWT (было всегда `[]`).
+- `final_marks` через токен родителя больше не падает с `TokenInvalid`.
+- `MultipleChildren` подсказывает `diary.parent(token).student(child_id)`.
+- `live_check.py --parent`; `NoAvatar` и `NotForRole` печатаются как `skip`.
+
 ## 0.1.0 — 2026-11-16
 
 Первый выпуск.

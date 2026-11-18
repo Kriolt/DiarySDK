@@ -9,13 +9,13 @@ import httpx
 import pytest
 from httpx import ASGITransport
 
-from diarysdk import Diary, Login, LoginFlow, Student, errors
+from diarysdk import Diary, Login, LoginFlow, Parent, Student, errors
 from diarysdk import _protocols as protocols
-from diarysdk.remote import RemoteDiary, RemoteLogin, RemoteLoginFlow, RemoteStudent
+from diarysdk.remote import RemoteDiary, RemoteLogin, RemoteLoginFlow, RemoteParent, RemoteStudent
 from diarysdk.server.app import create_app
 from diarysdk.server.keys import hash_key
 from tests.conftest import API_KEY
-from tests.fakes import FakeDiary, core_diary
+from tests.fakes import FakeDiary, core_diary, fixture
 from tests.test_client import READS, STUDENT_WRITES, DiaryServer
 from tests.test_golden import GOLDEN, _output
 from tests.tokens import valid_token
@@ -25,6 +25,7 @@ PAIRS = [
     (Login, RemoteLogin, protocols.LoginLike),
     (LoginFlow, RemoteLoginFlow, protocols.LoginFlowLike),
     (Student, RemoteStudent, protocols.StudentLike),
+    (Parent, RemoteParent, protocols.ParentLike),
 ]
 # Конструкторы у двойников разные: у удалённого есть адрес, ключ и свои настройки.
 EXCLUDED = {"__init__"}
@@ -92,7 +93,7 @@ def test_signatures_match(core, remote, protocol):
 @pytest.fixture(autouse=True)
 def full_key(keys_file):
     """Ключ потребителя с обоими разрешениями: вход и правка контактов."""
-    keys_file.write_text(f"tests {hash_key(API_KEY)} login,write_profile\n")
+    keys_file.write_text(f"tests {hash_key(API_KEY)} login,write_profile,acknowledge_journal\n")
 
 
 @pytest.fixture
@@ -305,3 +306,123 @@ async def test_definite_upstream_error_on_write_is_not_write_uncertain_in_remote
     assert not isinstance(expected.value, errors.WriteUncertain)
     assert type(caught.value) is errors.UpstreamError
     assert caught.value.upstream_status == expected.value.upstream_status == 500
+
+
+# --- родитель ---
+
+PARENT_READS = {
+    "me": lambda p: p.me(),
+    "identity": lambda p: p.identity(),
+    "avatar": lambda p: p.avatar(),
+    "children": lambda p: p.children(),
+    "settings": lambda p: p.settings(),
+    "child marks": lambda p: p.student(9002).marks(),
+    "child me": lambda p: p.student(9002).me(),
+    "journal acks": lambda p: p.journal_acks(9001),
+}
+
+
+@pytest.fixture
+async def parents(both):
+    from tests.test_parent import PARENT_GUID, parent_profile
+
+    for server in (both.direct_server, both.remote_server):
+        server.fake.add("/api/family/web/v1/profile", parent_profile())
+        server.fake.add(f"/api/persondata/v1/persons/{PARENT_GUID}", {"id": 1})
+        server.fake.add(f"/api/avatarmanagement/v1/{PARENT_GUID}", [{"id": 5, "default": True}])
+        server.fake.add(f"/avatars/{PARENT_GUID}", b"\x89PNG", content_type="image/png")
+        server.fake.add("GET /api/ej/core/family/v1/aware_journals", [])
+        server.fake.add("POST /api/ej/core/family/v1/aware_journals", {"id": 2})
+    return both
+
+
+@pytest.mark.parametrize("name", PARENT_READS)
+async def test_parent_same_results(parents, token, name):
+    call = PARENT_READS[name]
+
+    direct = await call(parents.direct.parent(token))
+    remote = await call(parents.remote.parent(token))
+
+    assert remote == direct
+    assert _wire(parents.remote_server) == _wire(parents.direct_server)
+
+
+async def test_parent_same_errors(parents, token):
+    for diary in (parents.direct, parents.remote):
+        with pytest.raises(errors.NotFound):
+            await diary.parent(token).student(999).marks()
+        with pytest.raises(errors.NotForRole):
+            await diary.parent(token).student(9002).exams()
+
+
+async def test_parent_acknowledge_same_wire(parents, token, settings):
+    await parents.direct.parent(token).acknowledge_journal(9001)
+    await parents.remote.parent(token).acknowledge_journal(9001)
+
+    def posts(server):
+        return [
+            (r.url.path, sorted(json.loads(r.content)))
+            for r in server.requests
+            if r.method == "POST"
+        ]
+
+    assert posts(parents.remote_server) == posts(parents.direct_server) != []
+
+
+EJ_READS = {
+    "school_teachers": lambda s: s.school_teachers("Уч"),
+    "academic_debts": lambda s: s.academic_debts(2025),
+}
+
+
+@pytest.mark.parametrize("name", EJ_READS)
+async def test_ej_same_results(both, token, name):
+    from tests.test_ej import DEBT, teacher
+
+    for server in (both.direct_server, both.remote_server):
+        server.fake.add("/api/ej/core/family/v1/teacher_profiles", [teacher(1)])
+        server.fake.add("/api/ej/core/family/v1/academic_debts", [DEBT])
+
+    direct = await EJ_READS[name](both.direct.student(token))
+    remote = await EJ_READS[name](both.remote.student(token))
+
+    assert remote == direct != []
+    assert _wire(both.remote_server) == _wire(both.direct_server)
+
+
+async def test_final_marks_file_same_bytes(both, token):
+    for server in (both.direct_server, both.remote_server):
+        server.fake.add(
+            "/api/family/web/v1/final_marks/file",
+            b"%PDF-1 x",
+            content_type="application/octet-stream",
+        )
+
+    direct = await both.direct.student(token).final_marks_file(2025)
+    remote = await both.remote.student(token).final_marks_file(2025)
+
+    assert remote == direct
+    assert (remote.content, remote.content_type) == (b"%PDF-1 x", "application/pdf")
+
+
+async def test_certificates_same_for_parent(parents, token):
+    for server in (parents.direct_server, parents.remote_server):
+        server.fake.add(
+            "/api/certificates/family/v1/certificates/statuses",
+            fixture("certificate_statuses.json"),
+        )
+        server.fake.add("/api/certificates/family/v1/certificates", fixture("certificates.json"))
+
+    direct = await parents.direct.parent(token).student(9001).certificates()
+    remote = await parents.remote.parent(token).student(9001).certificates()
+
+    assert remote == direct != []
+
+
+@pytest.mark.parametrize("child_id", [0, -1])
+async def test_non_positive_child_id_is_bad_request_in_both(parents, token, child_id):
+    for diary in (parents.direct, parents.remote):
+        with pytest.raises(errors.BadRequest):
+            await diary.parent(token).student(child_id).marks()
+        with pytest.raises(errors.BadRequest):
+            await diary.parent(token).journal_acks(child_id)

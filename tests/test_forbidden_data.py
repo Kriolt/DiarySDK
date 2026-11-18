@@ -91,7 +91,7 @@ ESIA_IMAGE = {
 @pytest.fixture
 def settings(settings, keys_file):
     # Ключ тестов с разрешениями login и write_profile: обход заходит и в /v1/auth/password.
-    keys_file.write_text(f"tests {hash_key(API_KEY)} login,write_profile\n")
+    keys_file.write_text(f"tests {hash_key(API_KEY)} login,write_profile,acknowledge_journal\n")
     return settings
 
 
@@ -133,6 +133,10 @@ def routes():
     )
     routes.add(f"/api/persondata/v1/persons/{GUID}", card)
     routes.add(f"/api/persondata/v1/persons/{GUID}/contacts/2", b"")
+    routes.add("/api/certificates/family/v1/certificates/statuses", [])
+    routes.add("/api/certificates/family/v1/certificates", {"certificates": None, "count": 0})
+    # mock_diary отвечает по пути без метода: и чтению, и отметке — пустой список.
+    routes.add("/api/ej/core/family/v1/aware_journals", [])
     return routes
 
 
@@ -179,6 +183,8 @@ async def app(settings, routes, monkeypatch):
         )
         monkeypatch.setattr(clock, "today_msk", lambda: date(2026, 10, 24))
         app = create_app(local)
+        # Обход переключает профиль на родительский перед маршрутами /v1/parent.
+        app.state.test_routes = routes
         async with app.router.lifespan_context(app):
             yield app
     finally:
@@ -193,7 +199,8 @@ def v1_routes(app) -> list[tuple[str, str]]:
             .replace("{homework_id}", "30001")
             .replace("{subject_id}", "101")
             .replace("{mark_id}", "10001")
-            .replace("{contact_id}", "2"),
+            .replace("{contact_id}", "2")
+            .replace("{group_id}", "5001"),
         )
         for path, methods in app.openapi()["paths"].items()
         if path.startswith("/v1/")
@@ -205,19 +212,46 @@ def is_esia(path: str) -> bool:
     return path.startswith("/v1/auth/esia")
 
 
+def is_parent(path: str) -> bool:
+    # Справки — маршрут ученика, но только для токена родителя (child_id).
+    return path.startswith("/v1/parent") or path == "/v1/certificates"
+
+
+def as_parent(app) -> bool:
+    """Профиль дневника — родительский: представитель ребёнка с СНИЛС владельца
+    и GUID карточки из маршрутов. Возвращает True, чтобы стоять в условии."""
+    routes = app.state.test_routes
+    profile = fixture("profile.json")
+    profile["children"][0]["snils"] = None
+    profile["profile"].update(type="parent", snils=PARENT_SNILS)
+    profile["children"][0]["representatives"] = [{"person_id": GUID, "snils": PARENT_SNILS}]
+    routes.add("/api/family/web/v1/profile", profile)
+    return True
+
+
 async def walk(app) -> list[str]:
     """Обход всех маршрутов /v1; вернёт flow_id входов через ЕСИА."""
     transport = ASGITransport(app)
     async with AsyncClient(transport=transport, base_url="http://t", headers=AUTH_HEADERS) as c:
-        for method, path in v1_routes(app):
+        # Сначала маршруты ученика, потом родителя — уже с профилем родителя.
+        for method, path in sorted(v1_routes(app), key=lambda r: is_parent(r[1])):
             if is_esia(path):
                 continue
+            if is_parent(path) and not as_parent(app):
+                continue
             body = LOGIN_BODY if path == "/v1/auth/password" else None
-            if (method, path) == ("PATCH", "/v1/settings"):
+            if (method, path) in (("PATCH", "/v1/settings"), ("PATCH", "/v1/parent/settings")):
                 body = SETTINGS_BODY
-            if (method, path) == ("PUT", "/v1/identity/contacts/2"):
+            if (method, path) in (
+                ("PUT", "/v1/identity/contacts/2"),
+                ("PUT", "/v1/parent/identity/contacts/2"),
+            ):
                 body = CONTACT_BODY
-            response = await c.request(method, path, json=body)
+            child = path in ("/v1/parent/journal-acks", "/v1/certificates")
+            params = {"child_id": 9001} if child else None
+            if (method, path) == ("POST", "/v1/parent/journal-acks"):
+                body, params = {"child_id": 9001}, None
+            response = await c.request(method, path, json=body, params=params)
             assert response.status_code in (200, 204), (method, path, response.text)
         covered, flow_ids = await esia_walk(c)
     assert covered == {(m, p) for m, p in v1_routes(app) if is_esia(p)}
@@ -280,6 +314,13 @@ async def test_walk_covers_every_endpoint_of_the_contract(app):
         "/v1/notifications",
         "/v1/periods",
         "/v1/curriculum",
+        "/v1/school/teachers",
+        "/v1/academic-debts",
+        "/v1/groups/5001/program",
+        "/v1/subjects/101/topics",
+        "/v1/control-works",
+        "/v1/final-marks/file",
+        "/v1/certificates",
         "/v1/settings",
         "/v1/auth/password",
         "/v1/auth/esia",
@@ -288,7 +329,17 @@ async def test_walk_covers_every_endpoint_of_the_contract(app):
         "/v1/auth/esia/{flow_id}/captcha/renew",
         "/v1/auth/esia/{flow_id}",
         "/v1/auth/token",
+        "/v1/parent/me",
+        "/v1/parent/children",
+        "/v1/parent/identity",
+        "/v1/parent/avatar",
+        "/v1/parent/settings",
+        "/v1/parent/identity/contacts/2",
+        "/v1/parent/journal-acks",
     }
+
+
+PARENT_SNILS = "000-000-000 01"
 
 
 def _values(data):
@@ -319,6 +370,7 @@ async def test_log_has_no_token_bodies_guid_or_student_id(app):
         "Алгебра",
         "Квадратные уравнения",
         "111-222-333 44",
+        PARENT_SNILS,
         *secrets,
     ]:
         assert value not in text, value

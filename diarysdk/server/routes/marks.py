@@ -1,8 +1,8 @@
-from typing import Annotated
+from typing import Annotated, Literal
 
-from fastapi import APIRouter, Path, Query
+from fastapi import APIRouter, Path, Query, Response
 
-from diarysdk.models.marks import FinalMark, Mark, MarkDetail
+from diarysdk.models.marks import AcademicDebt, FinalMark, Mark, MarkDetail
 from diarysdk.server.routes.deps import StudentDep
 from diarysdk.server.routes.params import period_bound
 
@@ -36,3 +36,32 @@ async def get_final_marks(student: StudentDep, year: Year = None) -> list[FinalM
 )
 async def get_mark(mark_id: MarkId, student: StudentDep) -> MarkDetail:
     return await student.mark(mark_id)
+
+
+@router.get(
+    "/academic-debts",
+    summary="Академические задолженности ученика за учебный год",
+    description="Форма ответа дневника живьём не подтверждена (ответы были пустыми).",
+)
+async def get_academic_debts(student: StudentDep, year: Year = None) -> list[AcademicDebt]:
+    return await student.academic_debts(year)
+
+
+@router.get(
+    "/final-marks/file",
+    summary="PDF итоговых оценок за учебный год",
+    response_class=Response,
+    responses={200: {"content": {"application/pdf": {}}}},
+)
+async def get_final_marks_file(
+    student: StudentDep,
+    year: Year = None,
+    orientation: Annotated[
+        Literal["portrait", "landscape"], Query(description="ориентация страницы")
+    ] = "portrait",
+) -> Response:
+    file = await student.final_marks_file(year, orientation)
+    headers = {
+        "Content-Disposition": f'attachment; filename="{file.filename or "final-marks.pdf"}"'
+    }
+    return Response(content=file.content, media_type=file.content_type, headers=headers)

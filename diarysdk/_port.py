@@ -114,9 +114,46 @@ class StudentContext:
     expires_at: datetime
     # Учебный план параллели; в профиле его может не быть.
     parallel_curriculum_id: int | None = None
+    # Чей токен: ученика или родителя (тогда это выбранный ребёнок родителя).
+    access: Literal["student", "parent"] = "student"
+    # Профиль родителя при доступе родителя; у ученика None.
+    parent_profile_id: int | None = None
     # Разобранный профиль, из которого собран контекст: только у свежесобранного,
     # чтобы me/identity не запрашивали его второй раз. В кэш он не попадает.
     profile: WebFamilyProfile | None = field(default=None, repr=False, compare=False)
+
+
+class Owner(Protocol):
+    """Чьи настройки, карточка и аватарка: ученик или родитель-владелец токена."""
+
+    @property
+    def profile_id(self) -> int: ...
+
+    @property
+    def person_guid(self) -> str: ...
+
+
+@dataclass(frozen=True)
+class ParentContext:
+    """Владелец токена-родитель: профиль для заголовков и GUID его карточки.
+
+    Нужен там, где шлюзу важны только `profile_id` и `person_guid` (настройки,
+    карточка, аватарка) — те же поля, что у StudentContext.
+    """
+
+    profile_id: int
+    # GUID карточки родителя; не нашёлся — None (карточки и аватарки нет).
+    person_guid: str | None
+    expires_at: datetime
+    profile: WebFamilyProfile = field(repr=False, compare=False)
+
+
+@dataclass(frozen=True)
+class ParentCtx:
+    """Контекст одного запроса родителя. Токен не попадает в repr."""
+
+    token: str = field(repr=False)
+    parent: ParentContext
 
 
 @dataclass(frozen=True)

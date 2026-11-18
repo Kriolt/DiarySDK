@@ -1,0 +1,33 @@
+[
+  {
+    "ordinal": 1,
+    "subject_id": 101,
+    "title": "Модуль 1. Числа",
+    "topics": [
+      {
+        "lessons": [
+          {
+            "date": "2026-09-02",
+            "ege_tasks": [
+              "Задание 1"
+            ],
+            "lesson_id": 20001,
+            "oge_tasks": [],
+            "ordinal": 1,
+            "title": "Сложение"
+          },
+          {
+            "date": null,
+            "ege_tasks": [],
+            "lesson_id": null,
+            "oge_tasks": [],
+            "ordinal": 2,
+            "title": "Вычитание"
+          }
+        ],
+        "ordinal": 1,
+        "title": "Натуральные числа"
+      }
+    ]
+  }
+]

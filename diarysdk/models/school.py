@@ -1,6 +1,6 @@
 from pydantic import Field
 
-from diarysdk.models.common import PersonName, Schema
+from diarysdk.models.common import PersonName, Schema, Subject
 
 
 class Teacher(PersonName):
@@ -31,3 +31,14 @@ class School(Schema):
     # Округ и район из адреса школы.
     county: str | None = None
     district: str | None = None
+
+
+class SchoolTeacher(Schema):
+    """Учитель из справочника школы (сайт: «Учителя»)."""
+
+    id: int
+    name: str | None = None
+    # Как пришло от дневника: "teacher" и т. п.
+    type: str | None = None
+    roles: list[str] = Field(default_factory=list)
+    subjects: list[Subject] = Field(default_factory=list)

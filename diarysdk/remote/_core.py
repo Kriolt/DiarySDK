@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 import json
+import re
 from collections.abc import Generator
 from dataclasses import dataclass, field
 from datetime import date
@@ -27,18 +28,21 @@ from diarysdk.errors import (
 from diarysdk.models.auth import LoginStep
 from diarysdk.models.auth import TokenResponse as TokenModel
 from diarysdk.models.avatar import Avatar
-from diarysdk.models.curriculum import Curriculum
+from diarysdk.models.certificates import Certificate
+from diarysdk.models.curriculum import ControlWork, Curriculum, ProgramModule, SubjectTopic
 from diarysdk.models.exams import Exam
+from diarysdk.models.files import DiaryFile
 from diarysdk.models.homework import Homework
 from diarysdk.models.identity import Identity
 from diarysdk.models.lessons import Lesson
-from diarysdk.models.marks import FinalMark, Mark, MarkDetail
+from diarysdk.models.marks import AcademicDebt, FinalMark, Mark, MarkDetail
 from diarysdk.models.me import Me
 from diarysdk.models.notifications import Notification
+from diarysdk.models.parent import Child, JournalAck, ParentMe
 from diarysdk.models.periods import PeriodDay
 from diarysdk.models.rating import Rating, RatingPoint, SubjectRating
 from diarysdk.models.schedule import ScheduleItem
-from diarysdk.models.school import School
+from diarysdk.models.school import School, SchoolTeacher
 from diarysdk.models.settings import Settings, SettingsUpdate
 from diarysdk.models.subjects import SubjectDetail, SubjectSummary
 
@@ -94,6 +98,12 @@ def parse_success(spec: Request, response: httpx.Response) -> Any:
         return None
     if spec.model is Avatar:
         return Avatar(response.content, response.headers.get("content-type", ""))
+    if spec.model is DiaryFile:
+        return DiaryFile(
+            response.content,
+            response.headers.get("content-type", ""),
+            _filename(response.headers.get("content-disposition")),
+        )
     model = spec.model
     if model is LoginResult:
         model = LoginStep if response.status_code == 202 else TokenModel
@@ -107,6 +117,14 @@ def parse_success(spec: Request, response: httpx.Response) -> Any:
             "Ответ сервиса не соответствует модели клиента, обновите diarysdk",
             status=response.status_code,
         ) from error
+
+
+def _filename(disposition: str | None) -> str | None:
+    """Имя из Content-Disposition сервиса: attachment; filename="…"."""
+    if not disposition:
+        return None
+    match = re.search(r'filename="([^"]+)"', disposition)
+    return match.group(1) if match else None
 
 
 _KNOWN_STEPS = frozenset({"mfa", "captcha"})
@@ -256,6 +274,35 @@ def final_marks(year: int | None) -> Request:
     return Request("GET", "/v1/final-marks", {"year": year}, list[FinalMark])
 
 
+def work_program(group_id: int) -> Request:
+    return Request("GET", f"/v1/groups/{group_id}/program", model=list[ProgramModule])
+
+
+def subject_topics(subject_id: int) -> Request:
+    return Request("GET", f"/v1/subjects/{subject_id}/topics", model=list[SubjectTopic])
+
+
+def control_works(start: date | None, end: date | None) -> Request:
+    return Request("GET", "/v1/control-works", {"from": start, "to": end}, list[ControlWork])
+
+
+def academic_debts(year: int | None) -> Request:
+    return Request("GET", "/v1/academic-debts", {"year": year}, list[AcademicDebt])
+
+
+def final_marks_file(year: int | None, orientation: str) -> Request:
+    params = {"year": year, "orientation": orientation}
+    return Request("GET", "/v1/final-marks/file", params, DiaryFile)
+
+
+def certificates() -> Request:
+    return Request("GET", "/v1/certificates", model=list[Certificate])
+
+
+def school_teachers(name: str | None) -> Request:
+    return Request("GET", "/v1/school/teachers", {"name": name}, list[SchoolTeacher])
+
+
 def subjects() -> Request:
     return Request("GET", "/v1/subjects", model=list[SubjectSummary])
 
@@ -353,3 +400,47 @@ def esia_renew(flow_id: str) -> Request:
 
 def esia_cancel(flow_id: str) -> Request:
     return Request("DELETE", f"/v1/auth/esia/{flow_id}", login=True)
+
+
+# --- родитель ---
+
+
+def parent_me() -> Request:
+    return Request("GET", "/v1/parent/me", model=ParentMe)
+
+
+def parent_identity() -> Request:
+    return Request("GET", "/v1/parent/identity", model=Identity)
+
+
+def parent_avatar() -> Request:
+    return Request("GET", "/v1/parent/avatar", model=Avatar)
+
+
+def parent_children() -> Request:
+    return Request("GET", "/v1/parent/children", model=list[Child])
+
+
+def parent_settings() -> Request:
+    return Request("GET", "/v1/parent/settings", model=Settings)
+
+
+def parent_update_settings(update: SettingsUpdate) -> Request:
+    body = update.model_dump(mode="json", exclude_unset=True)
+    return Request("PATCH", "/v1/parent/settings", body=body)
+
+
+def parent_update_contact(contact_id: int, value: str) -> Request:
+    return Request("PUT", f"/v1/parent/identity/contacts/{contact_id}", body={"value": value})
+
+
+def parent_journal_acks(child_id: int, start: date | None, end: date | None) -> Request:
+    params = {"child_id": child_id, "from": start, "to": end}
+    return Request("GET", "/v1/parent/journal-acks", params, list[JournalAck])
+
+
+def parent_acknowledge_journal(child_id: int, week: date | None) -> Request:
+    body: dict = {"child_id": child_id}
+    if week is not None:
+        body["week"] = week.isoformat()
+    return Request("POST", "/v1/parent/journal-acks", body=body)

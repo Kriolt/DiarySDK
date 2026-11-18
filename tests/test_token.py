@@ -115,3 +115,23 @@ def test_ensure_usable():
         Token(make_token(None, sub="1")).ensure_usable()
     with pytest.raises(errors.TokenInvalid):
         Token("не-jwt").ensure_usable()
+
+
+@pytest.mark.parametrize(
+    ("rls", "roles"),
+    [
+        ("{1:[20:2:[],30:4:[],40:1:[]]}", ["1"]),
+        ("{2:[21:2:[],31:4:[]]},{222:[526:44:[]]}", ["2", "222"]),
+        ("{2:[]},{2:[]}", ["2"]),
+        ("", []),
+        ("мусор", []),
+        (42, []),
+        (None, []),
+    ],
+)
+def test_roles_from_rls(rls, roles):
+    assert Token(valid_token(rls=rls)).roles == roles
+
+
+def test_roles_fall_back_to_rol_without_rls():
+    assert Token(valid_token(rol="a,b")).roles == ["a", "b"]

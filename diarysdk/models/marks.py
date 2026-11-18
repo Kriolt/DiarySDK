@@ -89,3 +89,18 @@ class MarkDetail(Schema):
     criteria: JsonValue = None
     history: JsonValue = None
     result_files: JsonValue = None
+
+
+class AcademicDebt(Schema):
+    """Академическая задолженность ученика по предмету за учебный год.
+
+    Форма не подтверждена: живые ответы были пустыми, поля — по тому, что
+    читает сайт. Попытки пересдачи — как пришли.
+    """
+
+    subject: Subject
+    # Итоговая оценка, по которой возник долг (как пришла).
+    original_final_mark: JsonValue = None
+    # Сайт: «аттестован» — есть итоговая или оценка хоть в одной попытке.
+    attested: bool
+    attempts: JsonValue = None

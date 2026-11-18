@@ -99,3 +99,13 @@ def final_marks_year(year: int | None, today: date) -> int:
     if year > current:
         raise BadRequest("Этот учебный год ещё не начался")
     return year
+
+
+def journal_period(start: date | None, end: date | None, today: date) -> tuple[date, date]:
+    """Ознакомление: по умолчанию текущая неделя, начало — понедельник своей недели,
+    не больше 31 дня."""
+    monday, sunday = clock.week_bounds(today)
+    start, end = resolve_period(
+        start, end, default_start=monday, default_end=sunday, span=6, max_days=31
+    )
+    return clock.week_bounds(start)[0], end

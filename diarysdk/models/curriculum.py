@@ -2,7 +2,7 @@ import datetime as dt
 
 from pydantic import Field, JsonValue
 
-from diarysdk.models.common import Schema
+from diarysdk.models.common import Schema, Subject
 
 
 class CurriculumSubjectWeek(Schema):
@@ -57,3 +57,60 @@ class Curriculum(Schema):
     study_profile: JsonValue = None
     sections: list[CurriculumSection] = Field(default_factory=list)
     weeks: list[CurriculumWeek] = Field(default_factory=list)
+
+
+class ProgramLesson(Schema):
+    """Урок рабочей программы; `lesson_id` — для `lesson()`, если урок уже в расписании."""
+
+    title: str | None = None
+    ordinal: int | None = None
+    date: dt.date | None = None
+    lesson_id: int | None = None
+    oge_tasks: list[str] = Field(default_factory=list)
+    ege_tasks: list[str] = Field(default_factory=list)
+
+
+class ProgramTopic(Schema):
+    title: str | None = None
+    ordinal: int | None = None
+    lessons: list[ProgramLesson] = Field(default_factory=list)
+
+
+class ProgramModule(Schema):
+    """Раздел рабочей программы группы (сайт: «Рабочие программы»)."""
+
+    title: str | None = None
+    ordinal: int | None = None
+    subject_id: int | None = None
+    topics: list[ProgramTopic] = Field(default_factory=list)
+
+
+class TopicResult(Schema):
+    """Ожидаемый результат по теме; `text` — формулировка для семьи."""
+
+    id: int | None = None
+    text: str | None = None
+    type: str | None = None
+    mandatory: str | None = None
+
+
+class SubjectTopic(Schema):
+    """Тема предмета (тематическая рамка) и её результаты."""
+
+    id: int | None = None
+    title: str | None = None
+    results: list[TopicResult] = Field(default_factory=list)
+
+
+class ControlWork(Schema):
+    """Контрольная работа. Форма не подтверждена: живые ответы были пустыми,
+    поля — по тому, что читает сайт («Контрольные работы»)."""
+
+    date: dt.date | None = None
+    subject: Subject
+    form: str | None = None
+    theme: str | None = None
+    lesson_id: int | None = None
+    mark: str | None = None
+    is_absent: bool | None = None
+    is_success: bool | None = None

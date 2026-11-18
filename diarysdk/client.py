@@ -32,6 +32,7 @@ from diarysdk._port import (
     EsiaSession,
     EsiaStep,
     MfaChallenge,
+    ParentCtx,
     StudentContext,
 )
 from diarysdk._transport import Transport
@@ -47,18 +48,21 @@ from diarysdk.errors import (
 )
 from diarysdk.models.auth import Captcha, LoginMfa
 from diarysdk.models.avatar import Avatar
-from diarysdk.models.curriculum import Curriculum
+from diarysdk.models.certificates import Certificate
+from diarysdk.models.curriculum import ControlWork, Curriculum, ProgramModule, SubjectTopic
 from diarysdk.models.exams import Exam
+from diarysdk.models.files import DiaryFile
 from diarysdk.models.homework import Homework
 from diarysdk.models.identity import ContactUpdate, Identity
 from diarysdk.models.lessons import Lesson
-from diarysdk.models.marks import FinalMark, Mark, MarkDetail
+from diarysdk.models.marks import AcademicDebt, FinalMark, Mark, MarkDetail
 from diarysdk.models.me import Me
 from diarysdk.models.notifications import Notification
+from diarysdk.models.parent import Child, JournalAck, ParentMe
 from diarysdk.models.periods import PeriodDay
 from diarysdk.models.rating import Rating, RatingPoint, SubjectRating
 from diarysdk.models.schedule import ScheduleItem
-from diarysdk.models.school import School
+from diarysdk.models.school import School, SchoolTeacher
 from diarysdk.models.settings import Settings, SettingsUpdate
 from diarysdk.models.subjects import SubjectDetail, SubjectSummary
 from diarysdk.token import Token
@@ -134,13 +138,16 @@ class Diary:
     def student(self, token: str | Token) -> Student:
         return Student(self, token if isinstance(token, Token) else Token(token))
 
-    async def _context(self, token: str) -> StudentContext:
+    def parent(self, token: str | Token) -> Parent:
+        return Parent(self, token if isinstance(token, Token) else Token(token))
+
+    async def _context(self, token: str, child_id: int | None = None) -> StudentContext:
         try:
             # Срок нужен контексту; без него это не токен дневника — и спрашивать нечего.
             jwt.expires_at(token)
         except jwt.InvalidToken:
             raise TokenInvalid("Это не токен дневника") from None
-        return await self._gateway.student_context(token)
+        return await self._gateway.student_context(token, child_id)
 
     async def _timed[T](self, make: Callable[[], Awaitable[T]]) -> T:
         """Один вызов не дольше deadline: дальше — UpstreamTimeout."""
@@ -152,6 +159,50 @@ class Diary:
                 return await make()
         except TimeoutError:
             raise UpstreamTimeout() from None
+
+
+async def _guarded[T](diary: Diary, token: Token, run: Callable[[], Awaitable[T]]) -> T:
+    """Вызов от имени токена, не дольше deadline.
+
+    Если дедлайн вышел, когда запись уже отправлялась (шлюз отметил это в
+    write_started), исход неизвестен — WriteUncertain, а не UpstreamTimeout.
+    Дедлайн на чтении перед записью — обычный UpstreamTimeout.
+    """
+    if diary._closed:
+        raise RuntimeError("Diary закрыт")
+    # Просроченный токен не тратит запрос к дневнику.
+    token.ensure_usable(_utcnow())
+    await diary._transport.start()
+    started: list[bool] = []
+    marker = write_started.set(started)
+    try:
+        async with asyncio.timeout(diary._deadline):
+            return await run()
+    except TimeoutError:
+        timeout = UpstreamTimeout()
+        if started:
+            raise WriteUncertain(cause=timeout) from None
+        raise timeout from None
+    finally:
+        write_started.reset(marker)
+
+
+def _check_child_id(child_id: int | None) -> None:
+    """id ученика — положительное число, как требует и сервис (иначе 400 там)."""
+    if child_id is not None and child_id <= 0:
+        raise BadRequest("Неверные параметры запроса: child_id")
+
+
+def _check_email(value: str) -> None:
+    """Значение — не адрес почты (правило сервиса: 3-255 символов, одна @) —
+    BadRequest до обращения к дневнику."""
+    try:
+        ContactUpdate(value=value)
+    except ValidationError as error:
+        # То же сообщение, что у сервиса на неверное тело запроса: имена полей,
+        # а у ошибки всей модели (нет адреса почты) — «body».
+        names = sorted({str(item["loc"][-1]) if item["loc"] else "body" for item in error.errors()})
+        raise BadRequest(f"Неверные параметры запроса: {', '.join(names)}") from None
 
 
 class Login:
@@ -284,9 +335,11 @@ class LoginFlow:
 class Student:
     """Запросы от имени одного ученика; создаётся `diary.student(token)`."""
 
-    def __init__(self, diary: Diary, token: Token) -> None:
+    def __init__(self, diary: Diary, token: Token, child_id: int | None = None) -> None:
         self._diary = diary
         self._token = token
+        # Выбранный ребёнок родителя; None — единственный ученик токена.
+        self._child_id = child_id
 
     @property
     def token(self) -> Token:
@@ -302,30 +355,19 @@ class Student:
         write_started), исход неизвестен — WriteUncertain, а не UpstreamTimeout.
         Дедлайн на чтении перед записью — обычный UpstreamTimeout.
         """
-        diary = self._diary
-        token = self._token
-        if diary._closed:
-            raise RuntimeError("Diary закрыт")
-        # Просроченный токен не тратит запрос к дневнику.
-        token.ensure_usable(_utcnow())
-        await diary._transport.start()
-        started: list[bool] = []
-        marker = write_started.set(started)
+        diary, value = self._diary, self._token.value
+        _check_child_id(self._child_id)
+
+        async def run() -> T:
+            student = await diary._contexts.get(value, self._child_id)
+            return await call(Ctx(token=value, student=student))
+
         try:
-            async with asyncio.timeout(diary._deadline):
-                student = await diary._contexts.get(token.value)
-                return await call(Ctx(token=token.value, student=student))
-        except TimeoutError:
-            timeout = UpstreamTimeout()
-            if started:
-                raise WriteUncertain(cause=timeout) from None
-            raise timeout from None
+            return await _guarded(diary, self._token, run)
         except TokenInvalid:
             # Дневник не принял токен — его контекст больше не годится.
-            diary._contexts.evict(token.value)
+            diary._contexts.evict(value, self._child_id)
             raise
-        finally:
-            write_started.reset(marker)
 
     @property
     def _gateway(self) -> DiaryGateway:
@@ -354,6 +396,44 @@ class Student:
     async def final_marks(self, year: int | None = None) -> list[FinalMark]:
         year = periods.final_marks_year(year, self._today())
         return await self._call(lambda ctx: self._gateway.final_marks(ctx, year))
+
+    async def work_program(self, group_id: int) -> list[ProgramModule]:
+        """Рабочая программа учебной группы; группы — `identity().person.groups`."""
+        return await self._call(lambda ctx: self._gateway.work_program(ctx, group_id))
+
+    async def subject_topics(self, subject_id: int) -> list[SubjectTopic]:
+        """Темы предмета и ожидаемые результаты по ним."""
+        return await self._call(lambda ctx: self._gateway.subject_topics(ctx, subject_id))
+
+    async def control_works(
+        self, start: date | None = None, end: date | None = None
+    ) -> list[ControlWork]:
+        """Контрольные работы за период; по умолчанию — весь учебный год, до 366 дней."""
+        start, end = periods.school_periods_period(start, end, self._today())
+        return await self._call(lambda ctx: self._gateway.control_works(ctx, start, end))
+
+    async def academic_debts(self, year: int | None = None) -> list[AcademicDebt]:
+        """Академические задолженности ученика за учебный год (по умолчанию — текущий)."""
+        year = periods.final_marks_year(year, self._today())
+        return await self._call(lambda ctx: self._gateway.academic_debts(ctx, year))
+
+    async def final_marks_file(
+        self, year: int | None = None, orientation: Literal["portrait", "landscape"] = "portrait"
+    ) -> DiaryFile:
+        """PDF итоговых оценок за учебный год (по умолчанию — текущий)."""
+        if orientation not in ("portrait", "landscape"):
+            raise BadRequest("Неверные параметры запроса: orientation")
+        year = periods.final_marks_year(year, self._today())
+        return await self._call(lambda ctx: self._gateway.final_marks_file(ctx, year, orientation))
+
+    async def certificates(self) -> list[Certificate]:
+        """Заявки на справки об обучении за два года. Только через родителя:
+        ученику дневник их не отдаёт (NotForRole)."""
+        return await self._call(self._gateway.certificates)
+
+    async def school_teachers(self, name: str | None = None) -> list[SchoolTeacher]:
+        """Учителя школы ученика; `name` — поиск по части имени."""
+        return await self._call(lambda ctx: self._gateway.school_teachers(ctx, name))
 
     async def subjects(self) -> list[SubjectSummary]:
         return await self._call(self._gateway.subjects)
@@ -406,15 +486,7 @@ class Student:
         Значение — не адрес почты (правило сервиса: 3-255 символов, одна @) —
         BadRequest до обращения к дневнику; контакт не почта — UnsupportedContact.
         """
-        try:
-            ContactUpdate(value=value)
-        except ValidationError as error:
-            # То же сообщение, что у сервиса на неверное тело запроса: имена полей,
-            # а у ошибки всей модели (нет адреса почты) — «body».
-            names = sorted(
-                {str(item["loc"][-1]) if item["loc"] else "body" for item in error.errors()}
-            )
-            raise BadRequest(f"Неверные параметры запроса: {', '.join(names)}") from None
+        _check_email(value)
         await self._call(lambda ctx: self._gateway.update_contact(ctx, contact_id, value))
 
     async def identity(self) -> Identity:
@@ -432,3 +504,85 @@ class Student:
 
     async def curriculum(self) -> Curriculum:
         return await self._call(self._gateway.curriculum)
+
+
+class Parent:
+    """Родитель — владелец токена: свои данные и доступные ему ученики.
+    Создаётся `diary.parent(token)` и сам запросов не делает."""
+
+    def __init__(self, diary: Diary, token: Token) -> None:
+        self._diary = diary
+        self._token = token
+
+    @property
+    def token(self) -> Token:
+        return self._token
+
+    def __repr__(self) -> str:
+        return f"Parent(token={self._token!r})"
+
+    @property
+    def _gateway(self) -> DiaryGateway:
+        return self._diary._gateway
+
+    async def _call[T](self, call: Callable[[ParentCtx], Awaitable[T]]) -> T:
+        """Профиль родителя (каждый раз свежий: он и есть контекст) → вызов."""
+        value = self._token.value
+
+        async def run() -> T:
+            try:
+                jwt.expires_at(value)
+            except jwt.InvalidToken:
+                raise TokenInvalid("Это не токен дневника") from None
+            parent = await self._gateway.parent_context(value)
+            return await call(ParentCtx(token=value, parent=parent))
+
+        return await _guarded(self._diary, self._token, run)
+
+    def student(self, child_id: int) -> Student:
+        """Ученик родителя по `Child.id`; неверный id — NotFound при первом вызове."""
+        return Student(self._diary, self._token, child_id)
+
+    async def me(self) -> ParentMe:
+        return await self._call(self._gateway.parent_me)
+
+    async def identity(self) -> Identity:
+        return await self._call(self._gateway.parent_identity)
+
+    async def avatar(self) -> Avatar:
+        return await self._call(self._gateway.parent_avatar)
+
+    async def children(self) -> list[Child]:
+        return await self._call(self._gateway.parent_children)
+
+    async def settings(self) -> Settings:
+        return await self._call(self._gateway.parent_settings)
+
+    async def update_settings(self, update: SettingsUpdate) -> None:
+        await self._call(lambda ctx: self._gateway.parent_update_settings(ctx, update))
+
+    async def update_contact(self, contact_id: int, value: str) -> None:
+        """Заменить адрес почты в контакте родителя (как `Student.update_contact`)."""
+        _check_email(value)
+        await self._call(lambda ctx: self._gateway.parent_update_contact(ctx, contact_id, value))
+
+    async def journal_acks(
+        self, child_id: int, start: date | None = None, end: date | None = None
+    ) -> list[JournalAck]:
+        """Отметки «ознакомлен с дневником» за недели периода; по умолчанию — текущая."""
+        _check_child_id(child_id)
+        start, end = periods.journal_period(start, end, clock.today_msk())
+        return await self._call(
+            lambda ctx: self._gateway.parent_journal_acks(ctx, child_id, start, end)
+        )
+
+    async def acknowledge_journal(self, child_id: int, week: date | None = None) -> None:
+        """Отметить «ознакомлен с дневником» за неделю (любой её день; по умолчанию —
+        текущая). Неделя уже отмечена — ничего не делает. Отменить нельзя."""
+        _check_child_id(child_id)
+        today = clock.today_msk()
+        day = week or today
+        if clock.week_bounds(day)[0] > clock.week_bounds(today)[0]:
+            # Отметку нельзя отменить, а её видят учителя: будущую неделю не отмечаем.
+            raise BadRequest("Неделя ещё не наступила: отметить её нельзя")
+        await self._call(lambda ctx: self._gateway.parent_acknowledge_journal(ctx, child_id, day))

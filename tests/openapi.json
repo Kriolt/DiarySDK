@@ -1,6 +1,30 @@
 {
   "components": {
     "schemas": {
+      "AcademicDebt": {
+        "description": "Академическая задолженность ученика по предмету за учебный год.\n\nФорма не подтверждена: живые ответы были пустыми, поля — по тому, что\nчитает сайт. Попытки пересдачи — как пришли.",
+        "properties": {
+          "attempts": {
+            "$ref": "#/components/schemas/JsonValue"
+          },
+          "attested": {
+            "title": "Attested",
+            "type": "boolean"
+          },
+          "original_final_mark": {
+            "$ref": "#/components/schemas/JsonValue"
+          },
+          "subject": {
+            "$ref": "#/components/schemas/Subject"
+          }
+        },
+        "required": [
+          "subject",
+          "attested"
+        ],
+        "title": "AcademicDebt",
+        "type": "object"
+      },
       "Address": {
         "properties": {
           "address": {
@@ -168,6 +192,169 @@
         "title": "CaptchaAnswer",
         "type": "object"
       },
+      "Certificate": {
+        "description": "Заявка на справку. Форма не подтверждена: живые списки были пустыми,\nполя — по тому, что читает сайт.",
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id"
+          },
+          "issued_on": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Issued On"
+          },
+          "purpose": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Purpose"
+          },
+          "requested_on": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Requested On"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status"
+          },
+          "status_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status Id"
+          },
+          "valid_until": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Valid Until"
+          }
+        },
+        "title": "Certificate",
+        "type": "object"
+      },
+      "Child": {
+        "description": "Ученик, доступный родителю; `id` — для `parent.student(id)`.",
+        "properties": {
+          "class_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Class Name"
+          },
+          "first_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Name"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "is_legal_representative": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Legal Representative"
+          },
+          "last_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Name"
+          },
+          "middle_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Middle Name"
+          },
+          "school": {
+            "$ref": "#/components/schemas/SchoolBrief"
+          }
+        },
+        "required": [
+          "id",
+          "school"
+        ],
+        "title": "Child",
+        "type": "object"
+      },
       "ClassResults": {
         "properties": {
           "distribution": {
@@ -307,6 +494,97 @@
           "value"
         ],
         "title": "ContactUpdate",
+        "type": "object"
+      },
+      "ControlWork": {
+        "description": "Контрольная работа. Форма не подтверждена: живые ответы были пустыми,\nполя — по тому, что читает сайт («Контрольные работы»).",
+        "properties": {
+          "date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Date"
+          },
+          "form": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Form"
+          },
+          "is_absent": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Absent"
+          },
+          "is_success": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Success"
+          },
+          "lesson_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lesson Id"
+          },
+          "mark": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mark"
+          },
+          "subject": {
+            "$ref": "#/components/schemas/Subject"
+          },
+          "theme": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Theme"
+          }
+        },
+        "required": [
+          "subject"
+        ],
+        "title": "ControlWork",
         "type": "object"
       },
       "Curriculum": {
@@ -1711,6 +1989,66 @@
         "title": "IdentityPerson",
         "type": "object"
       },
+      "JournalAck": {
+        "description": "Отметка родителя «ознакомлен с дневником» за неделю.",
+        "properties": {
+          "child_id": {
+            "title": "Child Id",
+            "type": "integer"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          },
+          "week": {
+            "format": "date",
+            "title": "Week",
+            "type": "string"
+          }
+        },
+        "required": [
+          "week",
+          "child_id"
+        ],
+        "title": "JournalAck",
+        "type": "object"
+      },
+      "JournalAckRequest": {
+        "properties": {
+          "child_id": {
+            "description": "id ученика из /v1/parent/children",
+            "exclusiveMinimum": 0.0,
+            "title": "Child Id",
+            "type": "integer"
+          },
+          "week": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "любой день недели; нет — текущая",
+            "title": "Week"
+          }
+        },
+        "required": [
+          "child_id"
+        ],
+        "title": "JournalAckRequest",
+        "type": "object"
+      },
       "JsonValue": {},
       "Lesson": {
         "properties": {
@@ -3061,6 +3399,85 @@
         "title": "NotificationMark",
         "type": "object"
       },
+      "ParentMe": {
+        "description": "Профиль владельца токена-родителя. СНИЛС и документы — в `identity()`.",
+        "properties": {
+          "email": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email"
+          },
+          "first_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Name"
+          },
+          "last_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Name"
+          },
+          "middle_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Middle Name"
+          },
+          "phone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Phone"
+          },
+          "token": {
+            "$ref": "#/components/schemas/TokenExpiry"
+          },
+          "type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Type"
+          }
+        },
+        "required": [
+          "token"
+        ],
+        "title": "ParentMe",
+        "type": "object"
+      },
       "PasswordLogin": {
         "properties": {
           "login": {
@@ -3279,6 +3696,154 @@
           }
         },
         "title": "PersonName",
+        "type": "object"
+      },
+      "ProgramLesson": {
+        "description": "Урок рабочей программы; `lesson_id` — для `lesson()`, если урок уже в расписании.",
+        "properties": {
+          "date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Date"
+          },
+          "ege_tasks": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Ege Tasks",
+            "type": "array"
+          },
+          "lesson_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lesson Id"
+          },
+          "oge_tasks": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Oge Tasks",
+            "type": "array"
+          },
+          "ordinal": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ordinal"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          }
+        },
+        "title": "ProgramLesson",
+        "type": "object"
+      },
+      "ProgramModule": {
+        "description": "Раздел рабочей программы группы (сайт: «Рабочие программы»).",
+        "properties": {
+          "ordinal": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ordinal"
+          },
+          "subject_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Subject Id"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "topics": {
+            "items": {
+              "$ref": "#/components/schemas/ProgramTopic"
+            },
+            "title": "Topics",
+            "type": "array"
+          }
+        },
+        "title": "ProgramModule",
+        "type": "object"
+      },
+      "ProgramTopic": {
+        "properties": {
+          "lessons": {
+            "items": {
+              "$ref": "#/components/schemas/ProgramLesson"
+            },
+            "title": "Lessons",
+            "type": "array"
+          },
+          "ordinal": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ordinal"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          }
+        },
+        "title": "ProgramTopic",
         "type": "object"
       },
       "Rating": {
@@ -4300,6 +4865,56 @@
         "title": "SchoolBrief",
         "type": "object"
       },
+      "SchoolTeacher": {
+        "description": "Учитель из справочника школы (сайт: «Учителя»).",
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "roles": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Roles",
+            "type": "array"
+          },
+          "subjects": {
+            "items": {
+              "$ref": "#/components/schemas/Subject"
+            },
+            "title": "Subjects",
+            "type": "array"
+          },
+          "type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Type"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "title": "SchoolTeacher",
+        "type": "object"
+      },
       "Section": {
         "properties": {
           "id": {
@@ -4924,6 +5539,42 @@
         "title": "SubjectSummary",
         "type": "object"
       },
+      "SubjectTopic": {
+        "description": "Тема предмета (тематическая рамка) и её результаты.",
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id"
+          },
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/TopicResult"
+            },
+            "title": "Results",
+            "type": "array"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          }
+        },
+        "title": "SubjectTopic",
+        "type": "object"
+      },
       "Target": {
         "description": "Цель периода из дневника: оценка value, до неё remain оценок.",
         "properties": {
@@ -5191,6 +5842,57 @@
         "title": "TokenResponse",
         "type": "object"
       },
+      "TopicResult": {
+        "description": "Ожидаемый результат по теме; `text` — формулировка для семьи.",
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id"
+          },
+          "mandatory": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mandatory"
+          },
+          "text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Text"
+          },
+          "type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Type"
+          }
+        },
+        "title": "TopicResult",
+        "type": "object"
+      },
       "UpstreamErrorResponse": {
         "description": "502 и 504: дневник не ответил или ответил ошибкой.",
         "properties": {
@@ -5254,10 +5956,154 @@
   },
   "info": {
     "title": "DiarySDK",
-    "version": "0.1.0"
+    "version": "0.2.0"
   },
   "openapi": "3.1.0",
   "paths": {
+    "/v1/academic-debts": {
+      "get": {
+        "description": "Форма ответа дневника живьём не подтверждена (ответы были пустыми).",
+        "operationId": "get_academic_debts_v1_academic_debts_get",
+        "parameters": [
+          {
+            "description": "год начала учебного года: 2024 — это 2024/25; по умолчанию — текущий",
+            "in": "query",
+            "name": "year",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "minimum": 2013,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "год начала учебного года: 2024 — это 2024/25; по умолчанию — текущий",
+              "title": "Year"
+            }
+          },
+          {
+            "description": "id ученика из /v1/parent/children — для токена родителя; без него — единственный ученик токена",
+            "in": "query",
+            "name": "child_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "exclusiveMinimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "id ученика из /v1/parent/children — для токена родителя; без него — единственный ученик токена",
+              "title": "Child Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/AcademicDebt"
+                  },
+                  "title": "Response Get Academic Debts V1 Academic Debts Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "bad_request: неверные параметры или тело запроса (названо поле)"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "token_missing, token_invalid или token_expired: нужен токен ученика"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "bad_api_key или forbidden_scope: ключ потребителя не подходит"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "multiple_children: у родителя несколько детей, нужен child_id; not_for_role: этой роли дневник эти данные не отдаёт"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "rate_limited: заголовок Retry-After — секунды"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpstreamErrorResponse"
+                }
+              }
+            },
+            "description": "upstream_error или upstream_format: сбой дневника"
+          },
+          "504": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpstreamErrorResponse"
+                }
+              }
+            },
+            "description": "upstream_timeout: дневник не ответил"
+          }
+        },
+        "security": [
+          {
+            "APIKeyHeader": []
+          },
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Академические задолженности ученика за учебный год",
+        "tags": [
+          "оценки"
+        ]
+      }
+    },
     "/v1/auth/esia": {
       "post": {
         "operationId": "esia_login_v1_auth_esia_post",
@@ -6030,19 +6876,55 @@
         ]
       }
     },
-    "/v1/curriculum": {
+    "/v1/certificates": {
       "get": {
-        "operationId": "get_curriculum_v1_curriculum_get",
+        "description": "Только для токена родителя (child_id): ученику дневник справки не отдаёт — 422 not_for_role. Форма ответа живьём не подтверждена (списки были пустыми).",
+        "operationId": "get_certificates_v1_certificates_get",
+        "parameters": [
+          {
+            "description": "id ученика из /v1/parent/children — для токена родителя; без него — единственный ученик токена",
+            "in": "query",
+            "name": "child_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "exclusiveMinimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "id ученика из /v1/parent/children — для токена родителя; без него — единственный ученик токена",
+              "title": "Child Id"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Curriculum"
+                  "items": {
+                    "$ref": "#/components/schemas/Certificate"
+                  },
+                  "title": "Response Get Certificates V1 Certificates Get",
+                  "type": "array"
                 }
               }
             },
             "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "bad_request: неверные параметры или тело запроса (названо поле)"
           },
           "401": {
             "content": {
@@ -6072,7 +6954,290 @@
                 }
               }
             },
-            "description": "multiple_children: токен родителя с несколькими детьми"
+            "description": "multiple_children: у родителя несколько детей, нужен child_id; not_for_role: этой роли дневник эти данные не отдаёт"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "rate_limited: заголовок Retry-After — секунды"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpstreamErrorResponse"
+                }
+              }
+            },
+            "description": "upstream_error или upstream_format: сбой дневника"
+          },
+          "504": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpstreamErrorResponse"
+                }
+              }
+            },
+            "description": "upstream_timeout: дневник не ответил"
+          }
+        },
+        "security": [
+          {
+            "APIKeyHeader": []
+          },
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Заявки на справки об обучении за два года",
+        "tags": [
+          "ученик"
+        ]
+      }
+    },
+    "/v1/control-works": {
+      "get": {
+        "description": "Форма ответа дневника живьём не подтверждена (ответы были пустыми).",
+        "operationId": "get_control_works_v1_control_works_get",
+        "parameters": [
+          {
+            "description": "по умолчанию — 1 сентября",
+            "in": "query",
+            "name": "from",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "по умолчанию — 1 сентября",
+              "title": "From"
+            }
+          },
+          {
+            "description": "по умолчанию — 31 августа; период не длиннее 366 дней",
+            "in": "query",
+            "name": "to",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "по умолчанию — 31 августа; период не длиннее 366 дней",
+              "title": "To"
+            }
+          },
+          {
+            "description": "id ученика из /v1/parent/children — для токена родителя; без него — единственный ученик токена",
+            "in": "query",
+            "name": "child_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "exclusiveMinimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "id ученика из /v1/parent/children — для токена родителя; без него — единственный ученик токена",
+              "title": "Child Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ControlWork"
+                  },
+                  "title": "Response Get Control Works V1 Control Works Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "bad_request: неверные параметры или тело запроса (названо поле)"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "token_missing, token_invalid или token_expired: нужен токен ученика"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "bad_api_key или forbidden_scope: ключ потребителя не подходит"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "multiple_children: у родителя несколько детей, нужен child_id; not_for_role: этой роли дневник эти данные не отдаёт"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "rate_limited: заголовок Retry-After — секунды"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpstreamErrorResponse"
+                }
+              }
+            },
+            "description": "upstream_error или upstream_format: сбой дневника"
+          },
+          "504": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpstreamErrorResponse"
+                }
+              }
+            },
+            "description": "upstream_timeout: дневник не ответил"
+          }
+        },
+        "security": [
+          {
+            "APIKeyHeader": []
+          },
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Контрольные работы за период",
+        "tags": [
+          "школа"
+        ]
+      }
+    },
+    "/v1/curriculum": {
+      "get": {
+        "operationId": "get_curriculum_v1_curriculum_get",
+        "parameters": [
+          {
+            "description": "id ученика из /v1/parent/children — для токена родителя; без него — единственный ученик токена",
+            "in": "query",
+            "name": "child_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "exclusiveMinimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "id ученика из /v1/parent/children — для токена родителя; без него — единственный ученик токена",
+              "title": "Child Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Curriculum"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "bad_request: неверные параметры или тело запроса (названо поле)"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "token_missing, token_invalid или token_expired: нужен токен ученика"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "bad_api_key или forbidden_scope: ключ потребителя не подходит"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "multiple_children: у родителя несколько детей, нужен child_id; not_for_role: этой роли дневник эти данные не отдаёт"
           },
           "429": {
             "content": {
@@ -6122,6 +7287,27 @@
     "/v1/exams": {
       "get": {
         "operationId": "get_exams_v1_exams_get",
+        "parameters": [
+          {
+            "description": "id ученика из /v1/parent/children — для токена родителя; без него — единственный ученик токена",
+            "in": "query",
+            "name": "child_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "exclusiveMinimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "id ученика из /v1/parent/children — для токена родителя; без него — единственный ученик токена",
+              "title": "Child Id"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -6136,6 +7322,16 @@
               }
             },
             "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "bad_request: неверные параметры или тело запроса (названо поле)"
           },
           "401": {
             "content": {
@@ -6165,7 +7361,7 @@
                 }
               }
             },
-            "description": "multiple_children: токен родителя с несколькими детьми"
+            "description": "multiple_children: у родителя несколько детей, нужен child_id; not_for_role: этой роли дневник эти данные не отдаёт"
           },
           "429": {
             "content": {
@@ -6234,6 +7430,25 @@
               "description": "год начала учебного года: 2024 — это 2024/25; по умолчанию — текущий",
               "title": "Year"
             }
+          },
+          {
+            "description": "id ученика из /v1/parent/children — для токена родителя; без него — единственный ученик токена",
+            "in": "query",
+            "name": "child_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "exclusiveMinimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "id ученика из /v1/parent/children — для токена родителя; без него — единственный ученик токена",
+              "title": "Child Id"
+            }
           }
         ],
         "responses": {
@@ -6289,7 +7504,7 @@
                 }
               }
             },
-            "description": "multiple_children: токен родителя с несколькими детьми"
+            "description": "multiple_children: у родителя несколько детей, нужен child_id; not_for_role: этой роли дневник эти данные не отдаёт"
           },
           "429": {
             "content": {
@@ -6336,6 +7551,303 @@
         ]
       }
     },
+    "/v1/final-marks/file": {
+      "get": {
+        "operationId": "get_final_marks_file_v1_final_marks_file_get",
+        "parameters": [
+          {
+            "description": "год начала учебного года: 2024 — это 2024/25; по умолчанию — текущий",
+            "in": "query",
+            "name": "year",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "minimum": 2013,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "год начала учебного года: 2024 — это 2024/25; по умолчанию — текущий",
+              "title": "Year"
+            }
+          },
+          {
+            "description": "ориентация страницы",
+            "in": "query",
+            "name": "orientation",
+            "required": false,
+            "schema": {
+              "default": "portrait",
+              "description": "ориентация страницы",
+              "enum": [
+                "portrait",
+                "landscape"
+              ],
+              "title": "Orientation",
+              "type": "string"
+            }
+          },
+          {
+            "description": "id ученика из /v1/parent/children — для токена родителя; без него — единственный ученик токена",
+            "in": "query",
+            "name": "child_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "exclusiveMinimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "id ученика из /v1/parent/children — для токена родителя; без него — единственный ученик токена",
+              "title": "Child Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/pdf": {}
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "bad_request: неверные параметры или тело запроса (названо поле)"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "token_missing, token_invalid или token_expired: нужен токен ученика"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "bad_api_key или forbidden_scope: ключ потребителя не подходит"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "multiple_children: у родителя несколько детей, нужен child_id; not_for_role: этой роли дневник эти данные не отдаёт"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "rate_limited: заголовок Retry-After — секунды"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpstreamErrorResponse"
+                }
+              }
+            },
+            "description": "upstream_error или upstream_format: сбой дневника"
+          },
+          "504": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpstreamErrorResponse"
+                }
+              }
+            },
+            "description": "upstream_timeout: дневник не ответил"
+          }
+        },
+        "security": [
+          {
+            "APIKeyHeader": []
+          },
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "PDF итоговых оценок за учебный год",
+        "tags": [
+          "оценки"
+        ]
+      }
+    },
+    "/v1/groups/{group_id}/program": {
+      "get": {
+        "operationId": "get_work_program_v1_groups__group_id__program_get",
+        "parameters": [
+          {
+            "description": "id группы из /v1/identity (person.groups)",
+            "in": "path",
+            "name": "group_id",
+            "required": true,
+            "schema": {
+              "description": "id группы из /v1/identity (person.groups)",
+              "exclusiveMinimum": 0,
+              "title": "Group Id",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "id ученика из /v1/parent/children — для токена родителя; без него — единственный ученик токена",
+            "in": "query",
+            "name": "child_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "exclusiveMinimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "id ученика из /v1/parent/children — для токена родителя; без него — единственный ученик токена",
+              "title": "Child Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ProgramModule"
+                  },
+                  "title": "Response Get Work Program V1 Groups  Group Id  Program Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "bad_request: неверные параметры или тело запроса (названо поле)"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "token_missing, token_invalid или token_expired: нужен токен ученика"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "bad_api_key или forbidden_scope: ключ потребителя не подходит"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "not_found или no_avatar: такого нет"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "multiple_children: у родителя несколько детей, нужен child_id; not_for_role: этой роли дневник эти данные не отдаёт"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "rate_limited: заголовок Retry-After — секунды"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpstreamErrorResponse"
+                }
+              }
+            },
+            "description": "upstream_error или upstream_format: сбой дневника"
+          },
+          "504": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpstreamErrorResponse"
+                }
+              }
+            },
+            "description": "upstream_timeout: дневник не ответил"
+          }
+        },
+        "security": [
+          {
+            "APIKeyHeader": []
+          },
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Рабочая программа группы: разделы, темы, уроки",
+        "tags": [
+          "школа"
+        ]
+      }
+    },
     "/v1/homework": {
       "get": {
         "operationId": "get_homework_v1_homework_get",
@@ -6376,6 +7888,25 @@
               ],
               "description": "по умолчанию — через 7 дней; период не длиннее 31 дня",
               "title": "To"
+            }
+          },
+          {
+            "description": "id ученика из /v1/parent/children — для токена родителя; без него — единственный ученик токена",
+            "in": "query",
+            "name": "child_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "exclusiveMinimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "id ученика из /v1/parent/children — для токена родителя; без него — единственный ученик токена",
+              "title": "Child Id"
             }
           }
         ],
@@ -6432,7 +7963,7 @@
                 }
               }
             },
-            "description": "multiple_children: токен родителя с несколькими детьми"
+            "description": "multiple_children: у родителя несколько детей, нужен child_id; not_for_role: этой роли дневник эти данные не отдаёт"
           },
           "429": {
             "content": {
@@ -6494,6 +8025,25 @@
               "title": "Homework Id",
               "type": "integer"
             }
+          },
+          {
+            "description": "id ученика из /v1/parent/children — для токена родителя; без него — единственный ученик токена",
+            "in": "query",
+            "name": "child_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "exclusiveMinimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "id ученика из /v1/parent/children — для токена родителя; без него — единственный ученик токена",
+              "title": "Child Id"
+            }
           }
         ],
         "responses": {
@@ -6548,7 +8098,7 @@
                 }
               }
             },
-            "description": "multiple_children: токен родителя с несколькими детьми"
+            "description": "multiple_children: у родителя несколько детей, нужен child_id; not_for_role: этой роли дневник эти данные не отдаёт"
           },
           "429": {
             "content": {
@@ -6608,6 +8158,25 @@
               "title": "Homework Id",
               "type": "integer"
             }
+          },
+          {
+            "description": "id ученика из /v1/parent/children — для токена родителя; без него — единственный ученик токена",
+            "in": "query",
+            "name": "child_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "exclusiveMinimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "id ученика из /v1/parent/children — для токена родителя; без него — единственный ученик токена",
+              "title": "Child Id"
+            }
           }
         ],
         "responses": {
@@ -6662,7 +8231,7 @@
                 }
               }
             },
-            "description": "multiple_children: токен родителя с несколькими детьми"
+            "description": "multiple_children: у родителя несколько детей, нужен child_id; not_for_role: этой роли дневник эти данные не отдаёт"
           },
           "429": {
             "content": {
@@ -6713,6 +8282,27 @@
       "get": {
         "description": "Для ответов на запросы администрации. Разграничения прав внутри сервера нет: поля видит любой действующий ключ, доступ разграничивает потребитель.",
         "operationId": "get_identity_v1_identity_get",
+        "parameters": [
+          {
+            "description": "id ученика из /v1/parent/children — для токена родителя; без него — единственный ученик токена",
+            "in": "query",
+            "name": "child_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "exclusiveMinimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "id ученика из /v1/parent/children — для токена родителя; без него — единственный ученик токена",
+              "title": "Child Id"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -6723,6 +8313,16 @@
               }
             },
             "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "bad_request: неверные параметры или тело запроса (названо поле)"
           },
           "401": {
             "content": {
@@ -6752,7 +8352,7 @@
                 }
               }
             },
-            "description": "multiple_children: токен родителя с несколькими детьми"
+            "description": "multiple_children: у родителя несколько детей, нужен child_id; not_for_role: этой роли дневник эти данные не отдаёт"
           },
           "429": {
             "content": {
@@ -6814,6 +8414,25 @@
               "exclusiveMinimum": 0,
               "title": "Contact Id",
               "type": "integer"
+            }
+          },
+          {
+            "description": "id ученика из /v1/parent/children — для токена родителя; без него — единственный ученик токена",
+            "in": "query",
+            "name": "child_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "exclusiveMinimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "id ученика из /v1/parent/children — для токена родителя; без него — единственный ученик токена",
+              "title": "Child Id"
             }
           }
         ],
@@ -6941,6 +8560,25 @@
               "title": "Lesson Id",
               "type": "integer"
             }
+          },
+          {
+            "description": "id ученика из /v1/parent/children — для токена родителя; без него — единственный ученик токена",
+            "in": "query",
+            "name": "child_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "exclusiveMinimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "id ученика из /v1/parent/children — для токена родителя; без него — единственный ученик токена",
+              "title": "Child Id"
+            }
           }
         ],
         "responses": {
@@ -7002,7 +8640,7 @@
                 }
               }
             },
-            "description": "multiple_children: токен родителя с несколькими детьми"
+            "description": "multiple_children: у родителя несколько детей, нужен child_id; not_for_role: этой роли дневник эти данные не отдаёт"
           },
           "429": {
             "content": {
@@ -7090,6 +8728,25 @@
               "description": "по умолчанию — сегодня; период не длиннее 366 дней",
               "title": "To"
             }
+          },
+          {
+            "description": "id ученика из /v1/parent/children — для токена родителя; без него — единственный ученик токена",
+            "in": "query",
+            "name": "child_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "exclusiveMinimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "id ученика из /v1/parent/children — для токена родителя; без него — единственный ученик токена",
+              "title": "Child Id"
+            }
           }
         ],
         "responses": {
@@ -7145,7 +8802,7 @@
                 }
               }
             },
-            "description": "multiple_children: токен родителя с несколькими детьми"
+            "description": "multiple_children: у родителя несколько детей, нужен child_id; not_for_role: этой роли дневник эти данные не отдаёт"
           },
           "429": {
             "content": {
@@ -7206,6 +8863,25 @@
               "exclusiveMinimum": 0,
               "title": "Mark Id",
               "type": "integer"
+            }
+          },
+          {
+            "description": "id ученика из /v1/parent/children — для токена родителя; без него — единственный ученик токена",
+            "in": "query",
+            "name": "child_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "exclusiveMinimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "id ученика из /v1/parent/children — для токена родителя; без него — единственный ученик токена",
+              "title": "Child Id"
             }
           }
         ],
@@ -7268,7 +8944,7 @@
                 }
               }
             },
-            "description": "multiple_children: токен родителя с несколькими детьми"
+            "description": "multiple_children: у родителя несколько детей, нужен child_id; not_for_role: этой роли дневник эти данные не отдаёт"
           },
           "429": {
             "content": {
@@ -7318,6 +8994,27 @@
     "/v1/me": {
       "get": {
         "operationId": "get_me_v1_me_get",
+        "parameters": [
+          {
+            "description": "id ученика из /v1/parent/children — для токена родителя; без него — единственный ученик токена",
+            "in": "query",
+            "name": "child_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "exclusiveMinimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "id ученика из /v1/parent/children — для токена родителя; без него — единственный ученик токена",
+              "title": "Child Id"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -7328,6 +9025,16 @@
               }
             },
             "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "bad_request: неверные параметры или тело запроса (названо поле)"
           },
           "401": {
             "content": {
@@ -7357,7 +9064,7 @@
                 }
               }
             },
-            "description": "multiple_children: токен родителя с несколькими детьми"
+            "description": "multiple_children: у родителя несколько детей, нужен child_id; not_for_role: этой роли дневник эти данные не отдаёт"
           },
           "429": {
             "content": {
@@ -7407,12 +9114,43 @@
     "/v1/me/avatar": {
       "get": {
         "operationId": "get_avatar_v1_me_avatar_get",
+        "parameters": [
+          {
+            "description": "id ученика из /v1/parent/children — для токена родителя; без него — единственный ученик токена",
+            "in": "query",
+            "name": "child_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "exclusiveMinimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "id ученика из /v1/parent/children — для токена родителя; без него — единственный ученик токена",
+              "title": "Child Id"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
               "image/*": {}
             },
             "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "bad_request: неверные параметры или тело запроса (названо поле)"
           },
           "401": {
             "content": {
@@ -7442,7 +9180,7 @@
                 }
               }
             },
-            "description": "no_avatar: у ученика нет аватарки"
+            "description": "no_avatar: аватарки нет"
           },
           "422": {
             "content": {
@@ -7452,7 +9190,7 @@
                 }
               }
             },
-            "description": "multiple_children: токен родителя с несколькими детьми"
+            "description": "multiple_children: у родителя несколько детей, нужен child_id; not_for_role: этой роли дневник эти данные не отдаёт"
           },
           "429": {
             "content": {
@@ -7502,6 +9240,27 @@
     "/v1/notifications": {
       "get": {
         "operationId": "get_notifications_v1_notifications_get",
+        "parameters": [
+          {
+            "description": "id ученика из /v1/parent/children — для токена родителя; без него — единственный ученик токена",
+            "in": "query",
+            "name": "child_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "exclusiveMinimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "id ученика из /v1/parent/children — для токена родителя; без него — единственный ученик токена",
+              "title": "Child Id"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -7516,6 +9275,16 @@
               }
             },
             "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "bad_request: неверные параметры или тело запроса (названо поле)"
           },
           "401": {
             "content": {
@@ -7545,7 +9314,7 @@
                 }
               }
             },
-            "description": "multiple_children: токен родителя с несколькими детьми"
+            "description": "multiple_children: у родителя несколько детей, нужен child_id; not_for_role: этой роли дневник эти данные не отдаёт"
           },
           "429": {
             "content": {
@@ -7592,6 +9361,945 @@
         ]
       }
     },
+    "/v1/parent/avatar": {
+      "get": {
+        "operationId": "get_avatar_v1_parent_avatar_get",
+        "responses": {
+          "200": {
+            "content": {
+              "image/*": {}
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "token_missing, token_invalid или token_expired: нужен токен ученика"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "bad_api_key или forbidden_scope: ключ потребителя не подходит"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "no_avatar: аватарки нет"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "multiple_children: у родителя несколько детей, нужен child_id; not_for_role: этой роли дневник эти данные не отдаёт"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "rate_limited: заголовок Retry-After — секунды"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpstreamErrorResponse"
+                }
+              }
+            },
+            "description": "upstream_error или upstream_format: сбой дневника"
+          },
+          "504": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpstreamErrorResponse"
+                }
+              }
+            },
+            "description": "upstream_timeout: дневник не ответил"
+          }
+        },
+        "security": [
+          {
+            "APIKeyHeader": []
+          },
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Аватарка родителя — сама картинка",
+        "tags": [
+          "родитель"
+        ]
+      }
+    },
+    "/v1/parent/children": {
+      "get": {
+        "operationId": "get_children_v1_parent_children_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Child"
+                  },
+                  "title": "Response Get Children V1 Parent Children Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "token_missing, token_invalid или token_expired: нужен токен ученика"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "bad_api_key или forbidden_scope: ключ потребителя не подходит"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "multiple_children: у родителя несколько детей, нужен child_id; not_for_role: этой роли дневник эти данные не отдаёт"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "rate_limited: заголовок Retry-After — секунды"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpstreamErrorResponse"
+                }
+              }
+            },
+            "description": "upstream_error или upstream_format: сбой дневника"
+          },
+          "504": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpstreamErrorResponse"
+                }
+              }
+            },
+            "description": "upstream_timeout: дневник не ответил"
+          }
+        },
+        "security": [
+          {
+            "APIKeyHeader": []
+          },
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Ученики родителя; их id — параметр child_id маршрутов ученика",
+        "tags": [
+          "родитель"
+        ]
+      }
+    },
+    "/v1/parent/identity": {
+      "get": {
+        "operationId": "get_identity_v1_parent_identity_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Identity"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "token_missing, token_invalid или token_expired: нужен токен ученика"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "bad_api_key или forbidden_scope: ключ потребителя не подходит"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "multiple_children: у родителя несколько детей, нужен child_id; not_for_role: этой роли дневник эти данные не отдаёт"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "rate_limited: заголовок Retry-After — секунды"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpstreamErrorResponse"
+                }
+              }
+            },
+            "description": "upstream_error или upstream_format: сбой дневника"
+          },
+          "504": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpstreamErrorResponse"
+                }
+              }
+            },
+            "description": "upstream_timeout: дневник не ответил"
+          }
+        },
+        "security": [
+          {
+            "APIKeyHeader": []
+          },
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Карточка родителя: документы, контакты, адреса",
+        "tags": [
+          "родитель"
+        ]
+      }
+    },
+    "/v1/parent/identity/contacts/{contact_id}": {
+      "put": {
+        "description": "Нужен ключ с разрешением write_profile. Только почта: чужой id — 404, телефон — 422 contact_not_email. Живьём не проверено.",
+        "operationId": "put_contact_v1_parent_identity_contacts__contact_id__put",
+        "parameters": [
+          {
+            "description": "id контакта из /v1/parent/identity",
+            "in": "path",
+            "name": "contact_id",
+            "required": true,
+            "schema": {
+              "description": "id контакта из /v1/parent/identity",
+              "exclusiveMinimum": 0,
+              "title": "Contact Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContactUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "bad_request: неверные параметры или тело запроса (названо поле)"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "token_missing, token_invalid или token_expired: нужен токен ученика"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "bad_api_key или forbidden_scope: ключ потребителя не подходит"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "not_found или no_avatar: такого нет"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "multiple_children: у родителя несколько детей, нужен child_id; not_for_role: этой роли дневник эти данные не отдаёт"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "rate_limited: заголовок Retry-After — секунды"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpstreamErrorResponse"
+                }
+              }
+            },
+            "description": "upstream_error или upstream_format: сбой дневника"
+          },
+          "504": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpstreamErrorResponse"
+                }
+              }
+            },
+            "description": "upstream_timeout: дневник не ответил"
+          }
+        },
+        "security": [
+          {
+            "APIKeyHeader": []
+          },
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Изменить адрес почты в контакте родителя",
+        "tags": [
+          "родитель"
+        ]
+      }
+    },
+    "/v1/parent/journal-acks": {
+      "get": {
+        "operationId": "get_journal_acks_v1_parent_journal_acks_get",
+        "parameters": [
+          {
+            "description": "id ученика из /v1/parent/children",
+            "in": "query",
+            "name": "child_id",
+            "required": true,
+            "schema": {
+              "description": "id ученика из /v1/parent/children",
+              "exclusiveMinimum": 0,
+              "title": "Child Id",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "по умолчанию — понедельник текущей недели",
+            "in": "query",
+            "name": "from",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "по умолчанию — понедельник текущей недели",
+              "title": "From"
+            }
+          },
+          {
+            "description": "по умолчанию — воскресенье; период не длиннее 31 дня",
+            "in": "query",
+            "name": "to",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "по умолчанию — воскресенье; период не длиннее 31 дня",
+              "title": "To"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/JournalAck"
+                  },
+                  "title": "Response Get Journal Acks V1 Parent Journal Acks Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "bad_request: неверные параметры или тело запроса (названо поле)"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "token_missing, token_invalid или token_expired: нужен токен ученика"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "bad_api_key или forbidden_scope: ключ потребителя не подходит"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "multiple_children: у родителя несколько детей, нужен child_id; not_for_role: этой роли дневник эти данные не отдаёт"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "rate_limited: заголовок Retry-After — секунды"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpstreamErrorResponse"
+                }
+              }
+            },
+            "description": "upstream_error или upstream_format: сбой дневника"
+          },
+          "504": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpstreamErrorResponse"
+                }
+              }
+            },
+            "description": "upstream_timeout: дневник не ответил"
+          }
+        },
+        "security": [
+          {
+            "APIKeyHeader": []
+          },
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Отметки «ознакомлен с дневником» по неделям",
+        "tags": [
+          "родитель"
+        ]
+      },
+      "post": {
+        "description": "Нужен ключ с разрешением acknowledge_journal. Неделя уже отмечена — 204 без повторной отметки. Отметку видят учителя, отменить её нельзя.",
+        "operationId": "post_journal_ack_v1_parent_journal_acks_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/JournalAckRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "bad_request: неверные параметры или тело запроса (названо поле)"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "token_missing, token_invalid или token_expired: нужен токен ученика"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "bad_api_key или forbidden_scope: ключ потребителя не подходит"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "multiple_children: у родителя несколько детей, нужен child_id; not_for_role: этой роли дневник эти данные не отдаёт"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "rate_limited: заголовок Retry-After — секунды"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpstreamErrorResponse"
+                }
+              }
+            },
+            "description": "upstream_error или upstream_format: сбой дневника"
+          },
+          "504": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpstreamErrorResponse"
+                }
+              }
+            },
+            "description": "upstream_timeout: дневник не ответил"
+          }
+        },
+        "security": [
+          {
+            "APIKeyHeader": []
+          },
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Отметить неделю «ознакомлен с дневником»",
+        "tags": [
+          "родитель"
+        ]
+      }
+    },
+    "/v1/parent/me": {
+      "get": {
+        "operationId": "get_me_v1_parent_me_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ParentMe"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "token_missing, token_invalid или token_expired: нужен токен ученика"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "bad_api_key или forbidden_scope: ключ потребителя не подходит"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "multiple_children: у родителя несколько детей, нужен child_id; not_for_role: этой роли дневник эти данные не отдаёт"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "rate_limited: заголовок Retry-After — секунды"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpstreamErrorResponse"
+                }
+              }
+            },
+            "description": "upstream_error или upstream_format: сбой дневника"
+          },
+          "504": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpstreamErrorResponse"
+                }
+              }
+            },
+            "description": "upstream_timeout: дневник не ответил"
+          }
+        },
+        "security": [
+          {
+            "APIKeyHeader": []
+          },
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Профиль родителя: ФИО, тип, почта, телефон, срок токена",
+        "tags": [
+          "родитель"
+        ]
+      }
+    },
+    "/v1/parent/settings": {
+      "get": {
+        "operationId": "get_settings_v1_parent_settings_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Settings"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "token_missing, token_invalid или token_expired: нужен токен ученика"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "bad_api_key или forbidden_scope: ключ потребителя не подходит"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "multiple_children: у родителя несколько детей, нужен child_id; not_for_role: этой роли дневник эти данные не отдаёт"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "rate_limited: заголовок Retry-After — секунды"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpstreamErrorResponse"
+                }
+              }
+            },
+            "description": "upstream_error или upstream_format: сбой дневника"
+          },
+          "504": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpstreamErrorResponse"
+                }
+              }
+            },
+            "description": "upstream_timeout: дневник не ответил"
+          }
+        },
+        "security": [
+          {
+            "APIKeyHeader": []
+          },
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Настройки приложения родителя; общие для всех детей",
+        "tags": [
+          "родитель"
+        ]
+      },
+      "patch": {
+        "description": "Правила те же, что у PATCH /v1/settings. Живьём не проверено.",
+        "operationId": "patch_settings_v1_parent_settings_patch",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SettingsUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "bad_request: неверные параметры или тело запроса (названо поле)"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "token_missing, token_invalid или token_expired: нужен токен ученика"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "bad_api_key или forbidden_scope: ключ потребителя не подходит"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "multiple_children: у родителя несколько детей, нужен child_id; not_for_role: этой роли дневник эти данные не отдаёт"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "rate_limited: заголовок Retry-After — секунды"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpstreamErrorResponse"
+                }
+              }
+            },
+            "description": "upstream_error или upstream_format: сбой дневника"
+          },
+          "504": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpstreamErrorResponse"
+                }
+              }
+            },
+            "description": "upstream_timeout: дневник не ответил"
+          }
+        },
+        "security": [
+          {
+            "APIKeyHeader": []
+          },
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Изменить настройки приложения родителя",
+        "tags": [
+          "родитель"
+        ]
+      }
+    },
     "/v1/periods": {
       "get": {
         "operationId": "get_periods_v1_periods_get",
@@ -7632,6 +10340,25 @@
               ],
               "description": "по умолчанию — 31 августа учебного года",
               "title": "To"
+            }
+          },
+          {
+            "description": "id ученика из /v1/parent/children — для токена родителя; без него — единственный ученик токена",
+            "in": "query",
+            "name": "child_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "exclusiveMinimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "id ученика из /v1/parent/children — для токена родителя; без него — единственный ученик токена",
+              "title": "Child Id"
             }
           }
         ],
@@ -7688,7 +10415,7 @@
                 }
               }
             },
-            "description": "multiple_children: токен родителя с несколькими детьми"
+            "description": "multiple_children: у родителя несколько детей, нужен child_id; not_for_role: этой роли дневник эти данные не отдаёт"
           },
           "429": {
             "content": {
@@ -7776,6 +10503,25 @@
               "description": "ID предмета из /v1/subjects или /v1/rating/subjects — рейтинг по нему; по умолчанию — по всем предметам",
               "title": "Subject"
             }
+          },
+          {
+            "description": "id ученика из /v1/parent/children — для токена родителя; без него — единственный ученик токена",
+            "in": "query",
+            "name": "child_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "exclusiveMinimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "id ученика из /v1/parent/children — для токена родителя; без него — единственный ученик токена",
+              "title": "Child Id"
+            }
           }
         ],
         "responses": {
@@ -7827,7 +10573,7 @@
                 }
               }
             },
-            "description": "multiple_children: токен родителя с несколькими детьми"
+            "description": "multiple_children: у родителя несколько детей, нужен child_id; not_for_role: этой роли дневник эти данные не отдаёт"
           },
           "429": {
             "content": {
@@ -7915,6 +10661,25 @@
               "description": "по умолчанию — сегодня",
               "title": "To"
             }
+          },
+          {
+            "description": "id ученика из /v1/parent/children — для токена родителя; без него — единственный ученик токена",
+            "in": "query",
+            "name": "child_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "exclusiveMinimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "id ученика из /v1/parent/children — для токена родителя; без него — единственный ученик токена",
+              "title": "Child Id"
+            }
           }
         ],
         "responses": {
@@ -7970,7 +10735,7 @@
                 }
               }
             },
-            "description": "multiple_children: токен родителя с несколькими детьми"
+            "description": "multiple_children: у родителя несколько детей, нужен child_id; not_for_role: этой роли дневник эти данные не отдаёт"
           },
           "429": {
             "content": {
@@ -8039,6 +10804,25 @@
               "description": "по умолчанию — сегодня",
               "title": "Date"
             }
+          },
+          {
+            "description": "id ученика из /v1/parent/children — для токена родителя; без него — единственный ученик токена",
+            "in": "query",
+            "name": "child_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "exclusiveMinimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "id ученика из /v1/parent/children — для токена родителя; без него — единственный ученик токена",
+              "title": "Child Id"
+            }
           }
         ],
         "responses": {
@@ -8094,7 +10878,7 @@
                 }
               }
             },
-            "description": "multiple_children: токен родителя с несколькими детьми"
+            "description": "multiple_children: у родителя несколько детей, нужен child_id; not_for_role: этой роли дневник эти данные не отдаёт"
           },
           "429": {
             "content": {
@@ -8182,6 +10966,25 @@
               "description": "по умолчанию — воскресенье той же недели; период не длиннее 31 дня",
               "title": "To"
             }
+          },
+          {
+            "description": "id ученика из /v1/parent/children — для токена родителя; без него — единственный ученик токена",
+            "in": "query",
+            "name": "child_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "exclusiveMinimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "id ученика из /v1/parent/children — для токена родителя; без него — единственный ученик токена",
+              "title": "Child Id"
+            }
           }
         ],
         "responses": {
@@ -8237,7 +11040,7 @@
                 }
               }
             },
-            "description": "multiple_children: токен родителя с несколькими детьми"
+            "description": "multiple_children: у родителя несколько детей, нужен child_id; not_for_role: этой роли дневник эти данные не отдаёт"
           },
           "429": {
             "content": {
@@ -8287,6 +11090,27 @@
     "/v1/school": {
       "get": {
         "operationId": "get_school_v1_school_get",
+        "parameters": [
+          {
+            "description": "id ученика из /v1/parent/children — для токена родителя; без него — единственный ученик токена",
+            "in": "query",
+            "name": "child_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "exclusiveMinimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "id ученика из /v1/parent/children — для токена родителя; без него — единственный ученик токена",
+              "title": "Child Id"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -8297,6 +11121,16 @@
               }
             },
             "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "bad_request: неверные параметры или тело запроса (названо поле)"
           },
           "401": {
             "content": {
@@ -8326,7 +11160,7 @@
                 }
               }
             },
-            "description": "multiple_children: токен родителя с несколькими детьми"
+            "description": "multiple_children: у родителя несколько детей, нужен child_id; not_for_role: этой роли дневник эти данные не отдаёт"
           },
           "429": {
             "content": {
@@ -8373,19 +11207,74 @@
         ]
       }
     },
-    "/v1/settings": {
+    "/v1/school/teachers": {
       "get": {
-        "operationId": "get_settings_v1_settings_get",
+        "operationId": "get_school_teachers_v1_school_teachers_get",
+        "parameters": [
+          {
+            "description": "часть имени",
+            "in": "query",
+            "name": "name",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 100,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "часть имени",
+              "title": "Name"
+            }
+          },
+          {
+            "description": "id ученика из /v1/parent/children — для токена родителя; без него — единственный ученик токена",
+            "in": "query",
+            "name": "child_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "exclusiveMinimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "id ученика из /v1/parent/children — для токена родителя; без него — единственный ученик токена",
+              "title": "Child Id"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Settings"
+                  "items": {
+                    "$ref": "#/components/schemas/SchoolTeacher"
+                  },
+                  "title": "Response Get School Teachers V1 School Teachers Get",
+                  "type": "array"
                 }
               }
             },
             "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "bad_request: неверные параметры или тело запроса (названо поле)"
           },
           "401": {
             "content": {
@@ -8415,7 +11304,127 @@
                 }
               }
             },
-            "description": "multiple_children: токен родителя с несколькими детьми"
+            "description": "multiple_children: у родителя несколько детей, нужен child_id; not_for_role: этой роли дневник эти данные не отдаёт"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "rate_limited: заголовок Retry-After — секунды"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpstreamErrorResponse"
+                }
+              }
+            },
+            "description": "upstream_error или upstream_format: сбой дневника"
+          },
+          "504": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpstreamErrorResponse"
+                }
+              }
+            },
+            "description": "upstream_timeout: дневник не ответил"
+          }
+        },
+        "security": [
+          {
+            "APIKeyHeader": []
+          },
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Учителя школы: имя, роли, предметы",
+        "tags": [
+          "ученик"
+        ]
+      }
+    },
+    "/v1/settings": {
+      "get": {
+        "operationId": "get_settings_v1_settings_get",
+        "parameters": [
+          {
+            "description": "id ученика из /v1/parent/children — для токена родителя; без него — единственный ученик токена",
+            "in": "query",
+            "name": "child_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "exclusiveMinimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "id ученика из /v1/parent/children — для токена родителя; без него — единственный ученик токена",
+              "title": "Child Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Settings"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "bad_request: неверные параметры или тело запроса (названо поле)"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "token_missing, token_invalid или token_expired: нужен токен ученика"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "bad_api_key или forbidden_scope: ключ потребителя не подходит"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "multiple_children: у родителя несколько детей, нужен child_id; not_for_role: этой роли дневник эти данные не отдаёт"
           },
           "429": {
             "content": {
@@ -8464,6 +11473,27 @@
       "patch": {
         "description": "Меняет только поля, у которых в дневнике уже есть значение: группы нет — 409 settings_missing, поле пусто — 409 setting_unset, текущее значение вне того, что сервис умеет записать, — 409 setting_unrestorable (в message имя поля). Прежнее значение читайте из GET /v1/settings до записи.",
         "operationId": "patch_settings_v1_settings_patch",
+        "parameters": [
+          {
+            "description": "id ученика из /v1/parent/children — для токена родителя; без него — единственный ученик токена",
+            "in": "query",
+            "name": "child_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "exclusiveMinimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "id ученика из /v1/parent/children — для токена родителя; без него — единственный ученик токена",
+              "title": "Child Id"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -8526,7 +11556,7 @@
                 }
               }
             },
-            "description": "multiple_children: токен родителя с несколькими детьми"
+            "description": "multiple_children: у родителя несколько детей, нужен child_id; not_for_role: этой роли дневник эти данные не отдаёт"
           },
           "429": {
             "content": {
@@ -8576,6 +11606,27 @@
     "/v1/subjects": {
       "get": {
         "operationId": "get_subjects_v1_subjects_get",
+        "parameters": [
+          {
+            "description": "id ученика из /v1/parent/children — для токена родителя; без него — единственный ученик токена",
+            "in": "query",
+            "name": "child_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "exclusiveMinimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "id ученика из /v1/parent/children — для токена родителя; без него — единственный ученик токена",
+              "title": "Child Id"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -8590,6 +11641,16 @@
               }
             },
             "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "bad_request: неверные параметры или тело запроса (названо поле)"
           },
           "401": {
             "content": {
@@ -8619,7 +11680,7 @@
                 }
               }
             },
-            "description": "multiple_children: токен родителя с несколькими детьми"
+            "description": "multiple_children: у родителя несколько детей, нужен child_id; not_for_role: этой роли дневник эти данные не отдаёт"
           },
           "429": {
             "content": {
@@ -8680,6 +11741,25 @@
               "exclusiveMinimum": 0,
               "title": "Subject Id",
               "type": "integer"
+            }
+          },
+          {
+            "description": "id ученика из /v1/parent/children — для токена родителя; без него — единственный ученик токена",
+            "in": "query",
+            "name": "child_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "exclusiveMinimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "id ученика из /v1/parent/children — для токена родителя; без него — единственный ученик токена",
+              "title": "Child Id"
             }
           }
         ],
@@ -8742,7 +11822,7 @@
                 }
               }
             },
-            "description": "multiple_children: токен родителя с несколькими детьми"
+            "description": "multiple_children: у родителя несколько детей, нужен child_id; not_for_role: этой роли дневник эти данные не отдаёт"
           },
           "429": {
             "content": {
@@ -8784,6 +11864,152 @@
           }
         ],
         "summary": "Оценки по одному предмету: периоды, цель, оценки; чужой предмет — 404",
+        "tags": [
+          "оценки"
+        ]
+      }
+    },
+    "/v1/subjects/{subject_id}/topics": {
+      "get": {
+        "operationId": "get_subject_topics_v1_subjects__subject_id__topics_get",
+        "parameters": [
+          {
+            "description": "id из /v1/subjects",
+            "in": "path",
+            "name": "subject_id",
+            "required": true,
+            "schema": {
+              "description": "id из /v1/subjects",
+              "exclusiveMinimum": 0,
+              "title": "Subject Id",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "id ученика из /v1/parent/children — для токена родителя; без него — единственный ученик токена",
+            "in": "query",
+            "name": "child_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "exclusiveMinimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "id ученика из /v1/parent/children — для токена родителя; без него — единственный ученик токена",
+              "title": "Child Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/SubjectTopic"
+                  },
+                  "title": "Response Get Subject Topics V1 Subjects  Subject Id  Topics Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "bad_request: неверные параметры или тело запроса (названо поле)"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "token_missing, token_invalid или token_expired: нужен токен ученика"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "bad_api_key или forbidden_scope: ключ потребителя не подходит"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "not_found или no_avatar: такого нет"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "multiple_children: у родителя несколько детей, нужен child_id; not_for_role: этой роли дневник эти данные не отдаёт"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "rate_limited: заголовок Retry-After — секунды"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpstreamErrorResponse"
+                }
+              }
+            },
+            "description": "upstream_error или upstream_format: сбой дневника"
+          },
+          "504": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpstreamErrorResponse"
+                }
+              }
+            },
+            "description": "upstream_timeout: дневник не ответил"
+          }
+        },
+        "security": [
+          {
+            "APIKeyHeader": []
+          },
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Темы предмета и ожидаемые результаты",
         "tags": [
           "оценки"
         ]

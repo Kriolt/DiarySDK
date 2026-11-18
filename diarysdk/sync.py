@@ -24,11 +24,13 @@ from diarysdk import _protocols as protocols
 from diarysdk.client import Diary as _AsyncDiary
 from diarysdk.client import Login as _AsyncLogin
 from diarysdk.client import LoginFlow as _AsyncLoginFlow
+from diarysdk.client import Parent as _AsyncParent
 from diarysdk.client import Student as _AsyncStudent
 from diarysdk.errors import BadCaptcha, BadCode
 from diarysdk.remote import RemoteDiary as _AsyncRemoteDiary
 from diarysdk.remote import RemoteLogin as _AsyncRemoteLogin
 from diarysdk.remote import RemoteLoginFlow as _AsyncRemoteLoginFlow
+from diarysdk.remote import RemoteParent as _AsyncRemoteParent
 from diarysdk.remote import RemoteStudent as _AsyncRemoteStudent
 
 __all__ = ["Diary", "Login", "LoginFlow", "RemoteDiary", "Student"]
@@ -187,12 +189,14 @@ _DIARY_ASYNC_ONLY = frozenset({"aclose", "__aenter__", "__aexit__"})
 Login = _generate("Login", protocols.LoginLike)
 LoginFlow = _generate("LoginFlow", protocols.LoginFlowLike)
 Student = _generate("Student", protocols.StudentLike)
+Parent = _generate("Parent", protocols.ParentLike)
 _DiaryBase = _generate("_DiaryBase", protocols.DiaryLike, skip=_DIARY_ASYNC_ONLY)
 
 _ADOPTED: list[tuple[tuple[type, ...], type[_Proxy]]] = [
     ((_AsyncLogin, _AsyncRemoteLogin), Login),
     ((_AsyncLoginFlow, _AsyncRemoteLoginFlow), LoginFlow),
     ((_AsyncStudent, _AsyncRemoteStudent), Student),
+    ((_AsyncParent, _AsyncRemoteParent), Parent),
 ]
 
 

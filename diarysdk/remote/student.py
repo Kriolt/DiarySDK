@@ -4,22 +4,25 @@ from __future__ import annotations
 
 import inspect
 import logging
+from dataclasses import replace
 from datetime import date
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Literal
 
 from diarysdk.errors import TokenExpired
-from diarysdk.models.curriculum import Curriculum
+from diarysdk.models.certificates import Certificate
+from diarysdk.models.curriculum import ControlWork, Curriculum, ProgramModule, SubjectTopic
 from diarysdk.models.exams import Exam
+from diarysdk.models.files import DiaryFile
 from diarysdk.models.homework import Homework
 from diarysdk.models.identity import Identity
 from diarysdk.models.lessons import Lesson
-from diarysdk.models.marks import FinalMark, Mark, MarkDetail
+from diarysdk.models.marks import AcademicDebt, FinalMark, Mark, MarkDetail
 from diarysdk.models.me import Me
 from diarysdk.models.notifications import Notification
 from diarysdk.models.periods import PeriodDay
 from diarysdk.models.rating import Rating, RatingPoint, SubjectRating
 from diarysdk.models.schedule import ScheduleItem
-from diarysdk.models.school import School
+from diarysdk.models.school import School, SchoolTeacher
 from diarysdk.models.settings import Settings, SettingsUpdate
 from diarysdk.models.subjects import SubjectDetail, SubjectSummary
 from diarysdk.remote import _core
@@ -52,8 +55,10 @@ def as_token(token: str | Token) -> Token:
 class RemoteStudent:
     """Запросы от имени одного ученика; создаётся `diary.student(token)`."""
 
-    def __init__(self, diary: RemoteDiary, token: str | Token) -> None:
+    def __init__(self, diary: RemoteDiary, token: str | Token, child_id: int | None = None) -> None:
         self._diary = diary
+        # Ученик родителя: уходит параметром child_id в каждый запрос.
+        self._child_id = child_id
         self._token = as_token(token)
 
     @property
@@ -64,6 +69,8 @@ class RemoteStudent:
         return f"RemoteStudent(token={self._token!r})"
 
     async def _call(self, spec: Request) -> Any:
+        if self._child_id is not None:
+            spec = replace(spec, params={**spec.params, "child_id": self._child_id})
         try:
             return await self._diary._send(spec, self._token.value)
         except TokenExpired as expired:
@@ -95,6 +102,31 @@ class RemoteStudent:
 
     async def final_marks(self, year: int | None = None) -> list[FinalMark]:
         return await self._call(_core.final_marks(year))
+
+    async def work_program(self, group_id: int) -> list[ProgramModule]:
+        return await self._call(_core.work_program(group_id))
+
+    async def subject_topics(self, subject_id: int) -> list[SubjectTopic]:
+        return await self._call(_core.subject_topics(subject_id))
+
+    async def control_works(
+        self, start: date | None = None, end: date | None = None
+    ) -> list[ControlWork]:
+        return await self._call(_core.control_works(start, end))
+
+    async def academic_debts(self, year: int | None = None) -> list[AcademicDebt]:
+        return await self._call(_core.academic_debts(year))
+
+    async def final_marks_file(
+        self, year: int | None = None, orientation: Literal["portrait", "landscape"] = "portrait"
+    ) -> DiaryFile:
+        return await self._call(_core.final_marks_file(year, orientation))
+
+    async def certificates(self) -> list[Certificate]:
+        return await self._call(_core.certificates())
+
+    async def school_teachers(self, name: str | None = None) -> list[SchoolTeacher]:
+        return await self._call(_core.school_teachers(name))
 
     async def subjects(self) -> list[SubjectSummary]:
         return await self._call(_core.subjects())

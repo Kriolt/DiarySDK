@@ -14,7 +14,12 @@ from diarysdk.client import Diary
 from diarysdk.remote import RemoteDiary
 
 TARGET = Path(__file__).resolve().parent.parent / "diarysdk" / "sync.pyi"
-RENAMES = {"LoginFlowLike": "LoginFlow", "LoginLike": "Login", "StudentLike": "Student"}
+RENAMES = {
+    "LoginFlowLike": "LoginFlow",
+    "LoginLike": "Login",
+    "ParentLike": "Parent",
+    "StudentLike": "Student",
+}
 HEADER = '''\
 """Заглушка типов для `sync.py`; собрана `scripts/gen_sync_stub.py`, руками не правится."""
 
@@ -26,18 +31,21 @@ import httpx
 
 from diarysdk import Avatar, Hosts
 from diarysdk.models.auth import Captcha, LoginMfa
-from diarysdk.models.curriculum import Curriculum
+from diarysdk.models.certificates import Certificate
+from diarysdk.models.curriculum import ControlWork, Curriculum, ProgramModule, SubjectTopic
 from diarysdk.models.exams import Exam
+from diarysdk.models.files import DiaryFile
 from diarysdk.models.homework import Homework
 from diarysdk.models.identity import Identity
 from diarysdk.models.lessons import Lesson
-from diarysdk.models.marks import FinalMark, Mark, MarkDetail
+from diarysdk.models.marks import AcademicDebt, FinalMark, Mark, MarkDetail
 from diarysdk.models.me import Me
 from diarysdk.models.notifications import Notification
+from diarysdk.models.parent import Child, JournalAck, ParentMe
 from diarysdk.models.periods import PeriodDay
 from diarysdk.models.rating import Rating, RatingPoint, SubjectRating
 from diarysdk.models.schedule import ScheduleItem
-from diarysdk.models.school import School
+from diarysdk.models.school import School, SchoolTeacher
 from diarysdk.models.settings import Settings, SettingsUpdate
 from diarysdk.models.subjects import SubjectDetail, SubjectSummary
 from diarysdk.token import Token
@@ -45,7 +53,9 @@ from diarysdk.token import Token
 
 
 def _name(text: str) -> str:
-    return re.sub(r"\b(LoginFlowLike|LoginLike|StudentLike)\b", lambda m: RENAMES[m[0]], text)
+    return re.sub(
+        r"\b(LoginFlowLike|LoginLike|ParentLike|StudentLike)\b", lambda m: RENAMES[m[0]], text
+    )
 
 
 def _annotation(value: object) -> str:
@@ -115,6 +125,7 @@ def render() -> str:
         f"class Login:\n{_plain(protocols.LoginLike)}",
         f"class LoginFlow:\n{_plain(protocols.LoginFlowLike)}",
         f"class Student:\n{_plain(protocols.StudentLike)}",
+        f"class Parent:\n{_plain(protocols.ParentLike)}",
         _entry("Diary", Diary),
         _entry("RemoteDiary", RemoteDiary),
     ]

@@ -11,18 +11,21 @@ from typing import TYPE_CHECKING, Literal, Protocol, Self
 if TYPE_CHECKING:
     from diarysdk.models.auth import Captcha, LoginMfa
     from diarysdk.models.avatar import Avatar
-    from diarysdk.models.curriculum import Curriculum
+    from diarysdk.models.certificates import Certificate
+    from diarysdk.models.curriculum import ControlWork, Curriculum, ProgramModule, SubjectTopic
     from diarysdk.models.exams import Exam
+    from diarysdk.models.files import DiaryFile
     from diarysdk.models.homework import Homework
     from diarysdk.models.identity import Identity
     from diarysdk.models.lessons import Lesson
-    from diarysdk.models.marks import FinalMark, Mark, MarkDetail
+    from diarysdk.models.marks import AcademicDebt, FinalMark, Mark, MarkDetail
     from diarysdk.models.me import Me
     from diarysdk.models.notifications import Notification
+    from diarysdk.models.parent import Child, JournalAck, ParentMe
     from diarysdk.models.periods import PeriodDay
     from diarysdk.models.rating import Rating, RatingPoint, SubjectRating
     from diarysdk.models.schedule import ScheduleItem
-    from diarysdk.models.school import School
+    from diarysdk.models.school import School, SchoolTeacher
     from diarysdk.models.settings import Settings, SettingsUpdate
     from diarysdk.models.subjects import SubjectDetail, SubjectSummary
     from diarysdk.token import Token
@@ -45,6 +48,24 @@ class StudentLike(Protocol):
     async def mark(self, mark_id: int) -> MarkDetail: ...
 
     async def final_marks(self, year: int | None = None) -> list[FinalMark]: ...
+
+    async def work_program(self, group_id: int) -> list[ProgramModule]: ...
+
+    async def subject_topics(self, subject_id: int) -> list[SubjectTopic]: ...
+
+    async def control_works(
+        self, start: date | None = None, end: date | None = None
+    ) -> list[ControlWork]: ...
+
+    async def academic_debts(self, year: int | None = None) -> list[AcademicDebt]: ...
+
+    async def final_marks_file(
+        self, year: int | None = None, orientation: Literal["portrait", "landscape"] = "portrait"
+    ) -> DiaryFile: ...
+
+    async def certificates(self) -> list[Certificate]: ...
+
+    async def school_teachers(self, name: str | None = None) -> list[SchoolTeacher]: ...
 
     async def subjects(self) -> list[SubjectSummary]: ...
 
@@ -124,15 +145,46 @@ class LoginLike(Protocol):
 
 
 class DiaryLike(Protocol):
-    """Точка входа: вход и ученики."""
+    """Точка входа: вход, ученики и родители."""
 
     @property
     def login(self) -> LoginLike: ...
 
     def student(self, token: str | Token) -> StudentLike: ...
 
+    def parent(self, token: str | Token) -> ParentLike: ...
+
     async def aclose(self) -> None: ...
 
     async def __aenter__(self) -> Self: ...
 
     async def __aexit__(self, *exc: object) -> None: ...
+
+
+class ParentLike(Protocol):
+    """Родитель — владелец токена: свои данные и доступные ему ученики."""
+
+    @property
+    def token(self) -> Token: ...
+
+    def student(self, child_id: int) -> StudentLike: ...
+
+    async def me(self) -> ParentMe: ...
+
+    async def identity(self) -> Identity: ...
+
+    async def avatar(self) -> Avatar: ...
+
+    async def children(self) -> list[Child]: ...
+
+    async def settings(self) -> Settings: ...
+
+    async def update_settings(self, update: SettingsUpdate) -> None: ...
+
+    async def update_contact(self, contact_id: int, value: str) -> None: ...
+
+    async def journal_acks(
+        self, child_id: int, start: date | None = None, end: date | None = None
+    ) -> list[JournalAck]: ...
+
+    async def acknowledge_journal(self, child_id: int, week: date | None = None) -> None: ...

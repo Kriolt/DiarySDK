@@ -1,4 +1,24 @@
 {
+  "academic_debts": [
+    {
+      "auth": true,
+      "headers": {
+        "accept": "application/json",
+        "auth-token": "eyJ.diary.token",
+        "profile-id": "7001",
+        "profile-type": "student",
+        "x-mes-roleid": "1",
+        "x-mes-subsystem": "familyweb"
+      },
+      "json": null,
+      "method": "GET",
+      "params": {
+        "academic_year_id": "13",
+        "class_unit_ids": "4001"
+      },
+      "url": "https://dnevnik.test/api/ej/core/family/v1/academic_debts"
+    }
+  ],
   "avatar": [
     {
       "auth": true,
@@ -24,6 +44,64 @@
         "image_id": "8801"
       },
       "url": "https://dnevnik.test/avatars/00000000-0000-4000-8000-000000000001"
+    }
+  ],
+  "certificates": [
+    {
+      "auth": true,
+      "headers": {
+        "accept": "application/json",
+        "auth-token": "eyJ.diary.token",
+        "profile-id": "7001",
+        "profile-type": "parent",
+        "x-mes-subsystem": "familyweb"
+      },
+      "json": null,
+      "method": "GET",
+      "params": {},
+      "url": "https://dnevnik.test/api/certificates/family/v1/certificates/statuses"
+    },
+    {
+      "auth": true,
+      "headers": {
+        "accept": "application/json",
+        "auth-token": "eyJ.diary.token",
+        "profile-id": "7001",
+        "profile-type": "parent",
+        "x-mes-subsystem": "familyweb"
+      },
+      "json": null,
+      "method": "GET",
+      "params": {
+        "limit": "10",
+        "offset": "0",
+        "requestDateFrom": "2024-10-24",
+        "requestDateTo": "2026-10-24",
+        "studentId": "00000000-0000-4000-8000-000000000001"
+      },
+      "url": "https://dnevnik.test/api/certificates/family/v1/certificates"
+    }
+  ],
+  "control_works": [
+    {
+      "auth": true,
+      "headers": {
+        "accept": "application/json",
+        "auth-token": "eyJ.diary.token",
+        "profile-id": "7001",
+        "profile-type": "student",
+        "x-mes-roleid": "1",
+        "x-mes-subsystem": "familyweb"
+      },
+      "json": null,
+      "method": "GET",
+      "params": {
+        "from": "2026-09-01",
+        "student_person_id": "00000000-0000-4000-8000-000000000001",
+        "student_profile_id": "9001",
+        "to": "2027-08-31"
+      },
+      "url": "https://dnevnik.test/api/ej/plan/family/v1/test_lessons/period"
     }
   ],
   "curriculum": [
@@ -80,6 +158,27 @@
         "student_id": "9001"
       },
       "url": "https://dnevnik.test/api/family/web/v1/final_marks/v2"
+    }
+  ],
+  "final_marks_file": [
+    {
+      "auth": true,
+      "headers": {
+        "accept": "*/*",
+        "auth-token": "eyJ.diary.token",
+        "profile-id": "7001",
+        "profile-type": "student",
+        "x-mes-roleid": "1",
+        "x-mes-subsystem": "familyweb"
+      },
+      "json": null,
+      "method": "GET",
+      "params": {
+        "academic_year_id": "13",
+        "orientation": "portrait",
+        "student_id": "9001"
+      },
+      "url": "https://dnevnik.test/api/family/web/v1/final_marks/file"
     }
   ],
   "homework": [
@@ -400,6 +499,29 @@
       "url": "https://school-api.test/family/mobile/v1/school_info"
     }
   ],
+  "school_teachers": [
+    {
+      "auth": true,
+      "headers": {
+        "accept": "application/json",
+        "auth-token": "eyJ.diary.token",
+        "profile-id": "7001",
+        "profile-type": "student",
+        "x-mes-roleid": "1",
+        "x-mes-subsystem": "familyweb"
+      },
+      "json": null,
+      "method": "GET",
+      "params": {
+        "full_list_teachers": "true",
+        "page": "1",
+        "per_page": "50",
+        "school_id": "3001",
+        "with_virtual_teachers": "false"
+      },
+      "url": "https://dnevnik.test/api/ej/core/family/v1/teacher_profiles"
+    }
+  ],
   "settings": [
     {
       "headers": {
@@ -461,6 +583,26 @@
       "url": "https://school-api.test/family/mobile/v1/subject_marks/for_subject"
     }
   ],
+  "subject_topics": [
+    {
+      "auth": true,
+      "headers": {
+        "accept": "application/json",
+        "auth-token": "eyJ.diary.token",
+        "profile-id": "7001",
+        "profile-type": "student",
+        "x-mes-roleid": "1",
+        "x-mes-subsystem": "familyweb"
+      },
+      "json": null,
+      "method": "GET",
+      "params": {
+        "student_profile_id": "9001",
+        "subject_id": "101"
+      },
+      "url": "https://dnevnik.test/api/ej/plan/family/v1/thematic_frames"
+    }
+  ],
   "subjects": [
     {
       "auth": true,
@@ -481,6 +623,27 @@
         "student_id": "9001"
       },
       "url": "https://school-api.test/family/mobile/v1/subject_marks"
+    }
+  ],
+  "work_program": [
+    {
+      "auth": true,
+      "headers": {
+        "accept": "application/json",
+        "auth-token": "eyJ.diary.token",
+        "profile-id": "7001",
+        "profile-type": "student",
+        "x-mes-roleid": "1",
+        "x-mes-subsystem": "familyweb"
+      },
+      "json": null,
+      "method": "GET",
+      "params": {
+        "group_id": "5001",
+        "school_id": "3001",
+        "student_id": "9001"
+      },
+      "url": "https://dnevnik.test/api/family/web/v1/programs/lesson_plan"
     }
   ]
 }

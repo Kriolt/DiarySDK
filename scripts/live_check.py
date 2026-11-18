@@ -1,16 +1,20 @@
-"""Живая проверка чтений `Student` на настоящем дневнике (для мейнтейнеров).
+"""Живая проверка чтений `Student` и `Parent` на настоящем дневнике (для мейнтейнеров).
 
-    python scripts/live_check.py --password | --esia | --token
+    python scripts/live_check.py --password | --esia | --token | --parent
+
+`--parent` — токен родителя: его данные (`parent.<метод>`), затем все чтения
+каждого ученика (`child1:<метод>`, …).
 
 Секреты — только из переменных окружения DIARYSDK_LOGIN, DIARYSDK_PASSWORD,
 DIARYSDK_TOKEN или из getpass; в аргументах командной строки их нет. Код
 MFA и ответ на капчу-вопрос вводятся при входе через ЕСИА. Скрипт ничего
 не пишет на диск и не вызывает записи (homework_done, homework_undone,
-update_settings, update_contact).
+update_settings, update_contact, acknowledge_journal).
 
 Вывод — по строке на метод: `ok <метод>`, `fail <метод>: <класс ошибки>
 <problems>` (problems — только пути полей и типы ошибок) или
-`skip <метод>: ...`, если для аргумента нет подходящих данных. Значений
+`skip <метод>: ...`, если для аргумента нет подходящих данных, аватарки нет
+или роли эти данные недоступны. Значений
 полей ответов скрипт не печатает. Код выхода 1, если был `fail`.
 """
 
@@ -20,13 +24,16 @@ import getpass
 import os
 import sys
 from collections.abc import Awaitable, Callable, Mapping
-from typing import TextIO
+from typing import Any, TextIO
 
-from diarysdk import Captcha, Diary, LoginFlow, LoginMfa, Student, Token
-from diarysdk.errors import UpstreamFormat
+from diarysdk import Captcha, Diary, LoginFlow, LoginMfa, Parent, Student, Token
+from diarysdk.errors import NoAvatar, NotForRole, UpstreamFormat
 
 # Методы Student, которые меняют данные ученика: скрипт их не вызывает.
-WRITES = frozenset({"homework_done", "homework_undone", "update_settings", "update_contact"})
+# Записи Student и Parent: скрипт их не вызывает.
+WRITES = frozenset(
+    {"homework_done", "homework_undone", "update_settings", "update_contact", "acknowledge_journal"}
+)
 
 Ask = Callable[[str], str]
 
@@ -47,26 +54,43 @@ def describe(error: Exception) -> str:
     return " ".join([type(error).__name__, *problems])
 
 
-async def check_reads(student: Student, out: TextIO) -> bool:
-    """Вызвать каждое чтение Student; True, если ни одно не упало."""
-    ids: dict[str, int | str] = {}
-    failed = False
+class Checker:
+    """Печать «ok/skip/fail <имя>» и учёт сбоев; значений ответов не печатает."""
 
-    async def run(name: str, call: Callable[[], Awaitable[object]]) -> object | None:
-        nonlocal failed
+    def __init__(self, out: TextIO, prefix: str = "") -> None:
+        self.out = out
+        self.prefix = prefix
+        self.failed = False
+
+    async def run(self, name: str, call: Callable[[], Awaitable[object]]) -> object | None:
+        name = self.prefix + name
         try:
             result = await call()
-        except Exception as error:  # любой сбой чтения — fail, а не падение скрипта
-            failed = True
-            print(f"fail {name}: {describe(error)}", file=out)
+        except NotForRole:
+            print(f"skip {name}: недоступно для этой роли", file=self.out)
             return None
-        print(f"ok {name}", file=out)
+        except NoAvatar:
+            print(f"skip {name}: нет аватарки", file=self.out)
+            return None
+        except Exception as error:  # любой сбой чтения — fail, а не падение скрипта
+            self.failed = True
+            print(f"fail {name}: {describe(error)}", file=self.out)
+            return None
+        print(f"ok {name}", file=self.out)
         return result
+
+
+async def check_reads(student: Student, out: TextIO, prefix: str = "") -> bool:
+    """Вызвать каждое чтение Student; True, если ни одно не упало."""
+    ids: dict[str, int | str] = {}
+    results: dict[str, Any] = {}
+    checker = Checker(out, prefix)
+    run = checker.run
 
     async def run_with_id(name: str, key: str, call: Callable[[int], Awaitable[object]]) -> None:
         value = ids.get(key)
         if not isinstance(value, int):
-            print(f"skip {name}: нет данных для аргумента ({value})", file=out)
+            print(f"skip {prefix}{name}: нет данных для аргумента ({value})", file=out)
         else:
             await run(name, lambda: call(value))
 
@@ -85,8 +109,13 @@ async def check_reads(student: Student, out: TextIO) -> bool:
         ("rating_subjects", student.rating_subjects),
         ("rating_history", student.rating_history),
         ("homework", student.homework),
+        ("school_teachers", student.school_teachers),
+        ("academic_debts", student.academic_debts),
+        ("control_works", student.control_works),
+        ("final_marks_file", student.final_marks_file),
+        ("certificates", student.certificates),
     ):
-        await run(name, call)
+        results[name] = await run(name, call)
 
     marks = await run("marks", student.marks)
     ids["mark"] = _first_id(marks, lambda m: m.id)
@@ -94,11 +123,34 @@ async def check_reads(student: Student, out: TextIO) -> bool:
     ids["lesson"] = _first_id(schedule, lambda i: i.id)
     subjects = await run("subjects", student.subjects)
     ids["subject"] = _first_id(subjects, lambda s: s.subject.id)
+    identity = results.get("identity")
+    groups = identity.person.groups if identity is not None else None
+    ids["group"] = _first_id(groups, lambda g: g.id)
 
     await run_with_id("mark", "mark", student.mark)
     await run_with_id("lesson", "lesson", student.lesson)
     await run_with_id("subject", "subject", student.subject)
-    return not failed
+    await run_with_id("subject_topics", "subject", student.subject_topics)
+    await run_with_id("work_program", "group", student.work_program)
+    return not checker.failed
+
+
+async def check_parent(parent: Parent, out: TextIO) -> bool:
+    """Данные родителя, затем все чтения каждого его ученика (child1:, child2:, …)."""
+    checker = Checker(out, "parent.")
+    for name, call in (
+        ("me", parent.me),
+        ("identity", parent.identity),
+        ("avatar", parent.avatar),
+        ("settings", parent.settings),
+    ):
+        await checker.run(name, call)
+    children = await checker.run("children", parent.children)
+    ok = not checker.failed
+    for number, child in enumerate(children or [], start=1):
+        await checker.run("journal_acks", lambda child=child: parent.journal_acks(child.id))
+        ok = await check_reads(parent.student(child.id), out, f"child{number}:") and ok
+    return ok and not checker.failed
 
 
 async def esia_login(diary: Diary, login: str, password: str, ask: Ask, ask_secret: Ask) -> Token:
@@ -118,7 +170,7 @@ async def esia_login(diary: Diary, login: str, password: str, ask: Ask, ask_secr
 async def acquire_token(
     diary: Diary, method: str, env: Mapping[str, str], ask: Ask, ask_secret: Ask
 ) -> Token | str:
-    if method == "token":
+    if method in ("token", "parent"):
         return env.get("DIARYSDK_TOKEN") or ask_secret("Токен: ")
     login = env.get("DIARYSDK_LOGIN") or ask("Логин: ")
     password = env.get("DIARYSDK_PASSWORD") or ask_secret("Пароль: ")
@@ -141,6 +193,8 @@ async def run(
         except Exception as error:
             print(f"fail вход: {describe(error)}", file=out)
             return 1
+        if method == "parent":
+            return 0 if await check_parent(opened.parent(token), out) else 1
         return 0 if await check_reads(opened.student(token), out) else 1
 
 
@@ -150,6 +204,7 @@ def main(argv: list[str] | None = None) -> int:
     group.add_argument("--password", dest="method", action="store_const", const="password")
     group.add_argument("--esia", dest="method", action="store_const", const="esia")
     group.add_argument("--token", dest="method", action="store_const", const="token")
+    group.add_argument("--parent", dest="method", action="store_const", const="parent")
     args = parser.parse_args(argv)
     return asyncio.run(run(args.method, os.environ, input, getpass.getpass, sys.stdout))
 

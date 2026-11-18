@@ -1,0 +1,31 @@
+[
+  {
+    "id": 801,
+    "name": "Мария Ивановна Тестова",
+    "roles": [
+      "teacher",
+      "class_head"
+    ],
+    "subjects": [
+      {
+        "id": 101,
+        "name": "Алгебра"
+      }
+    ],
+    "type": "teacher"
+  },
+  {
+    "id": 802,
+    "name": "Олег Петрович Примеров",
+    "roles": [
+      "teacher"
+    ],
+    "subjects": [
+      {
+        "id": 102,
+        "name": "Физика"
+      }
+    ],
+    "type": "teacher"
+  }
+]

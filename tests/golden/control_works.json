@@ -1,0 +1,15 @@
+[
+  {
+    "date": "2026-10-20",
+    "form": "Контрольная работа",
+    "is_absent": false,
+    "is_success": true,
+    "lesson_id": 20001,
+    "mark": "5",
+    "subject": {
+      "id": 101,
+      "name": "Алгебра"
+    },
+    "theme": "Уравнения"
+  }
+]

@@ -63,6 +63,10 @@ Homework, Mark, ...`; список — `diarysdk.models.__all__`) и лежат 
 Госуслуги (`https://esia.gosuslugi.ru`, только для входа). Меняется в тестах и
 за прокси.
 
+### `DiaryFile(content, content_type, filename)`
+
+Файл от дневника (PDF итоговых): байты, тип и имя для сохранения; из `diarysdk.models`.
+
 ### `Avatar(content, content_type)`
 
 Результат `Student.avatar()`: байты картинки и её MIME-тип.
@@ -127,6 +131,13 @@ Homework, Mark, ...`; список — `diarysdk.models.__all__`) и лежат 
 | `notifications()` | `list[Notification]` | |
 | `periods(start=None, end=None)` | `list[PeriodDay]` | весь текущий учебный год, до 366 дней; задан один край — учебный год этого края |
 | `curriculum()` | `Curriculum` | |
+| `work_program(group_id)` | `list[ProgramModule]` | рабочая программа группы (разделы, темы, уроки с датами); группы — `identity().person.groups` |
+| `subject_topics(subject_id)` | `list[SubjectTopic]` | темы предмета и ожидаемые результаты |
+| `control_works(start=None, end=None)` | `list[ControlWork]` | весь учебный год, до 366 дней. Форма ответа живьём не подтверждена (ответы были пустыми) |
+| `final_marks_file(year=None, orientation="portrait")` | `DiaryFile` | PDF итоговых оценок за учебный год (текущий); `orientation` — `portrait` или `landscape` |
+| `certificates()` | `list[Certificate]` | заявки на справки за два года; только через родителя, ученику — `NotForRole`. Форма ответа живьём не подтверждена (списки были пустыми) |
+| `school_teachers(name=None)` | `list[SchoolTeacher]` | все учителя школы; `name` — поиск по части имени |
+| `academic_debts(year=None)` | `list[AcademicDebt]` | текущий учебный год; только долги этого ученика. Форма ответа живьём не подтверждена (ответы были пустыми) |
 
 Ответ дневника другой формы (например, `null` вместо списка) —
 `UpstreamFormat`; в сообщении только пути полей, без значений.
@@ -158,6 +169,27 @@ HTTP-статус повторяют причину, `.upstream_status` — ст
 `update_contact` правит только почту; для другого контакта —
 `UnsupportedContact`.
 
+## Parent: родитель
+
+`diary.parent(token)` — родитель, владелец токена. Объект `Parent` запросов
+не делает; токен не родителя — `NotForRole` при первом вызове.
+
+| Метод | Что |
+|---|---|
+| `children()` | `list[Child]`: ученики родителя (`id`, ФИО, школа, класс) |
+| `student(child_id)` | `Student` выбранного ученика, все методы выше; неверный id — `NotFound` |
+| `me()` | `ParentMe`: ФИО, тип, почта, телефон, срок токена |
+| `identity()` | `Identity` карточки родителя (документы, контакты, адреса); школы и класса нет |
+| `avatar()` | своя аватарка (`Avatar`) |
+| `settings()`, `update_settings(update)` | настройки приложения родителя, общие для всех детей |
+| `update_contact(contact_id, value)` | почта в карточке родителя |
+| `journal_acks(child_id, start=None, end=None)` | `list[JournalAck]`: отметки «ознакомлен с дневником» по неделям; по умолчанию текущая, период ≤ 31 дня |
+| `acknowledge_journal(child_id, week=None)` | отметить неделю (любой её день, по умолчанию текущая); уже отмечена — ничего не делает, будущая неделя — `BadRequest`. Отметку видят учителя, отменить её нельзя |
+
+Через родителя `exams()`, `avatar()`, `homework_done()` и `homework_undone()`
+ученика — `NotForRole`: дневник даёт их только самому ученику. `update_settings` и `update_contact` родителя живьём не
+проверены.
+
 ## Token
 
 `Token(value, expires_at=None, method="jwt")`:
@@ -181,7 +213,7 @@ UTC. Подпись SDK не проверяет — её проверяет дн
 
 `RemoteDiary(base_url, api_key, *, timeout=30.0, max_rate_wait=2.0, on_token_expired=None, http=None)`
 реализует тот же `DiaryLike`: `login`, `student(token)`, `aclose()`,
-`async with`. Классы `RemoteLogin`, `RemoteLoginFlow`, `RemoteStudent` — его
+`async with`. Классы `RemoteLogin`, `RemoteLoginFlow`, `RemoteStudent`, `RemoteParent` — его
 части, интерфейс у них тот же, что у `Login`, `LoginFlow`, `Student`.
 
 | Параметр | Что значит |
@@ -221,7 +253,7 @@ UTC. Подпись SDK не проверяет — её проверяет дн
 
 ## Протоколы
 
-`DiaryLike`, `LoginLike`, `LoginFlowLike`, `StudentLike` — `typing.Protocol`,
+`DiaryLike`, `LoginLike`, `LoginFlowLike`, `StudentLike`, `ParentLike` — `typing.Protocol`,
 которым отвечают и ядро, и удалённый клиент. Пишите код против протокола, и
 он работает с обоими:
 
@@ -312,7 +344,8 @@ async def school_name(api: DiaryLike, token: str) -> str | None:
 | `bad_request` | `BadRequest` | 400 | неверные параметры запроса |
 | `not_found` | `NotFound` | 404 | в дневнике такого нет |
 | `no_avatar` | `NoAvatar` | 404 | у ученика нет аватарки |
-| `multiple_children` | `MultipleChildren` | 422 | токен родителя с несколькими детьми |
+| `multiple_children` | `MultipleChildren` | 422 | токен родителя с несколькими детьми: нужен `diary.parent` |
+| `not_for_role` | `NotForRole` | 422 | для этой роли дневник эти данные не отдаёт |
 | `setting_error` | `SettingError` | 409 | настройку записать нельзя |
 | `settings_missing` | `SettingsMissing` | 409 | в дневнике нет настроек приложения |
 | `setting_unset` | `SettingNotSet` | 409 | у настройки нет значения |
@@ -348,7 +381,7 @@ async def school_name(api: DiaryLike, token: str) -> str | None:
 ## Сервер: запуск и настройки
 
 ```sh
-pip install "diarysdk[server] @ git+https://github.com/Kriolt/DiarySDK@v0.1.0"
+pip install "diarysdk[server] @ git+https://github.com/Kriolt/DiarySDK@v0.2.0"
 DIARYSDK_KEYS_FILE=./api-keys python -m diarysdk.server
 ```
 
@@ -379,7 +412,7 @@ DIARYSDK_KEYS_FILE=./api-keys python -m diarysdk.server
 Выпуск ключа:
 
 ```sh
-python -m diarysdk.server.keys new <имя> [--scope login] [--scope write_profile]
+python -m diarysdk.server.keys new <имя> [--scope login] [--scope write_profile] [--scope acknowledge_journal]
 ```
 
 Ключ печатается в stderr один раз, строка для файла — в stdout. Разрешения:
@@ -387,7 +420,8 @@ python -m diarysdk.server.keys new <имя> [--scope login] [--scope write_profi
 | Разрешение | Что открывает |
 | --- | --- |
 | `login` | `/v1/auth/*`: вход по паролю и через Госуслуги |
-| `write_profile` | `PUT /v1/identity/contacts/{id}` |
+| `write_profile` | `PUT /v1/identity/contacts/{id}`, `PUT /v1/parent/identity/contacts/{id}` |
+| `acknowledge_journal` | `POST /v1/parent/journal-acks` |
 
 Имя потребителя — латиница, цифры, `_.-`; по нему считаются лимиты и пишется
 журнал.
@@ -483,6 +517,13 @@ docker run --rm -p 8000:8000 --read-only \
 | `GET /v1/notifications` | | `list[Notification]` |
 | `GET /v1/periods` | `from`, `to` | `list[PeriodDay]` |
 | `GET /v1/curriculum` | | `Curriculum` |
+| `GET /v1/school/teachers` | `name` | `list[SchoolTeacher]` |
+| `GET /v1/final-marks/file` | `year`, `orientation` | PDF (`application/pdf`, имя файла в `Content-Disposition`) |
+| `GET /v1/certificates` | `child_id` (токен родителя) | `list[Certificate]` |
+| `GET /v1/groups/{group_id}/program` | | `list[ProgramModule]` |
+| `GET /v1/subjects/{subject_id}/topics` | | `list[SubjectTopic]` |
+| `GET /v1/control-works` | `from`, `to` | `list[ControlWork]` |
+| `GET /v1/academic-debts` | `year` | `list[AcademicDebt]` |
 
 Даты — `YYYY-MM-DD`. На записи `502`/`504` с `"uncertain": true` (или без
 JSON сервиса, как у прокси) значат, что исход неизвестен (`WriteUncertain` у

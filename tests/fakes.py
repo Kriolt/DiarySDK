@@ -192,6 +192,21 @@ def add_diary_routes(fake: FakeTransport) -> None:
     fake.add(f"/api/avatarmanagement/v1/{GUID}", AVATARS)
     fake.add(f"/avatars/{GUID}", b"\x89PNG-avatar", content_type="image/png")
     fake.add("/api/family/web/v1/final_marks/v2", fixture("final_marks.json"))
+    fake.add("/api/ej/core/family/v1/teacher_profiles", fixture("teacher_profiles.json"))
+    fake.add("/api/family/web/v1/programs/lesson_plan", fixture("programs.json"))
+    fake.add(
+        "/api/family/web/v1/final_marks/file",
+        b"%PDF-1.7 final",
+        content_type="application/octet-stream",
+    )
+    fake.add(
+        "/api/certificates/family/v1/certificates/statuses", fixture("certificate_statuses.json")
+    )
+    fake.add("/api/certificates/family/v1/certificates", fixture("certificates.json"))
+    fake.add("/api/ej/plan/family/v1/thematic_frames", fixture("thematic_frames.json"))
+    fake.add("/api/ej/plan/family/v1/test_lessons/period", fixture("test_lessons.json"))
+    # Ответ по классу: вторая строка — одноклассник, наружу она не уходит.
+    fake.add("/api/ej/core/family/v1/academic_debts", fixture("academic_debts.json"))
     # Отметка ДЗ: дневник отвечает пустым телом.
     fake.add("/family/mobile/v1/homeworks/30001/done", b"")
     # Источники вне контракта — их спрашивают только тесты. Формы живых

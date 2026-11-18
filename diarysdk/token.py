@@ -4,11 +4,15 @@ from __future__ import annotations
 
 import hashlib
 import hmac
+import re
 from datetime import UTC, datetime, timedelta
 from typing import Literal
 
 from diarysdk import _jwt
 from diarysdk.errors import TokenExpired, TokenInvalid
+
+# id роли в начале группы `rls`: «{2:[…]}» → «2».
+_RLS_ROLE = re.compile(r"\{(\d+):")
 
 
 def _expires_at(jwt: str) -> datetime | None:
@@ -70,9 +74,15 @@ class Token:
 
     @property
     def roles(self) -> list[str]:
-        """Роли из payload. Живого JWT с ролями ещё не видели (форма не
-        подтверждена): берём rol строкой через запятую или списком, и roles списком."""
+        """id ролей дневника из payload: 1 — ученик, 2 — родитель.
+
+        Дневник кладёт их в `rls` строкой вида `{2:[21:2:[],…]},{222:[…]}`:
+        id роли — число в начале каждой группы, пары внутри не разбираются.
+        Без `rls` — `rol` строкой через запятую или списком, или `roles` списком."""
         payload = self._payload()
+        rls = payload.get("rls")
+        if isinstance(rls, str):
+            return list(dict.fromkeys(_RLS_ROLE.findall(rls)))
         raw = payload.get("rol", payload.get("roles"))
         if isinstance(raw, str):
             return [part.strip() for part in raw.split(",") if part.strip()]
