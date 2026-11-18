@@ -127,6 +127,8 @@ Homework, Mark, ...`; список — `diarysdk.models.__all__`) и лежат 
 | `notifications()` | `list[Notification]` | |
 | `periods(start=None, end=None)` | `list[PeriodDay]` | весь текущий учебный год, до 366 дней; задан один край — учебный год этого края |
 | `curriculum()` | `Curriculum` | |
+| `school_teachers(name=None)` | `list[SchoolTeacher]` | все учителя школы; `name` — поиск по части имени |
+| `academic_debts(year=None)` | `list[AcademicDebt]` | текущий учебный год; только долги этого ученика. Форма ответа живьём не подтверждена (ответы были пустыми) |
 
 Ответ дневника другой формы (например, `null` вместо списка) —
 `UpstreamFormat`; в сообщении только пути полей, без значений.
@@ -506,6 +508,8 @@ docker run --rm -p 8000:8000 --read-only \
 | `GET /v1/notifications` | | `list[Notification]` |
 | `GET /v1/periods` | `from`, `to` | `list[PeriodDay]` |
 | `GET /v1/curriculum` | | `Curriculum` |
+| `GET /v1/school/teachers` | `name` | `list[SchoolTeacher]` |
+| `GET /v1/academic-debts` | `year` | `list[AcademicDebt]` |
 
 Даты — `YYYY-MM-DD`. На записи `502`/`504` с `"uncertain": true` (или без
 JSON сервиса, как у прокси) значат, что исход неизвестен (`WriteUncertain` у

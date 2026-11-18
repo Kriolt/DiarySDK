@@ -36,14 +36,14 @@ from diarysdk.models.exams import Exam
 from diarysdk.models.homework import Homework
 from diarysdk.models.identity import Identity
 from diarysdk.models.lessons import Lesson
-from diarysdk.models.marks import FinalMark, Mark, MarkDetail
+from diarysdk.models.marks import AcademicDebt, FinalMark, Mark, MarkDetail
 from diarysdk.models.me import Me
 from diarysdk.models.notifications import Notification
 from diarysdk.models.parent import Child, JournalAck, ParentMe
 from diarysdk.models.periods import PeriodDay
 from diarysdk.models.rating import Rating, RatingPoint, SubjectRating
 from diarysdk.models.schedule import ScheduleItem
-from diarysdk.models.school import School
+from diarysdk.models.school import School, SchoolTeacher
 from diarysdk.models.settings import Settings, SettingsUpdate
 from diarysdk.models.subjects import SubjectDetail, SubjectSummary
 from diarysdk.token import Token

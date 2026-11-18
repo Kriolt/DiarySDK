@@ -1,4 +1,24 @@
 {
+  "academic_debts": [
+    {
+      "auth": true,
+      "headers": {
+        "accept": "application/json",
+        "auth-token": "eyJ.diary.token",
+        "profile-id": "7001",
+        "profile-type": "student",
+        "x-mes-roleid": "1",
+        "x-mes-subsystem": "familyweb"
+      },
+      "json": null,
+      "method": "GET",
+      "params": {
+        "academic_year_id": "13",
+        "class_unit_ids": "4001"
+      },
+      "url": "https://dnevnik.test/api/ej/core/family/v1/academic_debts"
+    }
+  ],
   "avatar": [
     {
       "auth": true,
@@ -398,6 +418,29 @@
         "school_id": "3001"
       },
       "url": "https://school-api.test/family/mobile/v1/school_info"
+    }
+  ],
+  "school_teachers": [
+    {
+      "auth": true,
+      "headers": {
+        "accept": "application/json",
+        "auth-token": "eyJ.diary.token",
+        "profile-id": "7001",
+        "profile-type": "student",
+        "x-mes-roleid": "1",
+        "x-mes-subsystem": "familyweb"
+      },
+      "json": null,
+      "method": "GET",
+      "params": {
+        "full_list_teachers": "true",
+        "page": "1",
+        "per_page": "50",
+        "school_id": "3001",
+        "with_virtual_teachers": "false"
+      },
+      "url": "https://dnevnik.test/api/ej/core/family/v1/teacher_profiles"
     }
   ],
   "settings": [

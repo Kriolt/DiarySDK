@@ -309,6 +309,8 @@ async def test_walk_covers_every_endpoint_of_the_contract(app):
         "/v1/notifications",
         "/v1/periods",
         "/v1/curriculum",
+        "/v1/school/teachers",
+        "/v1/academic-debts",
         "/v1/settings",
         "/v1/auth/password",
         "/v1/auth/esia",

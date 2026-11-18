@@ -21,6 +21,7 @@ from diarysdk._login import esia as login_esia
 from diarysdk._login import password as login_steps
 from diarysdk._mapping import avatar as avatar_mapping
 from diarysdk._mapping import curriculum as curriculum_mapping
+from diarysdk._mapping import ej as ej_mapping
 from diarysdk._mapping import exams as exams_mapping
 from diarysdk._mapping import final_marks as final_marks_mapping
 from diarysdk._mapping import homework as homework_mapping
@@ -75,14 +76,14 @@ from diarysdk.models.exams import Exam
 from diarysdk.models.homework import Homework
 from diarysdk.models.identity import Identity
 from diarysdk.models.lessons import Lesson
-from diarysdk.models.marks import FinalMark, Mark, MarkDetail
+from diarysdk.models.marks import AcademicDebt, FinalMark, Mark, MarkDetail
 from diarysdk.models.me import Me
 from diarysdk.models.notifications import Notification as ContractNotification
 from diarysdk.models.parent import Child, JournalAck, ParentMe
 from diarysdk.models.periods import PeriodDay
 from diarysdk.models.rating import Rating, RatingPoint, SubjectRating
 from diarysdk.models.schedule import ScheduleItem
-from diarysdk.models.school import School
+from diarysdk.models.school import School, SchoolTeacher
 from diarysdk.models.settings import Settings, SettingsUpdate
 from diarysdk.models.subjects import SubjectDetail, SubjectSummary
 
@@ -264,6 +265,22 @@ class DiaryGateway:
         )
         if _refused(response):
             raise UpstreamError(upstream_status=response.status)
+
+    async def school_teachers(self, ctx: Ctx, name: str | None) -> list[SchoolTeacher]:
+        """Все страницы справочника учителей школы (не больше TEACHERS_MAX_PAGES)."""
+        result: list[SchoolTeacher] = []
+        for page in range(1, raw.TEACHERS_MAX_PAGES + 1):
+            data = await raw.teacher_profiles(
+                self._transport, self._hosts, ctx.token, ctx.student, name, page
+            )
+            result += ej_mapping.teachers(data)
+            if not isinstance(data, list) or len(data) < raw.TEACHERS_PER_PAGE:
+                break
+        return result
+
+    async def academic_debts(self, ctx: Ctx, year: int) -> list[AcademicDebt]:
+        data = await raw.academic_debts(self._transport, self._hosts, ctx.token, ctx.student, year)
+        return ej_mapping.academic_debts(data, ctx.student.student_id)
 
     async def schedule(self, ctx: Ctx, start: date, end: date) -> list[ScheduleItem]:
         return schedule_mapping.schedule(await self.fetch_events(ctx, start, end))

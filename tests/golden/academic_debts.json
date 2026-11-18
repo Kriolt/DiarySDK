@@ -1,0 +1,20 @@
+[
+  {
+    "attempts": [
+      {
+        "academic_debt_final_mark": {
+          "value": "3"
+        },
+        "end_date": "2026-06-20",
+        "id": 11,
+        "start_date": "2026-06-10"
+      }
+    ],
+    "attested": true,
+    "original_final_mark": null,
+    "subject": {
+      "id": 102,
+      "name": "Физика"
+    }
+  }
+]

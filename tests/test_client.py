@@ -98,6 +98,8 @@ READS = {
     "notifications": (lambda s: s.notifications(), "notifications"),
     "periods": (lambda s: s.periods(date(2026, 9, 1), date(2027, 8, 31)), "periods"),
     "curriculum": (lambda s: s.curriculum(), "curriculum"),
+    "school_teachers": (lambda s: s.school_teachers(), "school_teachers"),
+    "academic_debts": (lambda s: s.academic_debts(2025), "academic_debts"),
     "settings": (lambda s: s.settings(), "settings"),
     "schedule": (lambda s: s.schedule(date(2026, 10, 19), date(2026, 10, 25)), "schedule"),
 }

@@ -85,6 +85,8 @@ async def check_reads(student: Student, out: TextIO) -> bool:
         ("rating_subjects", student.rating_subjects),
         ("rating_history", student.rating_history),
         ("homework", student.homework),
+        ("school_teachers", student.school_teachers),
+        ("academic_debts", student.academic_debts),
     ):
         await run(name, call)
 

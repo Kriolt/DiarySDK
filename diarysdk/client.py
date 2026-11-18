@@ -53,14 +53,14 @@ from diarysdk.models.exams import Exam
 from diarysdk.models.homework import Homework
 from diarysdk.models.identity import ContactUpdate, Identity
 from diarysdk.models.lessons import Lesson
-from diarysdk.models.marks import FinalMark, Mark, MarkDetail
+from diarysdk.models.marks import AcademicDebt, FinalMark, Mark, MarkDetail
 from diarysdk.models.me import Me
 from diarysdk.models.notifications import Notification
 from diarysdk.models.parent import Child, JournalAck, ParentMe
 from diarysdk.models.periods import PeriodDay
 from diarysdk.models.rating import Rating, RatingPoint, SubjectRating
 from diarysdk.models.schedule import ScheduleItem
-from diarysdk.models.school import School
+from diarysdk.models.school import School, SchoolTeacher
 from diarysdk.models.settings import Settings, SettingsUpdate
 from diarysdk.models.subjects import SubjectDetail, SubjectSummary
 from diarysdk.token import Token
@@ -387,6 +387,15 @@ class Student:
     async def final_marks(self, year: int | None = None) -> list[FinalMark]:
         year = periods.final_marks_year(year, self._today())
         return await self._call(lambda ctx: self._gateway.final_marks(ctx, year))
+
+    async def academic_debts(self, year: int | None = None) -> list[AcademicDebt]:
+        """Академические задолженности ученика за учебный год (по умолчанию — текущий)."""
+        year = periods.final_marks_year(year, self._today())
+        return await self._call(lambda ctx: self._gateway.academic_debts(ctx, year))
+
+    async def school_teachers(self, name: str | None = None) -> list[SchoolTeacher]:
+        """Учителя школы ученика; `name` — поиск по части имени."""
+        return await self._call(lambda ctx: self._gateway.school_teachers(ctx, name))
 
     async def subjects(self) -> list[SubjectSummary]:
         return await self._call(self._gateway.subjects)

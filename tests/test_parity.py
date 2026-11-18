@@ -367,3 +367,24 @@ async def test_parent_acknowledge_same_wire(parents, token, settings):
         ]
 
     assert posts(parents.remote_server) == posts(parents.direct_server) != []
+
+
+EJ_READS = {
+    "school_teachers": lambda s: s.school_teachers("Уч"),
+    "academic_debts": lambda s: s.academic_debts(2025),
+}
+
+
+@pytest.mark.parametrize("name", EJ_READS)
+async def test_ej_same_results(both, token, name):
+    from tests.test_ej import DEBT, teacher
+
+    for server in (both.direct_server, both.remote_server):
+        server.fake.add("/api/ej/core/family/v1/teacher_profiles", [teacher(1)])
+        server.fake.add("/api/ej/core/family/v1/academic_debts", [DEBT])
+
+    direct = await EJ_READS[name](both.direct.student(token))
+    remote = await EJ_READS[name](both.remote.student(token))
+
+    assert remote == direct != []
+    assert _wire(both.remote_server) == _wire(both.direct_server)

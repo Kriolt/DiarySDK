@@ -403,3 +403,57 @@ async def post_aware_journal(
         json=body,
         call="aware_journals.post",
     )
+
+
+# Учителя школы отдаются страницами; больше 20 страниц по 50 — уже не школа.
+TEACHERS_PER_PAGE = 50
+TEACHERS_MAX_PAGES = 20
+
+
+def _ej_family(token: str, student: StudentContext) -> dict[str, str]:
+    """Заголовки ej/core/family, как у сайта: familyweb и активный пользователь."""
+    return {
+        **_bearer(token),
+        **_family_web(token),
+        "Profile-Id": str(student.profile_id),
+        **_role_headers(student),
+    }
+
+
+async def teacher_profiles(
+    transport, hosts: Hosts, token: str, student: StudentContext, name: str | None, page: int
+) -> Any:
+    params = {
+        "school_id": str(student.school_id),
+        "with_virtual_teachers": "false",
+        "full_list_teachers": "true",
+        "per_page": str(TEACHERS_PER_PAGE),
+        "page": str(page),
+    }
+    if name:
+        params["user_sub_name"] = name
+    response = await transport.send(
+        "GET",
+        f"{hosts.dnevnik}/api/ej/core/family/v1/teacher_profiles",
+        headers=_ej_family(token, student),
+        params=params,
+        call="teacher_profiles",
+    )
+    return response.json()
+
+
+async def academic_debts(
+    transport, hosts: Hosts, token: str, student: StudentContext, start_year: int
+) -> Any:
+    """Задолженности класса за учебный год — как у сайта (по class_unit_ids)."""
+    response = await transport.send(
+        "GET",
+        f"{hosts.dnevnik}/api/ej/core/family/v1/academic_debts",
+        headers=_ej_family(token, student),
+        params={
+            "class_unit_ids": str(student.class_unit_id),
+            "academic_year_id": str(academic_year_id(start_year)),
+        },
+        call="academic_debts",
+    )
+    return response.json()

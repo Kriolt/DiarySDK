@@ -1,6 +1,30 @@
 {
   "components": {
     "schemas": {
+      "AcademicDebt": {
+        "description": "Академическая задолженность ученика по предмету за учебный год.\n\nФорма не подтверждена: живые ответы были пустыми, поля — по тому, что\nчитает сайт. Попытки пересдачи — как пришли.",
+        "properties": {
+          "attempts": {
+            "$ref": "#/components/schemas/JsonValue"
+          },
+          "attested": {
+            "title": "Attested",
+            "type": "boolean"
+          },
+          "original_final_mark": {
+            "$ref": "#/components/schemas/JsonValue"
+          },
+          "subject": {
+            "$ref": "#/components/schemas/Subject"
+          }
+        },
+        "required": [
+          "subject",
+          "attested"
+        ],
+        "title": "AcademicDebt",
+        "type": "object"
+      },
       "Address": {
         "properties": {
           "address": {
@@ -4512,6 +4536,56 @@
         "title": "SchoolBrief",
         "type": "object"
       },
+      "SchoolTeacher": {
+        "description": "Учитель из справочника школы (сайт: «Учителя»).",
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "roles": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Roles",
+            "type": "array"
+          },
+          "subjects": {
+            "items": {
+              "$ref": "#/components/schemas/Subject"
+            },
+            "title": "Subjects",
+            "type": "array"
+          },
+          "type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Type"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "title": "SchoolTeacher",
+        "type": "object"
+      },
       "Section": {
         "properties": {
           "id": {
@@ -5470,6 +5544,150 @@
   },
   "openapi": "3.1.0",
   "paths": {
+    "/v1/academic-debts": {
+      "get": {
+        "description": "Форма ответа дневника живьём не подтверждена (ответы были пустыми).",
+        "operationId": "get_academic_debts_v1_academic_debts_get",
+        "parameters": [
+          {
+            "description": "год начала учебного года: 2024 — это 2024/25; по умолчанию — текущий",
+            "in": "query",
+            "name": "year",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "minimum": 2013,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "год начала учебного года: 2024 — это 2024/25; по умолчанию — текущий",
+              "title": "Year"
+            }
+          },
+          {
+            "description": "id ученика из /v1/parent/children — для токена родителя; без него — единственный ученик токена",
+            "in": "query",
+            "name": "child_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "exclusiveMinimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "id ученика из /v1/parent/children — для токена родителя; без него — единственный ученик токена",
+              "title": "Child Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/AcademicDebt"
+                  },
+                  "title": "Response Get Academic Debts V1 Academic Debts Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "bad_request: неверные параметры или тело запроса (названо поле)"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "token_missing, token_invalid или token_expired: нужен токен ученика"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "bad_api_key или forbidden_scope: ключ потребителя не подходит"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "multiple_children: у родителя несколько детей, нужен child_id; not_for_role: этой роли дневник эти данные не отдаёт"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "rate_limited: заголовок Retry-After — секунды"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpstreamErrorResponse"
+                }
+              }
+            },
+            "description": "upstream_error или upstream_format: сбой дневника"
+          },
+          "504": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpstreamErrorResponse"
+                }
+              }
+            },
+            "description": "upstream_timeout: дневник не ответил"
+          }
+        },
+        "security": [
+          {
+            "APIKeyHeader": []
+          },
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Академические задолженности ученика за учебный год",
+        "tags": [
+          "оценки"
+        ]
+      }
+    },
     "/v1/auth/esia": {
       "post": {
         "operationId": "esia_login_v1_auth_esia_post",
@@ -9983,6 +10201,150 @@
           }
         ],
         "summary": "Школа: директор, адрес, учителя, корпуса",
+        "tags": [
+          "ученик"
+        ]
+      }
+    },
+    "/v1/school/teachers": {
+      "get": {
+        "operationId": "get_school_teachers_v1_school_teachers_get",
+        "parameters": [
+          {
+            "description": "часть имени",
+            "in": "query",
+            "name": "name",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 100,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "часть имени",
+              "title": "Name"
+            }
+          },
+          {
+            "description": "id ученика из /v1/parent/children — для токена родителя; без него — единственный ученик токена",
+            "in": "query",
+            "name": "child_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "exclusiveMinimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "id ученика из /v1/parent/children — для токена родителя; без него — единственный ученик токена",
+              "title": "Child Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/SchoolTeacher"
+                  },
+                  "title": "Response Get School Teachers V1 School Teachers Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "bad_request: неверные параметры или тело запроса (названо поле)"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "token_missing, token_invalid или token_expired: нужен токен ученика"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "bad_api_key или forbidden_scope: ключ потребителя не подходит"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "multiple_children: у родителя несколько детей, нужен child_id; not_for_role: этой роли дневник эти данные не отдаёт"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "rate_limited: заголовок Retry-After — секунды"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpstreamErrorResponse"
+                }
+              }
+            },
+            "description": "upstream_error или upstream_format: сбой дневника"
+          },
+          "504": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpstreamErrorResponse"
+                }
+              }
+            },
+            "description": "upstream_timeout: дневник не ответил"
+          }
+        },
+        "security": [
+          {
+            "APIKeyHeader": []
+          },
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Учителя школы: имя, роли, предметы",
         "tags": [
           "ученик"
         ]

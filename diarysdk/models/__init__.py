@@ -43,6 +43,7 @@ from diarysdk.models.identity import (
 )
 from diarysdk.models.lessons import Lesson, LessonTeacher, Theme
 from diarysdk.models.marks import (
+    AcademicDebt,
     ClassResults,
     FinalMark,
     Mark,
@@ -56,7 +57,7 @@ from diarysdk.models.parent import Child, JournalAck, ParentMe
 from diarysdk.models.periods import PeriodDay
 from diarysdk.models.rating import Rating, RatingEntry, RatingMe, RatingPoint, SubjectRating
 from diarysdk.models.schedule import HomeworkBrief, HomeworkCounts, ScheduleItem
-from diarysdk.models.school import Branch, School, Teacher
+from diarysdk.models.school import Branch, School, SchoolTeacher, Teacher
 from diarysdk.models.settings import Settings, SettingsTheme, SettingsThemeUpdate, SettingsUpdate
 from diarysdk.models.subjects import (
     Period,
@@ -68,6 +69,7 @@ from diarysdk.models.subjects import (
 )
 
 __all__ = [
+    "AcademicDebt",
     "Address",
     "Attachment",
     "Avatar",
@@ -126,6 +128,7 @@ __all__ = [
     "ScheduleItem",
     "School",
     "SchoolBrief",
+    "SchoolTeacher",
     "Section",
     "Settings",
     "SettingsTheme",

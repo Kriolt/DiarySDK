@@ -1,0 +1,31 @@
+[
+  {
+    "id": 1,
+    "student_profile_id": 9001,
+    "class_unit_id": 4001,
+    "academic_year_id": 13,
+    "subject_id": 102,
+    "subject_name": "Физика",
+    "original_final_mark": null,
+    "academic_debt_attempts": [
+      {
+        "id": 11,
+        "start_date": "2026-06-10",
+        "end_date": "2026-06-20",
+        "academic_debt_final_mark": {
+          "value": "3"
+        }
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "student_profile_id": 9555,
+    "class_unit_id": 4001,
+    "academic_year_id": 13,
+    "subject_id": 101,
+    "subject_name": "Алгебра",
+    "original_final_mark": null,
+    "academic_debt_attempts": []
+  }
+]

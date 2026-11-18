@@ -51,6 +51,8 @@ READS: dict[str, Call] = {
     "notifications": lambda g: g.notifications(CTX),
     "periods": lambda g: g.periods(CTX, START, date(2027, 8, 31)),
     "curriculum": lambda g: g.curriculum(CTX),
+    "school_teachers": lambda g: g.school_teachers(CTX, None),
+    "academic_debts": lambda g: g.academic_debts(CTX, 2025),
     "settings": lambda g: g.settings(CTX),
     "schedule": lambda g: g.schedule(CTX, date(2026, 10, 19), date(2026, 10, 25)),
 }

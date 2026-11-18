@@ -14,13 +14,13 @@ from diarysdk.models.exams import Exam
 from diarysdk.models.homework import Homework
 from diarysdk.models.identity import Identity
 from diarysdk.models.lessons import Lesson
-from diarysdk.models.marks import FinalMark, Mark, MarkDetail
+from diarysdk.models.marks import AcademicDebt, FinalMark, Mark, MarkDetail
 from diarysdk.models.me import Me
 from diarysdk.models.notifications import Notification
 from diarysdk.models.periods import PeriodDay
 from diarysdk.models.rating import Rating, RatingPoint, SubjectRating
 from diarysdk.models.schedule import ScheduleItem
-from diarysdk.models.school import School
+from diarysdk.models.school import School, SchoolTeacher
 from diarysdk.models.settings import Settings, SettingsUpdate
 from diarysdk.models.subjects import SubjectDetail, SubjectSummary
 from diarysdk.remote import _core
@@ -100,6 +100,12 @@ class RemoteStudent:
 
     async def final_marks(self, year: int | None = None) -> list[FinalMark]:
         return await self._call(_core.final_marks(year))
+
+    async def academic_debts(self, year: int | None = None) -> list[AcademicDebt]:
+        return await self._call(_core.academic_debts(year))
+
+    async def school_teachers(self, name: str | None = None) -> list[SchoolTeacher]:
+        return await self._call(_core.school_teachers(name))
 
     async def subjects(self) -> list[SubjectSummary]:
         return await self._call(_core.subjects())
