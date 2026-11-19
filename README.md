@@ -63,7 +63,7 @@ asyncio.run(main())
 
 `marks()`, `schedule()`, `homework()` и другие методы с периодом принимают
 `start` и `end` (`datetime.date`); без них берётся разумный период по умолчанию
-(см. [справочник](docs/reference.md)). Даты — по Москве.
+(см. [справочник](docs/library/diarysdk.md#diarysdk.Student)). Даты — по Москве.
 
 ## Быстрый старт через сервер
 
@@ -143,7 +143,7 @@ asyncio.run(main())
 настройки, своя почта и отметка «ознакомлен с дневником»
 (`journal_acks`, `acknowledge_journal`; отметку видят учителя, отменить её
 нельзя). Через сервис ученика выбирает параметр `child_id`. Подробно — в
-[справочнике](docs/reference.md#parent-родитель).
+[справочнике](docs/library/diarysdk.md#diarysdk.Parent).
 
 ## Вход
 
@@ -294,7 +294,7 @@ asyncio.run(main())
 | `RemoteError` (`BadApiKey`, `ForbiddenScope`, `NetworkError`) | только у удалённого клиента: сервис не достигнут или ключ не подходит | проверить адрес, сеть, ключ |
 
 Обрыв сети до сервиса в удалённом клиенте — `NetworkError(RemoteError)`.
-Полная таблица — в [справочнике](docs/reference.md).
+Полная таблица — в [справочнике](docs/library/errors.md#коды-ошибок-сервиса).
 
 <!-- test -->
 ```python
@@ -361,7 +361,7 @@ asyncio.run(main())
    ```
 
    По умолчанию сервис слушает `127.0.0.1:8000`. Настройки — переменные
-   `DIARYSDK_*` (таблица в [справочнике](docs/reference.md)). Состояние здоровья:
+   `DIARYSDK_*` (таблица в [справочнике](docs/library/server.md#переменные-окружения)). Состояние здоровья:
    `GET /healthz`. Схема API: `/openapi.json`.
 
 3. Клиенты передают ключ в `X-Api-Key`, токен ученика — в
@@ -388,9 +388,15 @@ docker run --rm -p 8000:8000 --read-only \
 
 ## Документация
 
-- [`docs/reference.md`](docs/reference.md) — справочник: методы, модели,
-  исключения, настройки сервера, HTTP-контракт;
-- [`docs/architecture.md`](docs/architecture.md) — устройство пакета;
+Полная документация — в [`docs/`](docs/index.md):
+
+- [учебник](docs/tutorial/index.md) — по шагам от первого запроса до своего
+  сервиса;
+- [справочник библиотеки](docs/library/index.md) — каждый класс, метод,
+  модель и исключение;
+- [HTTP API](docs/http.md) — маршруты и коды ошибок сервиса;
+- [глоссарий](docs/glossary.md) и [алфавитный указатель](docs/genindex.md);
+- [устройство пакета](docs/architecture.md) — для тех, кто правит DiarySDK;
 - [`CHANGELOG.md`](CHANGELOG.md), [`SECURITY.md`](SECURITY.md).
 
 ## Разработка
@@ -401,8 +407,9 @@ ruff check . && ruff format --check . && pytest
 python scripts/check_clean.py
 ```
 
-Примеры в этом README исполняются тестом `tests/test_docs.py` против подставных
-транспортов, без сети.
+Примеры в этом README и в `docs/` исполняются тестом `tests/test_docs.py` против
+подставных транспортов, без сети. Указатель `docs/genindex.md` собирается
+`python scripts/gen_doc_index.py`.
 
 ## Лицензия
 
