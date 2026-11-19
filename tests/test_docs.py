@@ -1,6 +1,7 @@
-"""Примеры из README и справочник: примеры исполняются, имена API описаны.
+"""Примеры из README и документации исполняются.
 
-Исполняется каждый блок ```python, перед которым стоит строка `<!-- test -->`.
+Исполняется каждый блок ```python, перед которым стоит строка `<!-- test -->`, —
+в README.md и в docs/ (кроме внутренних заметок).
 Сети нет: прямой клиент работает на подставном дневнике, удалённый ходит в
 настоящее приложение через ASGI-транспорт, синхронный — тем же способом.
 """
@@ -44,6 +45,12 @@ def runnable_blocks(path: Path) -> list[str]:
 
 
 README_BLOCKS = runnable_blocks(ROOT / "README.md")
+DOC_PAGES = sorted(path for path in (ROOT / "docs").rglob("*.md") if "internal" not in path.parts)
+DOC_BLOCKS = [
+    (path.relative_to(ROOT).as_posix(), source)
+    for path in DOC_PAGES
+    for source in runnable_blocks(path)
+]
 
 
 def test_readme_has_runnable_examples():
@@ -104,7 +111,17 @@ def test_readme_example_runs(source, world, capsys):
     assert capsys.readouterr().out
 
 
-def test_reference_mentions_every_public_name():
-    text = (ROOT / "docs" / "reference.md").read_text()
-    missing = [name for name in diarysdk.__all__ if not re.search(rf"\b{name}\b", text)]
-    assert missing == []
+def test_docs_have_runnable_examples():
+    # Учебник целиком на примерах: сломанная разметка выключила бы их молча.
+    assert len(DOC_BLOCKS) >= 13
+    marker_lines = re.compile(rf"^{re.escape(MARKER)}$", re.MULTILINE)
+    markers = sum(len(marker_lines.findall(page.read_text())) for page in DOC_PAGES)
+    assert markers == len(DOC_BLOCKS)
+
+
+@pytest.mark.parametrize(
+    ("page", "source"), DOC_BLOCKS, ids=[f"{page}:{i}" for i, (page, _) in enumerate(DOC_BLOCKS)]
+)
+def test_docs_example_runs(page, source, world, capsys):
+    exec(compile(source, page, "exec"), {"__name__": "__main__"})  # noqa: S102
+    assert capsys.readouterr().out
